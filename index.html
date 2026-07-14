@@ -2,24 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Snipepro</title>
+<title>Snipepro Official</title>
 <style>
   * {
     box-sizing: border-box;
   }
   html, body {
-    height: 100%;
+    min-height: 100%;
     margin: 0;
     font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
-    overflow: hidden;
   }
   body {
     background: #05050f;
     color: #dbdee1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;
+    min-height: 100vh;
+    padding: 100px 20px 60px;
   }
 
   /* Animated galaxy background */
@@ -63,6 +65,7 @@
     cursor: pointer;
     box-shadow: 0 0 25px rgba(88, 101, 242, 0.55), 0 8px 20px rgba(0,0,0,0.4);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin-bottom: 36px;
   }
   #open-modal-btn:hover {
     transform: translateY(-2px) scale(1.03);
@@ -72,7 +75,44 @@
     transform: translateY(0) scale(0.98);
   }
 
-  /* Overlay behind the modal */
+  /* Social links grid */
+  #social-links {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-width: 720px;
+  }
+  .social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #dbdee1;
+    text-decoration: none;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .social-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.2);
+  }
+  .social-btn .icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Overlay behind any modal */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -194,6 +234,124 @@
     padding: 20px;
     font-size: 14px;
   }
+
+  /* Admin gear button */
+  #admin-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #949ba4;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+  #admin-toggle-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    transform: rotate(30deg);
+  }
+
+  /* Admin panel */
+  .admin-box {
+    background: #1a1b1e;
+    width: 480px;
+    max-width: 90vw;
+    border-radius: 10px;
+    border: 1px solid rgba(88,101,242,0.25);
+    box-shadow: 0 0 40px rgba(88,101,242,0.15), 0 8px 24px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .admin-header {
+    background: linear-gradient(90deg, #201f3c, #17182e);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .admin-header h2 {
+    margin: 0;
+    font-size: 17px;
+    color: #fff;
+  }
+  .admin-close {
+    background: none;
+    border: none;
+    color: #949ba4;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .admin-close:hover {
+    color: #fff;
+  }
+  .admin-body {
+    padding: 22px 24px;
+  }
+  .admin-field {
+    margin-bottom: 16px;
+  }
+  .admin-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #8b8fa3;
+    margin-bottom: 8px;
+  }
+  .admin-field input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0f1015;
+    border: 1px solid #2b2c33;
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #dbdee1;
+    font-size: 14px;
+  }
+  .admin-field input:focus {
+    outline: none;
+    border-color: #5865f2;
+  }
+  .admin-save-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #6f5bff, #5865f2 60%, #33d0ff);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .admin-save-btn:hover {
+    filter: brightness(1.1);
+  }
+  .admin-note {
+    font-size: 12px;
+    color: #6b6f80;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  .admin-saved-msg {
+    display: none;
+    background: rgba(59, 165, 92, 0.15);
+    border: 1px solid rgba(59, 165, 92, 0.35);
+    color: #7fd99a;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+  }
 </style>
 </head>
 <body>
@@ -203,6 +361,19 @@
 
 <button id="open-modal-btn">✦ Send a professional request to Snipepro</button>
 
+<div id="social-links">
+  <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
+  <a class="social-btn" href="https://roblox.com/fr/games/75703894644091/City-Of-Fun" target="_blank" rel="noopener">🎮 Roblox</a>
+  <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
+  <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
+  <a class="social-btn" href="https://fortnite.gg/locker?id=3114783" target="_blank" rel="noopener">🎒 Fortnite Locker</a>
+  <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
+  <a class="social-btn" href="https://bento.me/matagameur" target="_blank" rel="noopener">🔗 Bento</a>
+</div>
+
+<button id="admin-toggle-btn" title="Admin">⚙</button>
+
+<!-- Contact modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -227,11 +398,68 @@
   </div>
 </div>
 
+<!-- Admin login modal -->
+<div class="modal-overlay" id="admin-login-overlay">
+  <div class="admin-box">
+    <div class="admin-header">
+      <h2>🔒 Admin Access</h2>
+      <button class="admin-close" id="admin-login-close">✕</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-field">
+        <label for="admin-password">Password</label>
+        <input type="password" id="admin-password" placeholder="••••">
+      </div>
+      <div class="error-msg" id="admin-error">Incorrect password.</div>
+      <button class="admin-save-btn" id="admin-login-btn" style="margin-top:14px;">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin edit panel -->
+<div class="modal-overlay" id="admin-panel-overlay">
+  <div class="admin-box">
+    <div class="admin-header">
+      <h2>⚙ Site Editor</h2>
+      <button class="admin-close" id="admin-panel-close">✕</button>
+    </div>
+    <div class="admin-body">
+      <div class="admin-saved-msg" id="admin-saved-msg">✅ Changes applied to this page.</div>
+
+      <div class="admin-field">
+        <label for="edit-brand">Brand text (top right)</label>
+        <input type="text" id="edit-brand" value="SnipeCorp">
+      </div>
+      <div class="admin-field">
+        <label for="edit-cta">Main button text</label>
+        <input type="text" id="edit-cta" value="✦ Send a professional request to Snipepro">
+      </div>
+      <div class="admin-field">
+        <label for="edit-modal-title">Contact modal title</label>
+        <input type="text" id="edit-modal-title" value="Contact Snipepro">
+      </div>
+      <div class="admin-field">
+        <label for="edit-webhook">Discord webhook URL</label>
+        <input type="text" id="edit-webhook" placeholder="https://discord.com/api/webhooks/...">
+      </div>
+
+      <button class="admin-save-btn" id="admin-apply-btn">Apply changes</button>
+      <p class="admin-note">
+        Changes apply instantly to the page you're viewing, but are not saved permanently —
+        this is a static site with no server/database. Reloading the page resets everything
+        to the values in the HTML file. To make changes permanent, edit the file directly and
+        push it to your GitHub repo.
+      </p>
+    </div>
+  </div>
+</div>
+
 <script>
   // ⚠️ Replace this with your own Discord webhook URL
-  // (Channel Settings > Integrations > Webhooks > New Webhook > Copy URL)
-  const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
+  const WEBHOOK_URL_DEFAULT = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
+  let currentWebhookUrl = WEBHOOK_URL_DEFAULT;
 
+  // ---- Contact modal ----
   const openBtn = document.getElementById('open-modal-btn');
   const overlay = document.getElementById('modal-overlay');
   const cancelBtn = document.getElementById('cancel-btn');
@@ -246,20 +474,14 @@
     overlay.classList.add('active');
     errorMsg.style.display = 'none';
   }
-
   function closeModal() {
     overlay.classList.remove('active');
     usernameInput.value = '';
     messageInput.value = '';
   }
-
   openBtn.addEventListener('click', openModal);
   cancelBtn.addEventListener('click', closeModal);
-
-  // Close modal when clicking outside the box
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) closeModal();
-  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 
   submitBtn.addEventListener('click', async () => {
     const username = usernameInput.value.trim();
@@ -275,7 +497,7 @@
     submitBtn.textContent = "Sending...";
 
     try {
-      const response = await fetch(WEBHOOK_URL, {
+      const response = await fetch(currentWebhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -287,7 +509,6 @@
         throw new Error("Failed to send (" + response.status + ")");
       }
 
-      // Show a confirmation message inside the modal
       modalBody.innerHTML = '<div class="status-msg">✅ Message sent successfully!</div>';
       modalFooter.style.display = 'none';
       setTimeout(closeModal, 1500);
@@ -298,6 +519,68 @@
       submitBtn.disabled = false;
       submitBtn.textContent = "Send";
     }
+  });
+
+  // ---- Admin login + panel ----
+  const ADMIN_PASSWORD = "1238";
+
+  const adminToggleBtn = document.getElementById('admin-toggle-btn');
+  const adminLoginOverlay = document.getElementById('admin-login-overlay');
+  const adminLoginClose = document.getElementById('admin-login-close');
+  const adminPasswordInput = document.getElementById('admin-password');
+  const adminLoginBtn = document.getElementById('admin-login-btn');
+  const adminError = document.getElementById('admin-error');
+
+  const adminPanelOverlay = document.getElementById('admin-panel-overlay');
+  const adminPanelClose = document.getElementById('admin-panel-close');
+  const adminApplyBtn = document.getElementById('admin-apply-btn');
+  const adminSavedMsg = document.getElementById('admin-saved-msg');
+
+  adminToggleBtn.addEventListener('click', () => {
+    adminPasswordInput.value = '';
+    adminError.style.display = 'none';
+    adminLoginOverlay.classList.add('active');
+  });
+  adminLoginClose.addEventListener('click', () => adminLoginOverlay.classList.remove('active'));
+  adminLoginOverlay.addEventListener('click', (e) => {
+    if (e.target === adminLoginOverlay) adminLoginOverlay.classList.remove('active');
+  });
+
+  adminLoginBtn.addEventListener('click', () => {
+    if (adminPasswordInput.value === ADMIN_PASSWORD) {
+      adminLoginOverlay.classList.remove('active');
+      // Pre-fill the editor with current live values
+      document.getElementById('edit-brand').value = document.getElementById('brand-tag').textContent;
+      document.getElementById('edit-cta').value = openBtn.textContent;
+      document.getElementById('edit-modal-title').value = document.querySelector('.modal-header h2').textContent;
+      document.getElementById('edit-webhook').value = currentWebhookUrl;
+      adminSavedMsg.style.display = 'none';
+      adminPanelOverlay.classList.add('active');
+    } else {
+      adminError.style.display = 'block';
+    }
+  });
+  adminPasswordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') adminLoginBtn.click();
+  });
+
+  adminPanelClose.addEventListener('click', () => adminPanelOverlay.classList.remove('active'));
+  adminPanelOverlay.addEventListener('click', (e) => {
+    if (e.target === adminPanelOverlay) adminPanelOverlay.classList.remove('active');
+  });
+
+  adminApplyBtn.addEventListener('click', () => {
+    const newBrand = document.getElementById('edit-brand').value.trim();
+    const newCta = document.getElementById('edit-cta').value.trim();
+    const newModalTitle = document.getElementById('edit-modal-title').value.trim();
+    const newWebhook = document.getElementById('edit-webhook').value.trim();
+
+    if (newBrand) document.getElementById('brand-tag').textContent = newBrand;
+    if (newCta) openBtn.textContent = newCta;
+    if (newModalTitle) document.querySelector('.modal-header h2').textContent = newModalTitle;
+    if (newWebhook) currentWebhookUrl = newWebhook;
+
+    adminSavedMsg.style.display = 'block';
   });
 
   // ---- Animated galaxy background ----
@@ -337,7 +620,6 @@
   function drawGalaxy(time) {
     ctx.clearRect(0, 0, width, height);
 
-    // subtle nebula glow blobs
     const glow1 = ctx.createRadialGradient(width * 0.25, height * 0.3, 0, width * 0.25, height * 0.3, width * 0.5);
     glow1.addColorStop(0, 'rgba(111, 91, 255, 0.10)');
     glow1.addColorStop(1, 'rgba(111, 91, 255, 0)');
