@@ -1,42 +1,85 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SnipeCorp Official / Snipepro</title>
+<title>Snipepro - Contact</title>
 <style>
-  body {
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
     font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
-    background: #313338;
+    overflow: hidden;
+  }
+  body {
+    background: #05050f;
     color: #dbdee1;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    margin: 0;
+    position: relative;
   }
 
-  /* Bouton qui ouvre le modal */
+  /* Animated galaxy background */
+  #galaxy-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    background: radial-gradient(ellipse at center, #10102a 0%, #05050f 70%);
+  }
+
+  /* SnipeCorp brand text, top right */
+  #brand-tag {
+    position: fixed;
+    top: 20px;
+    right: 28px;
+    z-index: 2;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+    user-select: none;
+  }
+
+  /* Main call-to-action button */
   #open-modal-btn {
-    background: #5865f2;
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, #6f5bff, #5865f2 40%, #33d0ff);
     color: white;
     border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
+    padding: 18px 34px;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
     cursor: pointer;
+    box-shadow: 0 0 25px rgba(88, 101, 242, 0.55), 0 8px 20px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   #open-modal-btn:hover {
-    background: #4752c4;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 0 40px rgba(88, 101, 242, 0.8), 0 10px 24px rgba(0,0,0,0.5);
+  }
+  #open-modal-btn:active {
+    transform: translateY(0) scale(0.98);
   }
 
-  /* Overlay sombre derrière le modal */
+  /* Overlay behind the modal */
   .modal-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(2px);
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -45,7 +88,7 @@
     display: flex;
   }
 
-  /* Boîte du modal, style Discord */
+  /* Discord-style modal box */
   .modal-box {
     background: #313338;
     width: 440px;
@@ -63,6 +106,11 @@
     margin: 0;
     color: #fff;
     font-size: 20px;
+  }
+  .modal-header p {
+    margin: 6px 0 0;
+    color: #949ba4;
+    font-size: 13px;
   }
   .modal-body {
     padding: 20px 24px;
@@ -150,21 +198,25 @@
 </head>
 <body>
 
-<button id="open-modal-btn">Send A Message In Discord Server Of Snipepro</button>
+<canvas id="galaxy-canvas"></canvas>
+<div id="brand-tag">SnipeCorp</div>
+
+<button id="open-modal-btn">✦ Send a professional request to Snipepro</button>
 
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <h2>Send A Message</h2>
+      <h2>Contact Snipepro</h2>
+      <p>Submit your professional request below</p>
     </div>
     <div class="modal-body" id="modal-body">
       <div class="form-group">
-        <label for="username">Pseudo</label>
-        <input type="text" id="username" maxlength="32" placeholder="Ton pseudo">
+        <label for="username">Username</label>
+        <input type="text" id="username" maxlength="32" placeholder="Your username">
       </div>
       <div class="form-group">
         <label for="message">Message</label>
-        <textarea id="message" maxlength="1000" placeholder="Écris ton message..."></textarea>
+        <textarea id="message" maxlength="1000" placeholder="Describe your request..."></textarea>
       </div>
       <div class="error-msg" id="error-msg"></div>
     </div>
@@ -176,8 +228,8 @@
 </div>
 
 <script>
-  // ⚠️ Remplace cette URL par ton propre webhook Discord
-  // (Paramètres du salon > Intégrations > Webhooks > Nouveau Webhook > Copier l'URL)
+  // ⚠️ Replace this with your own Discord webhook URL
+  // (Channel Settings > Integrations > Webhooks > New Webhook > Copy URL)
   const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
 
   const openBtn = document.getElementById('open-modal-btn');
@@ -204,7 +256,7 @@
   openBtn.addEventListener('click', openModal);
   cancelBtn.addEventListener('click', closeModal);
 
-  // Ferme le modal si on clique en dehors de la boîte
+  // Close modal when clicking outside the box
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) closeModal();
   });
@@ -214,39 +266,116 @@
     const message = messageInput.value.trim();
 
     if (!username || !message) {
-      errorMsg.textContent = "Merci de remplir le pseudo et le message.";
+      errorMsg.textContent = "Please fill in both the username and the message.";
       errorMsg.style.display = 'block';
       return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Envoi...";
+    submitBtn.textContent = "Sending...";
 
     try {
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: `**${username}** Has Send : ${message}`
+          content: `**${username}** sent a message: ${message}`
         })
       });
 
       if (!response.ok) {
-        throw new Error("Error (" + response.status + ")");
+        throw new Error("Failed to send (" + response.status + ")");
       }
 
-      // Affiche un message de confirmation dans le modal
-      modalBody.innerHTML = '<div class="status-msg">✅ Message Send Tkx For Using Our Services</div>';
+      // Show a confirmation message inside the modal
+      modalBody.innerHTML = '<div class="status-msg">✅ Message sent successfully!</div>';
       modalFooter.style.display = 'none';
       setTimeout(closeModal, 1500);
 
     } catch (err) {
-      errorMsg.textContent = "Error type url";
+      errorMsg.textContent = "Failed to send. Please check the webhook URL.";
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
-      submitBtn.textContent = "Envoyer";
+      submitBtn.textContent = "Send";
     }
   });
+
+  // ---- Animated galaxy background ----
+  const canvas = document.getElementById('galaxy-canvas');
+  const ctx = canvas.getContext('2d');
+  let width, height, stars;
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+
+  function createStars(count) {
+    const arr = [];
+    for (let i = 0; i < count; i++) {
+      arr.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.4 + 0.2,
+        baseAlpha: Math.random() * 0.6 + 0.3,
+        twinkleSpeed: Math.random() * 0.02 + 0.005,
+        phase: Math.random() * Math.PI * 2,
+        driftX: (Math.random() - 0.5) * 0.05,
+        driftY: (Math.random() - 0.5) * 0.05,
+        hue: Math.random() < 0.15 ? (Math.random() < 0.5 ? 260 : 190) : 0
+      });
+    }
+    return arr;
+  }
+
+  function initGalaxy() {
+    resize();
+    const density = Math.floor((width * height) / 2200);
+    stars = createStars(density);
+  }
+
+  function drawGalaxy(time) {
+    ctx.clearRect(0, 0, width, height);
+
+    // subtle nebula glow blobs
+    const glow1 = ctx.createRadialGradient(width * 0.25, height * 0.3, 0, width * 0.25, height * 0.3, width * 0.5);
+    glow1.addColorStop(0, 'rgba(111, 91, 255, 0.10)');
+    glow1.addColorStop(1, 'rgba(111, 91, 255, 0)');
+    ctx.fillStyle = glow1;
+    ctx.fillRect(0, 0, width, height);
+
+    const glow2 = ctx.createRadialGradient(width * 0.75, height * 0.7, 0, width * 0.75, height * 0.7, width * 0.5);
+    glow2.addColorStop(0, 'rgba(51, 208, 255, 0.08)');
+    glow2.addColorStop(1, 'rgba(51, 208, 255, 0)');
+    ctx.fillStyle = glow2;
+    ctx.fillRect(0, 0, width, height);
+
+    for (const s of stars) {
+      s.x += s.driftX;
+      s.y += s.driftY;
+      if (s.x < 0) s.x = width;
+      if (s.x > width) s.x = 0;
+      if (s.y < 0) s.y = height;
+      if (s.y > height) s.y = 0;
+
+      const twinkle = Math.sin(time * s.twinkleSpeed + s.phase) * 0.35 + 0.65;
+      const alpha = s.baseAlpha * twinkle;
+      const color = s.hue === 260 ? `rgba(180,160,255,${alpha})`
+                  : s.hue === 190 ? `rgba(160,230,255,${alpha})`
+                  : `rgba(255,255,255,${alpha})`;
+
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    requestAnimationFrame(drawGalaxy);
+  }
+
+  window.addEventListener('resize', initGalaxy);
+  initGalaxy();
+  requestAnimationFrame(drawGalaxy);
 </script>
 
 </body>
