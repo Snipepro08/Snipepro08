@@ -150,12 +150,12 @@
 </head>
 <body>
 
-<button id="open-modal-btn">Envoyer un message</button>
+<button id="open-modal-btn">Send A Message In Discord Server Of Snipepro</button>
 
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <h2>Envoyer un message</h2>
+      <h2>Send A Message</h2>
     </div>
     <div class="modal-body" id="modal-body">
       <div class="form-group">
@@ -169,8 +169,8 @@
       <div class="error-msg" id="error-msg"></div>
     </div>
     <div class="modal-footer" id="modal-footer">
-      <button class="btn-cancel" id="cancel-btn">Annuler</button>
-      <button class="btn-submit" id="submit-btn">Envoyer</button>
+      <button class="btn-cancel" id="cancel-btn">Cancel</button>
+      <button class="btn-submit" id="submit-btn">Send</button>
     </div>
   </div>
 </div>
@@ -227,21 +227,21 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: `**${username}** a envoyé : ${message}`
+          content: `**${username}** Has Send : ${message}`
         })
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi (" + response.status + ")");
+        throw new Error("Error (" + response.status + ")");
       }
 
       // Affiche un message de confirmation dans le modal
-      modalBody.innerHTML = '<div class="status-msg">✅ Message envoyé avec succès !</div>';
+      modalBody.innerHTML = '<div class="status-msg">✅ Message Send Tkx For Using Our Services</div>';
       modalFooter.style.display = 'none';
       setTimeout(closeModal, 1500);
 
     } catch (err) {
-      errorMsg.textContent = "Échec de l'envoi. Vérifie l'URL du webhook.";
+      errorMsg.textContent = "Error type:url";
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
       submitBtn.textContent = "Envoyer";
