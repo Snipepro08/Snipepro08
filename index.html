@@ -24,7 +24,6 @@
     padding: 130px 20px 60px;
   }
 
-  /* Animated warp-zoom space background */
   #galaxy-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -33,7 +32,6 @@
     background: radial-gradient(ellipse at center, #10102a 0%, #05050f 70%);
   }
 
-  /* SnipeCorp brand tag, top left */
   #brand-tag {
     position: fixed;
     top: 20px;
@@ -50,7 +48,6 @@
     user-select: none;
   }
 
-  /* Language switcher, below the brand tag */
   #lang-switch {
     position: fixed;
     top: 62px;
@@ -83,7 +80,6 @@
     color: #dbdee1;
   }
 
-  /* Version counter, bottom right */
   #version-tag {
     position: fixed;
     bottom: 14px;
@@ -96,7 +92,6 @@
     user-select: none;
   }
 
-  /* Category grid */
   #categories {
     position: relative;
     z-index: 2;
@@ -128,7 +123,6 @@
     gap: 10px;
   }
 
-  /* Focus effect: hovered category stays, all others fade out */
   body.cta-focus .category {
     opacity: 0;
     transform: translateY(10px);
@@ -163,7 +157,6 @@
     border-color: rgba(255,255,255,0.25);
   }
 
-  /* Mailbox category gets the strongest visual treatment */
   #cat-mailbox .cat-btn {
     background: linear-gradient(135deg, #6f5bff, #5865f2 40%, #33d0ff);
     border: none;
@@ -213,7 +206,16 @@
     border-top: 1px solid rgba(255,255,255,0.06);
   }
 
-  /* Generic overlay */
+  #faq-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .faq-btn {
+    text-align: left;
+    font-size: 13px;
+  }
+
   .modal-overlay {
     display: none;
     position: fixed;
@@ -229,7 +231,6 @@
     display: flex;
   }
 
-  /* Discord-style modal box */
   .modal-box {
     background: #313338;
     width: 440px;
@@ -281,7 +282,7 @@
     resize: vertical;
   }
   .form-group textarea {
-    min-height: 100px;
+    min-height: 90px;
   }
   .form-group input:focus,
   .form-group textarea:focus {
@@ -291,7 +292,7 @@
   .form-note {
     font-size: 12px;
     color: #949ba4;
-    margin: -8px 0 16px;
+    margin: 0 0 16px;
     line-height: 1.5;
   }
   .modal-footer {
@@ -341,8 +342,13 @@
     padding: 20px;
     font-size: 14px;
   }
+  .faq-answer {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #dbdee1;
+    white-space: pre-line;
+  }
 
-  /* Discord widget popup */
   .widget-modal-box {
     background: transparent;
   }
@@ -365,7 +371,6 @@
     background: rgba(255,255,255,0.2);
   }
 
-  /* Discord choice popup */
   .choice-box {
     background: #313338;
     width: 380px;
@@ -429,7 +434,7 @@
   <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
 </div>
 
-<div id="version-tag">v1.0.0</div>
+<div id="version-tag">v1.1.0</div>
 
 <div id="categories">
 
@@ -438,10 +443,7 @@
     <div class="category-buttons">
       <div id="mailbox-wrap">
         <button class="cat-btn" id="mailbox-btn">📬 <span data-i18n="mailboxLabel">Mailbox</span> ▾</button>
-        <div id="mailbox-menu">
-          <button class="menu-item" id="mailbox-collab" data-i18n="mailboxCollab">Request a collab with Snipepro</button>
-          <button class="menu-item" id="mailbox-webhook" data-i18n="mailboxWebhook">Propose your Discord webhook</button>
-        </div>
+        <div id="mailbox-menu"></div>
       </div>
     </div>
   </div>
@@ -471,62 +473,39 @@
     </div>
   </div>
 
-  <div class="category" id="cat-other">
-    <div class="category-title" data-i18n="catOther">Other</div>
-    <div class="category-buttons">
-      <a class="social-btn" href="https://bento.me/matagameur" target="_blank" rel="noopener">🔗 Bento</a>
-    </div>
+  <div class="category" id="cat-faq">
+    <div class="category-title" data-i18n="catFaq">FAQ</div>
+    <div class="category-buttons" id="faq-wrap"></div>
   </div>
 
 </div>
 
-<!-- Collab request modal -->
-<div class="modal-overlay" id="collab-overlay">
+<!-- Generic mailbox modal (populated dynamically per option) -->
+<div class="modal-overlay" id="mailbox-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <h2 data-i18n="collabModalTitle">Collab Request</h2>
-      <p data-i18n="modalSubtitle">Submit your professional request below</p>
+      <h2 id="mailbox-modal-title">Mailbox</h2>
+      <p id="mailbox-modal-subtitle"></p>
     </div>
-    <div class="modal-body" id="collab-modal-body">
-      <div class="form-group">
-        <label for="collab-username" data-i18n="labelUsername">Username</label>
-        <input type="text" id="collab-username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="Your username">
-      </div>
-      <div class="form-group">
-        <label for="collab-message" data-i18n="labelMessage">Message</label>
-        <textarea id="collab-message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="Describe your request..."></textarea>
-      </div>
-      <div class="error-msg" id="collab-error-msg"></div>
-    </div>
-    <div class="modal-footer" id="collab-modal-footer">
-      <button class="btn-cancel" id="collab-cancel-btn" data-i18n="btnCancel">Cancel</button>
-      <button class="btn-submit" id="collab-submit-btn" data-i18n="btnSend">Send</button>
+    <div class="modal-body" id="mailbox-modal-body"></div>
+    <div class="modal-footer" id="mailbox-modal-footer">
+      <button class="btn-cancel" id="mailbox-cancel-btn" data-i18n="btnCancel">Cancel</button>
+      <button class="btn-submit" id="mailbox-submit-btn" data-i18n="btnSend">Send</button>
     </div>
   </div>
 </div>
 
-<!-- Webhook proposal modal -->
-<div class="modal-overlay" id="webhook-overlay">
+<!-- Generic FAQ answer modal -->
+<div class="modal-overlay" id="faq-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <h2 data-i18n="webhookModalTitle">Propose your webhook</h2>
-      <p data-i18n="webhookModalSubtitle">Make sure your Discord DMs are open</p>
+      <h2 id="faq-modal-title">FAQ</h2>
     </div>
-    <div class="modal-body" id="webhook-modal-body">
-      <div class="form-group">
-        <label for="webhook-username" data-i18n="labelDiscordUsername">Discord username</label>
-        <input type="text" id="webhook-username" maxlength="40" data-i18n-placeholder="placeholderDiscordUsername" placeholder="yourname or @yourname">
-      </div>
-      <div class="form-group">
-        <label for="webhook-url" data-i18n="labelWebhookUrl">Webhook URL</label>
-        <input type="text" id="webhook-url" maxlength="200" data-i18n-placeholder="placeholderWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
-      </div>
-      <p class="form-note" data-i18n="webhookNote">Reminder: your Discord DMs must be open so we can reach you.</p>
-      <div class="error-msg" id="webhook-error-msg"></div>
+    <div class="modal-body">
+      <p class="faq-answer" id="faq-modal-answer"></p>
     </div>
-    <div class="modal-footer" id="webhook-modal-footer">
-      <button class="btn-cancel" id="webhook-cancel-btn" data-i18n="btnCancel">Cancel</button>
-      <button class="btn-submit" id="webhook-submit-btn" data-i18n="btnSend">Send</button>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="faq-close-btn" data-i18n="btnClose">Close</button>
     </div>
   </div>
 </div>
@@ -550,13 +529,12 @@
 </div>
 
 <script>
-  // ⚠️ Replace this with your own Discord webhook URL — used for BOTH mailbox options
+  // ⚠️ Replace this with your own Discord webhook URL — used for EVERY mailbox option
   const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
 
-  const SITE_VERSION = "1.0.0";
+  const SITE_VERSION = "1.1.0";
 
   // Discord servers used by the "random serv" button.
-  // Rename the "name" fields to your actual server names.
   const DISCORD_SERVERS = [
     { name: "Server 1", id: "1421178923034869975" },
     { name: "Server 2", id: "1389895023570714727" },
@@ -573,35 +551,68 @@
       catDiscord: "Discord",
       catSocial: "Social networks",
       catFortnite: "Fortnite",
-      catOther: "Other",
+      catFaq: "FAQ",
       mailboxLabel: "Mailbox",
-      mailboxCollab: "Request a collab with Snipepro",
-      mailboxWebhook: "Propose your Discord webhook",
       serversLabel: "Get a random serv",
-      collabModalTitle: "Collab Request",
-      modalSubtitle: "Submit your professional request below",
-      labelUsername: "Username",
-      placeholderUsername: "Your username",
-      labelMessage: "Message",
-      placeholderMessage: "Describe your request...",
       btnCancel: "Cancel",
       btnSend: "Send",
+      btnClose: "Close",
       btnSending: "Sending...",
-      errFill: "Please fill in both the username and the message.",
+      errFillAll: "Please fill in every field.",
       errSend: "Failed to send. Please check the webhook URL.",
-      successMsg: "✅ Message sent successfully!",
-      webhookModalTitle: "Propose your webhook",
-      webhookModalSubtitle: "Make sure your Discord DMs are open",
+      successMsg: "✅ Sent successfully!",
+      dmNote: "Reminder: your Discord DMs must be open so the SnipeCorp team can reach you.",
       labelDiscordUsername: "Discord username",
       placeholderDiscordUsername: "yourname or @yourname",
+
+      mailboxCollab: "Request a collab with Snipepro",
+      collabModalTitle: "Collab Request",
+      collabModalSubtitle: "Submit your professional request below",
+      labelMessage: "Message",
+      placeholderMessage: "Describe your request...",
+
+      mailboxWebhook: "Propose your Discord webhook",
+      webhookModalTitle: "Propose your webhook",
+      webhookModalSubtitle: "Submit your server's webhook below",
       labelWebhookUrl: "Webhook URL",
       placeholderWebhookUrl: "https://discord.com/api/webhooks/...",
-      webhookNote: "Reminder: your Discord DMs must be open so we can reach you.",
-      errFillWebhook: "Please fill in both fields.",
+
+      mailboxRoblox: "Apply to add your Roblox game to City Of Fun",
+      robloxModalTitle: "Roblox Game Submission",
+      robloxModalSubtitle: "Apply to get your game added to City Of Fun",
+      labelGameLink: "Roblox game link",
+      placeholderGameLink: "https://www.roblox.com/games/...",
+      labelGameDescription: "Describe your game",
+      placeholderGameDescription: "What makes it a good fit?",
+
+      mailboxServerAdd: "Add your Discord server to the random pool",
+      serverAddModalTitle: "Add Your Server",
+      serverAddModalSubtitle: "Submit your server for the random server pool",
+      labelServerInfo: "Server ID or invite link",
+      placeholderServerInfo: "123456789012345678 or discord.gg/...",
+      serverAddNote: "Make sure your server's widget is enabled beforehand. Submissions are reviewed by staff before being published.",
+
+      mailboxReport: "Report a user",
+      reportModalTitle: "Report a User",
+      reportModalSubtitle: "For example: identity theft / impersonation",
+      labelReportedUser: "User being reported",
+      placeholderReportedUser: "Username or user ID",
+      labelReportReason: "Reason / details",
+      placeholderReportReason: "Explain the situation...",
+
       discordChoiceTitle: "Discord",
       discordViewProfile: "View Snipepro's profile",
       discordAddBot: "Add the official Snipepro bot",
-      widgetClose: "Close"
+      widgetClose: "Close",
+
+      faqWebhookQ: "How to create a webhook and copy its URL?",
+      faqWebhookA: "1. Open your Discord server settings.\n2. Go to Integrations → Webhooks.\n3. Click \"New Webhook\" and give it a name.\n4. Click \"Copy Webhook URL\".",
+      faqDmPhoneQ: "How to open your DMs on phone?",
+      faqDmPhoneA: "1. Open the Discord app.\n2. Tap your profile picture (bottom right) → Settings.\n3. Go to Privacy & Safety.\n4. Enable \"Allow direct messages from server members\".",
+      faqDmPcQ: "How to open your DMs on computer?",
+      faqDmPcA: "1. Open Discord.\n2. Click the gear icon near your username (User Settings).\n3. Go to Privacy & Safety.\n4. Enable \"Allow direct messages from server members\".",
+      faqDataQ: "Where does the info I give the mailbox go?",
+      faqDataA: "It's stored in SnipeCorp's database."
     },
     fr: {
       pageTitle: "Snipepro Officiel",
@@ -609,39 +620,167 @@
       catDiscord: "Discord",
       catSocial: "Réseaux sociaux",
       catFortnite: "Fortnite",
-      catOther: "Autre",
+      catFaq: "FAQ",
       mailboxLabel: "Messagerie",
-      mailboxCollab: "Demander une collab avec Snipepro",
-      mailboxWebhook: "Proposer son webhook Discord",
       serversLabel: "Serv Discord au hasard",
-      collabModalTitle: "Demande de collab",
-      modalSubtitle: "Soumets ta demande professionnelle ci-dessous",
-      labelUsername: "Pseudo",
-      placeholderUsername: "Ton pseudo",
-      labelMessage: "Message",
-      placeholderMessage: "Décris ta demande...",
       btnCancel: "Annuler",
       btnSend: "Envoyer",
+      btnClose: "Fermer",
       btnSending: "Envoi...",
-      errFill: "Merci de remplir le pseudo et le message.",
+      errFillAll: "Merci de remplir tous les champs.",
       errSend: "Échec de l'envoi. Vérifie l'URL du webhook.",
-      successMsg: "✅ Message envoyé avec succès !",
-      webhookModalTitle: "Proposer ton webhook",
-      webhookModalSubtitle: "Assure-toi que tes MP Discord sont ouverts",
+      successMsg: "✅ Envoyé avec succès !",
+      dmNote: "Rappel : tes MP Discord doivent être ouverts pour que l'équipe SnipeCorp puisse te contacter.",
       labelDiscordUsername: "Nom d'utilisateur Discord",
       placeholderDiscordUsername: "tonpseudo ou @tonpseudo",
+
+      mailboxCollab: "Demander une collab avec Snipepro",
+      collabModalTitle: "Demande de collab",
+      collabModalSubtitle: "Soumets ta demande professionnelle ci-dessous",
+      labelMessage: "Message",
+      placeholderMessage: "Décris ta demande...",
+
+      mailboxWebhook: "Proposer son webhook Discord",
+      webhookModalTitle: "Proposer ton webhook",
+      webhookModalSubtitle: "Soumets le webhook de ton serveur ci-dessous",
       labelWebhookUrl: "URL du webhook",
       placeholderWebhookUrl: "https://discord.com/api/webhooks/...",
-      webhookNote: "Rappel : tes MP Discord doivent être ouverts pour qu'on puisse te contacter.",
-      errFillWebhook: "Merci de remplir les deux champs.",
+
+      mailboxRoblox: "Postuler pour ajouter son jeu Roblox à City Of Fun",
+      robloxModalTitle: "Candidature jeu Roblox",
+      robloxModalSubtitle: "Postule pour ajouter ton jeu à City Of Fun",
+      labelGameLink: "Lien du jeu Roblox",
+      placeholderGameLink: "https://www.roblox.com/games/...",
+      labelGameDescription: "Décris ton jeu",
+      placeholderGameDescription: "Qu'est-ce qui en fait un bon choix ?",
+
+      mailboxServerAdd: "Ajouter son serveur Discord aux serveurs aléatoires",
+      serverAddModalTitle: "Ajouter ton serveur",
+      serverAddModalSubtitle: "Soumets ton serveur pour le tirage aléatoire",
+      labelServerInfo: "ID du serveur ou lien d'invitation",
+      placeholderServerInfo: "123456789012345678 ou discord.gg/...",
+      serverAddNote: "Assure-toi d'avoir activé le widget de ton serveur au préalable. Les soumissions sont examinées par le staff avant publication.",
+
+      mailboxReport: "Signaler un utilisateur",
+      reportModalTitle: "Signaler un utilisateur",
+      reportModalSubtitle: "Par exemple : usurpation d'identité",
+      labelReportedUser: "Utilisateur signalé",
+      placeholderReportedUser: "Pseudo ou ID utilisateur",
+      labelReportReason: "Raison / détails",
+      placeholderReportReason: "Explique la situation...",
+
       discordChoiceTitle: "Discord",
       discordViewProfile: "Voir le profil de Snipepro",
       discordAddBot: "Ajouter le bot officiel de Snipepro",
-      widgetClose: "Fermer"
+      widgetClose: "Fermer",
+
+      faqWebhookQ: "Comment créer un webhook et copier son URL ?",
+      faqWebhookA: "1. Ouvre les paramètres de ton serveur Discord.\n2. Va dans Intégrations → Webhooks.\n3. Clique sur \"Nouveau Webhook\" et donne-lui un nom.\n4. Clique sur \"Copier l'URL du Webhook\".",
+      faqDmPhoneQ: "Comment ouvrir ses MP sur téléphone ?",
+      faqDmPhoneA: "1. Ouvre l'application Discord.\n2. Appuie sur ta photo de profil (en bas à droite) → Paramètres.\n3. Va dans Confidentialité et sécurité.\n4. Active \"Autoriser les messages privés des membres du serveur\".",
+      faqDmPcQ: "Comment ouvrir ses MP sur ordinateur ?",
+      faqDmPcA: "1. Ouvre Discord.\n2. Clique sur l'icône d'engrenage à côté de ton pseudo (Paramètres utilisateur).\n3. Va dans Confidentialité et sécurité.\n4. Active \"Autoriser les messages privés des membres du serveur\".",
+      faqDataQ: "Où vont les informations que je donne à la mailbox ?",
+      faqDataA: "Elles sont stockées dans la base de données de la SnipeCorp."
     }
   };
 
-  let currentLang = "en"; // default language
+  let currentLang = "en";
+
+  // ---- Mailbox options (source of truth) ----
+  const MAILBOX_OPTIONS = [
+    {
+      id: 'collab',
+      menuKey: 'mailboxCollab',
+      titleKey: 'collabModalTitle',
+      subtitleKey: 'collabModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'message', labelKey: 'labelMessage', placeholderKey: 'placeholderMessage', type: 'textarea' }
+      ],
+      buildContent: (v) => `📩 **${v.discordUsername}** requested a collab:\n${v.message}`
+    },
+    {
+      id: 'webhook',
+      menuKey: 'mailboxWebhook',
+      titleKey: 'webhookModalTitle',
+      subtitleKey: 'webhookModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'webhookUrl', labelKey: 'labelWebhookUrl', placeholderKey: 'placeholderWebhookUrl', type: 'text' }
+      ],
+      buildContent: (v) => `🔗 **${v.discordUsername}** proposed their webhook: ${v.webhookUrl}`
+    },
+    {
+      id: 'roblox',
+      menuKey: 'mailboxRoblox',
+      titleKey: 'robloxModalTitle',
+      subtitleKey: 'robloxModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'gameLink', labelKey: 'labelGameLink', placeholderKey: 'placeholderGameLink', type: 'text' },
+        { id: 'message', labelKey: 'labelGameDescription', placeholderKey: 'placeholderGameDescription', type: 'textarea' }
+      ],
+      buildContent: (v) => `🎮 **${v.discordUsername}** submitted a Roblox game for City Of Fun\nLink: ${v.gameLink}\n${v.message}`
+    },
+    {
+      id: 'serverAdd',
+      menuKey: 'mailboxServerAdd',
+      titleKey: 'serverAddModalTitle',
+      subtitleKey: 'serverAddModalSubtitle',
+      noteKey: 'serverAddNote',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'serverInfo', labelKey: 'labelServerInfo', placeholderKey: 'placeholderServerInfo', type: 'text' }
+      ],
+      buildContent: (v) => `➕ **${v.discordUsername}** submitted a server for the random pool: ${v.serverInfo}\n(Pending staff review)`
+    },
+    {
+      id: 'report',
+      menuKey: 'mailboxReport',
+      titleKey: 'reportModalTitle',
+      subtitleKey: 'reportModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'reportedUser', labelKey: 'labelReportedUser', placeholderKey: 'placeholderReportedUser', type: 'text' },
+        { id: 'reason', labelKey: 'labelReportReason', placeholderKey: 'placeholderReportReason', type: 'textarea' }
+      ],
+      buildContent: (v) => `🚨 **${v.discordUsername}** reported a user: ${v.reportedUser}\nReason: ${v.reason}`
+    }
+  ];
+
+  const FAQ_ITEMS = [
+    { id: 'webhook', qKey: 'faqWebhookQ', aKey: 'faqWebhookA' },
+    { id: 'dmPhone', qKey: 'faqDmPhoneQ', aKey: 'faqDmPhoneA' },
+    { id: 'dmPc', qKey: 'faqDmPcQ', aKey: 'faqDmPcA' },
+    { id: 'data', qKey: 'faqDataQ', aKey: 'faqDataA' }
+  ];
+
+  function renderMailboxMenu() {
+    const t = translations[currentLang];
+    const menu = document.getElementById('mailbox-menu');
+    menu.innerHTML = '';
+    MAILBOX_OPTIONS.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'menu-item';
+      btn.textContent = t[opt.menuKey];
+      btn.addEventListener('click', () => openMailboxModal(opt.id));
+      menu.appendChild(btn);
+    });
+  }
+
+  function renderFaqButtons() {
+    const t = translations[currentLang];
+    const wrap = document.getElementById('faq-wrap');
+    wrap.innerHTML = '';
+    FAQ_ITEMS.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'social-btn faq-btn';
+      btn.textContent = '❓ ' + t[item.qKey];
+      btn.addEventListener('click', () => openFaqModal(item.id));
+      wrap.appendChild(btn);
+    });
+  }
 
   function applyLanguage(lang) {
     currentLang = lang;
@@ -651,10 +790,6 @@
       const key = el.getAttribute('data-i18n');
       if (t[key]) el.textContent = t[key];
     });
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const key = el.getAttribute('data-i18n-placeholder');
-      if (t[key]) el.placeholder = t[key];
-    });
 
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
@@ -662,6 +797,9 @@
 
     document.documentElement.lang = lang;
     document.title = t.pageTitle;
+
+    renderMailboxMenu();
+    renderFaqButtons();
   }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -671,7 +809,7 @@
   // Any future feature should read strings via translations[currentLang].xxx
   // and re-render itself inside applyLanguage() so language stays in sync site-wide.
 
-  // ---- Category hover focus (applies to every category, mailbox included) ----
+  // ---- Category hover focus ----
   let intensify = false;
   document.querySelectorAll('.category').forEach(cat => {
     cat.addEventListener('mouseenter', () => {
@@ -695,174 +833,119 @@
   });
   document.addEventListener('click', () => mailboxWrap.classList.remove('open'));
 
-  // ---- Generic modal helpers ----
-  function openOverlay(id) {
-    document.getElementById(id).classList.add('active');
-  }
-  function closeOverlay(id) {
-    document.getElementById(id).classList.remove('active');
+  // ---- Generic mailbox modal ----
+  const mailboxOverlay = document.getElementById('mailbox-overlay');
+  const mailboxTitleEl = document.getElementById('mailbox-modal-title');
+  const mailboxSubtitleEl = document.getElementById('mailbox-modal-subtitle');
+  const mailboxBodyEl = document.getElementById('mailbox-modal-body');
+  const mailboxFooterEl = document.getElementById('mailbox-modal-footer');
+  const mailboxCancelBtn = document.getElementById('mailbox-cancel-btn');
+  const mailboxSubmitBtn = document.getElementById('mailbox-submit-btn');
+  let currentMailboxOption = null;
+
+  function fieldHTML(f, t) {
+    const label = t[f.labelKey];
+    const placeholder = t[f.placeholderKey];
+    if (f.type === 'textarea') {
+      return `<div class="form-group">
+        <label>${label}</label>
+        <textarea id="mb-${f.id}" placeholder="${placeholder}"></textarea>
+      </div>`;
+    }
+    return `<div class="form-group">
+      <label>${label}</label>
+      <input type="text" id="mb-${f.id}" placeholder="${placeholder}">
+    </div>`;
   }
 
-  // ---- Collab request modal ----
-  const collabOverlay = document.getElementById('collab-overlay');
-  const collabCancelBtn = document.getElementById('collab-cancel-btn');
-  const collabSubmitBtn = document.getElementById('collab-submit-btn');
-  const collabModalBody = document.getElementById('collab-modal-body');
-  const collabModalFooter = document.getElementById('collab-modal-footer');
+  function renderMailboxModal() {
+    const t = translations[currentLang];
+    const opt = currentMailboxOption;
+    mailboxTitleEl.textContent = t[opt.titleKey];
+    mailboxSubtitleEl.textContent = t[opt.subtitleKey];
 
-  document.getElementById('mailbox-collab').addEventListener('click', () => {
+    let html = opt.fields.map(f => fieldHTML(f, t)).join('');
+    if (opt.noteKey) html += `<p class="form-note">${t[opt.noteKey]}</p>`;
+    html += `<p class="form-note">${t.dmNote}</p>`;
+    html += `<div class="error-msg" id="mailbox-error-msg"></div>`;
+    mailboxBodyEl.innerHTML = html;
+
+    mailboxFooterEl.style.display = 'flex';
+    mailboxSubmitBtn.disabled = false;
+    mailboxSubmitBtn.textContent = t.btnSend;
+  }
+
+  function openMailboxModal(optionId) {
+    currentMailboxOption = MAILBOX_OPTIONS.find(o => o.id === optionId);
     mailboxWrap.classList.remove('open');
-    openOverlay('collab-overlay');
-    document.getElementById('collab-error-msg').style.display = 'none';
-  });
-  function closeCollabModal() {
-    closeOverlay('collab-overlay');
-    const u = document.getElementById('collab-username');
-    const m = document.getElementById('collab-message');
-    if (u) u.value = '';
-    if (m) m.value = '';
+    renderMailboxModal();
+    mailboxOverlay.classList.add('active');
   }
-  collabCancelBtn.addEventListener('click', closeCollabModal);
-  collabOverlay.addEventListener('click', (e) => { if (e.target === collabOverlay) closeCollabModal(); });
-
-  function rebuildCollabForm() {
-    const t = translations[currentLang];
-    collabModalBody.innerHTML = `
-      <div class="form-group">
-        <label for="collab-username" data-i18n="labelUsername">${t.labelUsername}</label>
-        <input type="text" id="collab-username" maxlength="32" placeholder="${t.placeholderUsername}">
-      </div>
-      <div class="form-group">
-        <label for="collab-message" data-i18n="labelMessage">${t.labelMessage}</label>
-        <textarea id="collab-message" maxlength="1000" placeholder="${t.placeholderMessage}"></textarea>
-      </div>
-      <div class="error-msg" id="collab-error-msg"></div>`;
+  function closeMailboxModal() {
+    mailboxOverlay.classList.remove('active');
   }
+  mailboxCancelBtn.addEventListener('click', closeMailboxModal);
+  mailboxOverlay.addEventListener('click', (e) => { if (e.target === mailboxOverlay) closeMailboxModal(); });
 
-  collabSubmitBtn.addEventListener('click', async () => {
+  mailboxSubmitBtn.addEventListener('click', async () => {
     const t = translations[currentLang];
-    const usernameInput = document.getElementById('collab-username');
-    const messageInput = document.getElementById('collab-message');
-    const errorMsg = document.getElementById('collab-error-msg');
-    const username = usernameInput.value.trim();
-    const message = messageInput.value.trim();
+    const opt = currentMailboxOption;
+    const values = {};
+    let hasEmpty = false;
 
-    if (!username || !message) {
-      errorMsg.textContent = t.errFill;
+    opt.fields.forEach(f => {
+      const el = document.getElementById('mb-' + f.id);
+      const val = el.value.trim();
+      if (!val) hasEmpty = true;
+      values[f.id] = val;
+    });
+
+    const errorMsg = document.getElementById('mailbox-error-msg');
+    if (hasEmpty) {
+      errorMsg.textContent = t.errFillAll;
       errorMsg.style.display = 'block';
       return;
     }
 
-    collabSubmitBtn.disabled = true;
-    collabSubmitBtn.textContent = t.btnSending;
+    mailboxSubmitBtn.disabled = true;
+    mailboxSubmitBtn.textContent = t.btnSending;
 
     try {
       const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: `**${username}** sent a message: ${message}`
-        })
+        body: JSON.stringify({ content: opt.buildContent(values) })
       });
       if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
 
-      collabModalBody.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
-      collabModalFooter.style.display = 'none';
+      mailboxBodyEl.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
+      mailboxFooterEl.style.display = 'none';
       setTimeout(() => {
-        closeCollabModal();
-        rebuildCollabForm();
-        collabModalFooter.style.display = 'flex';
-        collabSubmitBtn.disabled = false;
-        collabSubmitBtn.textContent = translations[currentLang].btnSend;
+        closeMailboxModal();
       }, 1500);
     } catch (err) {
       errorMsg.textContent = t.errSend;
       errorMsg.style.display = 'block';
-      collabSubmitBtn.disabled = false;
-      collabSubmitBtn.textContent = t.btnSend;
+      mailboxSubmitBtn.disabled = false;
+      mailboxSubmitBtn.textContent = t.btnSend;
     }
   });
 
-  // ---- Webhook proposal modal ----
-  const webhookOverlay = document.getElementById('webhook-overlay');
-  const webhookCancelBtn = document.getElementById('webhook-cancel-btn');
-  const webhookSubmitBtn = document.getElementById('webhook-submit-btn');
-  const webhookModalBody = document.getElementById('webhook-modal-body');
-  const webhookModalFooter = document.getElementById('webhook-modal-footer');
+  // ---- FAQ modal ----
+  const faqOverlay = document.getElementById('faq-overlay');
+  const faqTitleEl = document.getElementById('faq-modal-title');
+  const faqAnswerEl = document.getElementById('faq-modal-answer');
+  const faqCloseBtn = document.getElementById('faq-close-btn');
 
-  document.getElementById('mailbox-webhook').addEventListener('click', () => {
-    mailboxWrap.classList.remove('open');
-    openOverlay('webhook-overlay');
-    document.getElementById('webhook-error-msg').style.display = 'none';
-  });
-  function closeWebhookModal() {
-    closeOverlay('webhook-overlay');
-    const u = document.getElementById('webhook-username');
-    const w = document.getElementById('webhook-url');
-    if (u) u.value = '';
-    if (w) w.value = '';
-  }
-  webhookCancelBtn.addEventListener('click', closeWebhookModal);
-  webhookOverlay.addEventListener('click', (e) => { if (e.target === webhookOverlay) closeWebhookModal(); });
-
-  function rebuildWebhookForm() {
+  function openFaqModal(itemId) {
     const t = translations[currentLang];
-    webhookModalBody.innerHTML = `
-      <div class="form-group">
-        <label for="webhook-username" data-i18n="labelDiscordUsername">${t.labelDiscordUsername}</label>
-        <input type="text" id="webhook-username" maxlength="40" placeholder="${t.placeholderDiscordUsername}">
-      </div>
-      <div class="form-group">
-        <label for="webhook-url" data-i18n="labelWebhookUrl">${t.labelWebhookUrl}</label>
-        <input type="text" id="webhook-url" maxlength="200" placeholder="${t.placeholderWebhookUrl}">
-      </div>
-      <p class="form-note">${t.webhookNote}</p>
-      <div class="error-msg" id="webhook-error-msg"></div>`;
+    const item = FAQ_ITEMS.find(i => i.id === itemId);
+    faqTitleEl.textContent = t[item.qKey];
+    faqAnswerEl.textContent = t[item.aKey];
+    faqOverlay.classList.add('active');
   }
-
-  webhookSubmitBtn.addEventListener('click', async () => {
-    const t = translations[currentLang];
-    const discordUsernameInput = document.getElementById('webhook-username');
-    const webhookUrlInput = document.getElementById('webhook-url');
-    const errorMsg = document.getElementById('webhook-error-msg');
-    const discordUsername = discordUsernameInput.value.trim();
-    const proposedWebhook = webhookUrlInput.value.trim();
-
-    if (!discordUsername || !proposedWebhook) {
-      errorMsg.textContent = t.errFillWebhook;
-      errorMsg.style.display = 'block';
-      return;
-    }
-
-    webhookSubmitBtn.disabled = true;
-    webhookSubmitBtn.textContent = t.btnSending;
-
-    try {
-      const response = await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: `🔗 **${discordUsername}** proposed their webhook: ${proposedWebhook}\n(Reminder: DMs must be open)`
-        })
-      });
-      if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
-
-      webhookModalBody.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
-      webhookModalFooter.style.display = 'none';
-      setTimeout(() => {
-        closeWebhookModal();
-        rebuildWebhookForm();
-        webhookModalFooter.style.display = 'flex';
-        webhookSubmitBtn.disabled = false;
-        webhookSubmitBtn.textContent = translations[currentLang].btnSend;
-      }, 1500);
-    } catch (err) {
-      errorMsg.textContent = t.errSend;
-      errorMsg.style.display = 'block';
-      webhookSubmitBtn.disabled = false;
-      webhookSubmitBtn.textContent = t.btnSend;
-    }
-  });
+  faqCloseBtn.addEventListener('click', () => faqOverlay.classList.remove('active'));
+  faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) faqOverlay.classList.remove('active'); });
 
   // ---- Discord choice popup (profile vs bot) ----
   const discordChoiceOpen = document.getElementById('discord-choice-open');
@@ -923,7 +1006,7 @@
 
   let ghosts = [];
   const MAX_GHOSTS = 2;
-  const GHOST_LIFETIME = 7000; // ms
+  const GHOST_LIFETIME = 7000;
 
   function spawnGhost() {
     if (ghosts.length >= MAX_GHOSTS) return;
