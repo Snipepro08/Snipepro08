@@ -24,12 +24,29 @@
     padding: 130px 20px 60px;
   }
 
-  #galaxy-canvas {
+  /* Random gradient background, animated */
+  #bg-gradient {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     z-index: 0;
-    background: radial-gradient(ellipse at center, #10102a 0%, #05050f 70%);
+    background-size: 400% 400%;
+    animation: gradientShift 18s ease infinite;
+  }
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Transparent canvas layered above the gradient, used only for the
+     occasional hidden-shape image apparitions */
+  #ghost-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    pointer-events: none;
   }
 
   #brand-tag {
@@ -54,17 +71,16 @@
     left: 20px;
     z-index: 3;
     display: flex;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.16);
     border-radius: 8px;
     overflow: hidden;
     backdrop-filter: blur(6px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
   }
   .lang-btn {
     background: transparent;
     border: none;
-    color: #949ba4;
+    color: #dbdee1;
     padding: 8px 14px;
     font-size: 13px;
     font-weight: 700;
@@ -72,12 +88,11 @@
     transition: background 0.15s ease, color 0.15s ease;
   }
   .lang-btn.active {
-    background: linear-gradient(135deg, #6f5bff, #5865f2);
+    background: rgba(0,0,0,0.5);
     color: #fff;
   }
   .lang-btn:not(.active):hover {
-    background: rgba(255,255,255,0.08);
-    color: #dbdee1;
+    background: rgba(0,0,0,0.35);
   }
 
   #version-tag {
@@ -88,7 +103,7 @@
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.5px;
-    color: #5a5e6b;
+    color: rgba(255,255,255,0.55);
     user-select: none;
   }
 
@@ -102,19 +117,18 @@
     max-width: 900px;
   }
   .category {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.28);
+    border: 1px solid rgba(255,255,255,0.14);
     border-radius: 12px;
     padding: 16px;
     backdrop-filter: blur(6px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
   }
   .category-title {
     font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: #8b8fa3;
+    color: rgba(255,255,255,0.65);
     margin-bottom: 10px;
   }
   .category-buttons {
@@ -123,25 +137,14 @@
     gap: 10px;
   }
 
-  body.cta-focus .category {
-    opacity: 0;
-    transform: translateY(10px);
-    pointer-events: none;
-  }
-  body.cta-focus .category.active-hover {
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-  }
-
   .social-btn, .cat-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #dbdee1;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
     text-decoration: none;
     padding: 12px 14px;
     border-radius: 8px;
@@ -153,20 +156,35 @@
   }
   .social-btn:hover, .cat-btn:hover {
     transform: translateY(-2px);
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.45);
+    border-color: rgba(255,255,255,0.35);
+  }
+  .social-btn:disabled, .cat-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 
   #cat-mailbox .cat-btn {
-    background: linear-gradient(135deg, #6f5bff, #5865f2 40%, #33d0ff);
-    border: none;
-    color: #fff;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.25);
     font-size: 15px;
     padding: 15px 16px;
-    box-shadow: 0 0 20px rgba(88, 101, 242, 0.45);
   }
-  #cat-mailbox .cat-btn:hover {
-    box-shadow: 0 0 32px rgba(88, 101, 242, 0.75);
+
+  #discord-login-area {
+    margin-bottom: 4px;
+  }
+  .login-status {
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   #mailbox-wrap {
@@ -294,6 +312,11 @@
     color: #949ba4;
     margin: 0 0 16px;
     line-height: 1.5;
+  }
+  .sending-as {
+    font-size: 12px;
+    color: #949ba4;
+    margin: -6px 0 16px;
   }
   .modal-footer {
     background: #2b2d31;
@@ -425,7 +448,8 @@
 </head>
 <body>
 
-<canvas id="galaxy-canvas"></canvas>
+<div id="bg-gradient"></div>
+<canvas id="ghost-canvas"></canvas>
 
 <div id="brand-tag">SnipeCorp</div>
 
@@ -434,17 +458,19 @@
   <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
 </div>
 
-<div id="version-tag">v1.1.0</div>
+<div id="version-tag">v1.2.0</div>
 
 <div id="categories">
 
   <div class="category" id="cat-mailbox">
     <div class="category-title" data-i18n="catMailbox">Mailbox</div>
     <div class="category-buttons">
+      <div id="discord-login-area"></div>
       <div id="mailbox-wrap">
-        <button class="cat-btn" id="mailbox-btn">📬 <span data-i18n="mailboxLabel">Mailbox</span> ▾</button>
+        <button class="cat-btn" id="mailbox-btn">📬 <span id="mailbox-btn-label">Snipecorp Mailbox</span> ▾</button>
         <div id="mailbox-menu"></div>
       </div>
+      <button class="cat-btn" id="mailbox-direct-btn">📨 <span data-i18n="mailboxDirect">Send a message</span></button>
     </div>
   </div>
 
@@ -480,7 +506,7 @@
 
 </div>
 
-<!-- Generic mailbox modal (populated dynamically per option) -->
+<!-- Generic mailbox modal -->
 <div class="modal-overlay" id="mailbox-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -491,6 +517,20 @@
     <div class="modal-footer" id="mailbox-modal-footer">
       <button class="btn-cancel" id="mailbox-cancel-btn" data-i18n="btnCancel">Cancel</button>
       <button class="btn-submit" id="mailbox-submit-btn" data-i18n="btnSend">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Direct message modal (second webhook) -->
+<div class="modal-overlay" id="direct-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 data-i18n="directModalTitle">Send a Message</h2>
+    </div>
+    <div class="modal-body" id="direct-modal-body"></div>
+    <div class="modal-footer" id="direct-modal-footer">
+      <button class="btn-cancel" id="direct-cancel-btn" data-i18n="btnCancel">Cancel</button>
+      <button class="btn-submit" id="direct-submit-btn" data-i18n="btnSend">Send</button>
     </div>
   </div>
 </div>
@@ -529,12 +569,23 @@
 </div>
 
 <script>
-  // ⚠️ Replace this with your own Discord webhook URL — used for EVERY mailbox option
+  // ⚠️ Main mailbox webhook (collab / webhook proposal / roblox / server add / report)
   const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
+  // ⚠️ Secondary webhook used only by the standalone "Send a message" button
+  const WEBHOOK_URL_2 = "https://discord.com/api/webhooks/1526869294565294163/pJYYMi0ystp5pG5LVlVaNYXP5v_chNzWs8IHVQhPIEXCiDyH-knrV--CHGlLsT7_CXzs";
 
-  const SITE_VERSION = "1.1.0";
+  const SITE_VERSION = "1.2.0";
 
-  // Discord servers used by the "random serv" button.
+  // ---- Discord OAuth2 (implicit grant — no client secret needed) ----
+  const DISCORD_CLIENT_ID = "1526891762436538460";
+  const DISCORD_REDIRECT_URI = "https://snipepro08.github.io/Snipepro08/callback";
+  const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize"
+    + "?client_id=" + DISCORD_CLIENT_ID
+    + "&redirect_uri=" + encodeURIComponent(DISCORD_REDIRECT_URI)
+    + "&response_type=token&scope=identify";
+
+  let discordUser = null; // { id, username } once logged in — cleared on reload
+
   const DISCORD_SERVERS = [
     { name: "Server 1", id: "1421178923034869975" },
     { name: "Server 2", id: "1389895023570714727" },
@@ -552,7 +603,6 @@
       catSocial: "Social networks",
       catFortnite: "Fortnite",
       catFaq: "FAQ",
-      mailboxLabel: "Mailbox",
       serversLabel: "Get a random serv",
       btnCancel: "Cancel",
       btnSend: "Send",
@@ -562,8 +612,10 @@
       errSend: "Failed to send. Please check the webhook URL.",
       successMsg: "✅ Sent successfully!",
       dmNote: "Reminder: your Discord DMs must be open so the SnipeCorp team can reach you.",
-      labelDiscordUsername: "Discord username",
-      placeholderDiscordUsername: "yourname or @yourname",
+      loginBtn: "Connect with Discord",
+      connectedAs: "Connected as",
+      logoutBtn: "Log out",
+      sendingAs: "Sending as",
 
       mailboxCollab: "Request a collab with Snipepro",
       collabModalTitle: "Collab Request",
@@ -600,6 +652,9 @@
       labelReportReason: "Reason / details",
       placeholderReportReason: "Explain the situation...",
 
+      mailboxDirect: "Send a message",
+      directModalTitle: "Send a Message",
+
       discordChoiceTitle: "Discord",
       discordViewProfile: "View Snipepro's profile",
       discordAddBot: "Add the official Snipepro bot",
@@ -621,7 +676,6 @@
       catSocial: "Réseaux sociaux",
       catFortnite: "Fortnite",
       catFaq: "FAQ",
-      mailboxLabel: "Messagerie",
       serversLabel: "Serv Discord au hasard",
       btnCancel: "Annuler",
       btnSend: "Envoyer",
@@ -631,8 +685,10 @@
       errSend: "Échec de l'envoi. Vérifie l'URL du webhook.",
       successMsg: "✅ Envoyé avec succès !",
       dmNote: "Rappel : tes MP Discord doivent être ouverts pour que l'équipe SnipeCorp puisse te contacter.",
-      labelDiscordUsername: "Nom d'utilisateur Discord",
-      placeholderDiscordUsername: "tonpseudo ou @tonpseudo",
+      loginBtn: "Se connecter avec Discord",
+      connectedAs: "Connecté en tant que",
+      logoutBtn: "Se déconnecter",
+      sendingAs: "Envoi en tant que",
 
       mailboxCollab: "Demander une collab avec Snipepro",
       collabModalTitle: "Demande de collab",
@@ -669,6 +725,9 @@
       labelReportReason: "Raison / détails",
       placeholderReportReason: "Explique la situation...",
 
+      mailboxDirect: "Envoyer un message",
+      directModalTitle: "Envoyer un message",
+
       discordChoiceTitle: "Discord",
       discordViewProfile: "Voir le profil de Snipepro",
       discordAddBot: "Ajouter le bot officiel de Snipepro",
@@ -687,7 +746,7 @@
 
   let currentLang = "en";
 
-  // ---- Mailbox options (source of truth) ----
+  // ---- Mailbox options (Discord username is taken from the login, not typed) ----
   const MAILBOX_OPTIONS = [
     {
       id: 'collab',
@@ -695,10 +754,9 @@
       titleKey: 'collabModalTitle',
       subtitleKey: 'collabModalSubtitle',
       fields: [
-        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
         { id: 'message', labelKey: 'labelMessage', placeholderKey: 'placeholderMessage', type: 'textarea' }
       ],
-      buildContent: (v) => `📩 **${v.discordUsername}** requested a collab:\n${v.message}`
+      buildContent: (v) => `📩 **${discordUser.username}** requested a collab:\n${v.message}`
     },
     {
       id: 'webhook',
@@ -706,10 +764,9 @@
       titleKey: 'webhookModalTitle',
       subtitleKey: 'webhookModalSubtitle',
       fields: [
-        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
         { id: 'webhookUrl', labelKey: 'labelWebhookUrl', placeholderKey: 'placeholderWebhookUrl', type: 'text' }
       ],
-      buildContent: (v) => `🔗 **${v.discordUsername}** proposed their webhook: ${v.webhookUrl}`
+      buildContent: (v) => `🔗 **${discordUser.username}** proposed their webhook: ${v.webhookUrl}`
     },
     {
       id: 'roblox',
@@ -717,11 +774,10 @@
       titleKey: 'robloxModalTitle',
       subtitleKey: 'robloxModalSubtitle',
       fields: [
-        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
         { id: 'gameLink', labelKey: 'labelGameLink', placeholderKey: 'placeholderGameLink', type: 'text' },
         { id: 'message', labelKey: 'labelGameDescription', placeholderKey: 'placeholderGameDescription', type: 'textarea' }
       ],
-      buildContent: (v) => `🎮 **${v.discordUsername}** submitted a Roblox game for City Of Fun\nLink: ${v.gameLink}\n${v.message}`
+      buildContent: (v) => `🎮 **${discordUser.username}** submitted a Roblox game for City Of Fun\nLink: ${v.gameLink}\n${v.message}`
     },
     {
       id: 'serverAdd',
@@ -730,10 +786,9 @@
       subtitleKey: 'serverAddModalSubtitle',
       noteKey: 'serverAddNote',
       fields: [
-        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
         { id: 'serverInfo', labelKey: 'labelServerInfo', placeholderKey: 'placeholderServerInfo', type: 'text' }
       ],
-      buildContent: (v) => `➕ **${v.discordUsername}** submitted a server for the random pool: ${v.serverInfo}\n(Pending staff review)`
+      buildContent: (v) => `➕ **${discordUser.username}** submitted a server for the random pool: ${v.serverInfo}\n(Pending staff review)`
     },
     {
       id: 'report',
@@ -741,11 +796,10 @@
       titleKey: 'reportModalTitle',
       subtitleKey: 'reportModalSubtitle',
       fields: [
-        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
         { id: 'reportedUser', labelKey: 'labelReportedUser', placeholderKey: 'placeholderReportedUser', type: 'text' },
         { id: 'reason', labelKey: 'labelReportReason', placeholderKey: 'placeholderReportReason', type: 'textarea' }
       ],
-      buildContent: (v) => `🚨 **${v.discordUsername}** reported a user: ${v.reportedUser}\nReason: ${v.reason}`
+      buildContent: (v) => `🚨 **${discordUser.username}** reported a user: ${v.reportedUser}\nReason: ${v.reason}`
     }
   ];
 
@@ -782,6 +836,26 @@
     });
   }
 
+  function renderLoginUI() {
+    const t = translations[currentLang];
+    const area = document.getElementById('discord-login-area');
+    if (discordUser) {
+      area.innerHTML = `<div class="login-status">
+        ✅ ${t.connectedAs} <strong>${discordUser.username}</strong>
+        <button class="menu-item" id="logout-btn" style="border:1px solid rgba(255,255,255,0.15);border-radius:6px;">${t.logoutBtn}</button>
+      </div>`;
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        discordUser = null;
+        renderLoginUI();
+      });
+    } else {
+      area.innerHTML = `<button class="cat-btn" id="discord-login-btn">🔐 ${t.loginBtn}</button>`;
+      document.getElementById('discord-login-btn').addEventListener('click', () => {
+        window.location.href = DISCORD_AUTH_URL;
+      });
+    }
+  }
+
   function applyLanguage(lang) {
     currentLang = lang;
     const t = translations[lang];
@@ -800,6 +874,7 @@
 
     renderMailboxMenu();
     renderFaqButtons();
+    renderLoginUI();
   }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -809,26 +884,21 @@
   // Any future feature should read strings via translations[currentLang].xxx
   // and re-render itself inside applyLanguage() so language stays in sync site-wide.
 
-  // ---- Category hover focus ----
-  let intensify = false;
-  document.querySelectorAll('.category').forEach(cat => {
-    cat.addEventListener('mouseenter', () => {
-      intensify = true;
-      document.body.classList.add('cta-focus');
-      cat.classList.add('active-hover');
-    });
-    cat.addEventListener('mouseleave', () => {
-      intensify = false;
-      document.body.classList.remove('cta-focus');
-      cat.classList.remove('active-hover');
-    });
-  });
+  // ---- Require login before using the mailbox ----
+  function requireLogin() {
+    if (!discordUser) {
+      window.location.href = DISCORD_AUTH_URL;
+      return false;
+    }
+    return true;
+  }
 
   // ---- Mailbox dropdown ----
   const mailboxWrap = document.getElementById('mailbox-wrap');
   const mailboxBtn = document.getElementById('mailbox-btn');
   mailboxBtn.addEventListener('click', (e) => {
     e.stopPropagation();
+    if (!requireLogin()) return;
     mailboxWrap.classList.toggle('open');
   });
   document.addEventListener('click', () => mailboxWrap.classList.remove('open'));
@@ -864,7 +934,8 @@
     mailboxTitleEl.textContent = t[opt.titleKey];
     mailboxSubtitleEl.textContent = t[opt.subtitleKey];
 
-    let html = opt.fields.map(f => fieldHTML(f, t)).join('');
+    let html = `<p class="sending-as">${t.sendingAs}: <strong>${discordUser.username}</strong></p>`;
+    html += opt.fields.map(f => fieldHTML(f, t)).join('');
     if (opt.noteKey) html += `<p class="form-note">${t[opt.noteKey]}</p>`;
     html += `<p class="form-note">${t.dmNote}</p>`;
     html += `<div class="error-msg" id="mailbox-error-msg"></div>`;
@@ -876,6 +947,7 @@
   }
 
   function openMailboxModal(optionId) {
+    if (!requireLogin()) return;
     currentMailboxOption = MAILBOX_OPTIONS.find(o => o.id === optionId);
     mailboxWrap.classList.remove('open');
     renderMailboxModal();
@@ -920,14 +992,78 @@
 
       mailboxBodyEl.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
       mailboxFooterEl.style.display = 'none';
-      setTimeout(() => {
-        closeMailboxModal();
-      }, 1500);
+      setTimeout(() => { closeMailboxModal(); }, 1500);
     } catch (err) {
       errorMsg.textContent = t.errSend;
       errorMsg.style.display = 'block';
       mailboxSubmitBtn.disabled = false;
       mailboxSubmitBtn.textContent = t.btnSend;
+    }
+  });
+
+  // ---- Direct message modal (second webhook) ----
+  const directOverlay = document.getElementById('direct-overlay');
+  const directBodyEl = document.getElementById('direct-modal-body');
+  const directFooterEl = document.getElementById('direct-modal-footer');
+  const directCancelBtn = document.getElementById('direct-cancel-btn');
+  const directSubmitBtn = document.getElementById('direct-submit-btn');
+  const directBtn = document.getElementById('mailbox-direct-btn');
+
+  function renderDirectModal() {
+    const t = translations[currentLang];
+    directBodyEl.innerHTML = `
+      <p class="sending-as">${t.sendingAs}: <strong>${discordUser.username}</strong></p>
+      <div class="form-group">
+        <label>${t.labelMessage}</label>
+        <textarea id="direct-message" placeholder="${t.placeholderMessage}"></textarea>
+      </div>
+      <p class="form-note">${t.dmNote}</p>
+      <div class="error-msg" id="direct-error-msg"></div>`;
+    directFooterEl.style.display = 'flex';
+    directSubmitBtn.disabled = false;
+    directSubmitBtn.textContent = t.btnSend;
+  }
+
+  directBtn.addEventListener('click', () => {
+    if (!requireLogin()) return;
+    renderDirectModal();
+    directOverlay.classList.add('active');
+  });
+  directCancelBtn.addEventListener('click', () => directOverlay.classList.remove('active'));
+  directOverlay.addEventListener('click', (e) => { if (e.target === directOverlay) directOverlay.classList.remove('active'); });
+
+  directSubmitBtn.addEventListener('click', async () => {
+    const t = translations[currentLang];
+    const messageEl = document.getElementById('direct-message');
+    const errorMsg = document.getElementById('direct-error-msg');
+    const message = messageEl.value.trim();
+
+    if (!message) {
+      errorMsg.textContent = t.errFillAll;
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    directSubmitBtn.disabled = true;
+    directSubmitBtn.textContent = t.btnSending;
+
+    try {
+      const response = await fetch(WEBHOOK_URL_2, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: `**${discordUser.username}**: ${message}` })
+      });
+      if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
+
+      // This confirmation is always shown in English, regardless of site language.
+      directBodyEl.innerHTML = `<div class="status-msg">✅ Sent thanks to SnipeCorp's services!</div>`;
+      directFooterEl.style.display = 'none';
+      setTimeout(() => { directOverlay.classList.remove('active'); }, 1500);
+    } catch (err) {
+      errorMsg.textContent = t.errSend;
+      errorMsg.style.display = 'block';
+      directSubmitBtn.disabled = false;
+      directSubmitBtn.textContent = t.btnSend;
     }
   });
 
@@ -985,10 +1121,42 @@
     if (e.target === widgetOverlay) closeServerWidget();
   });
 
-  // ---- Warp-zoom space background with hidden-shape image ghosts ----
-  const canvas = document.getElementById('galaxy-canvas');
+  // ---- Random gradient background (rainbow = rarest) ----
+  const GRADIENT_PALETTES = [
+    { colors: ['#1b1035', '#3a1c71', '#5865f2', '#1b1035'], weight: 18 },
+    { colors: ['#0f2027', '#203a43', '#2c5364'], weight: 16 },
+    { colors: ['#1a0033', '#7303c0', '#ec38bc', '#1a0033'], weight: 14 },
+    { colors: ['#0b132b', '#1c2541', '#3a506b', '#0b132b'], weight: 16 },
+    { colors: ['#3d0000', '#7a0c0c', '#ff5e62', '#3d0000'], weight: 12 },
+    { colors: ['#013a63', '#2a9d8f', '#0b132b'], weight: 14 },
+    { colors: ['#2b1055', '#7597de', '#2b1055'], weight: 8 },
+    {
+      colors: ['#ff0000', '#ff9900', '#fff700', '#33ff00', '#00fff7', '#3300ff', '#ff00c8', '#ff0000'],
+      weight: 3 // rainbow — the rarest variant
+    }
+  ];
+
+  function pickWeightedPalette() {
+    const total = GRADIENT_PALETTES.reduce((sum, p) => sum + p.weight, 0);
+    let roll = Math.random() * total;
+    for (const p of GRADIENT_PALETTES) {
+      if (roll < p.weight) return p;
+      roll -= p.weight;
+    }
+    return GRADIENT_PALETTES[0];
+  }
+
+  function applyRandomGradient() {
+    const palette = pickWeightedPalette();
+    const angle = Math.floor(Math.random() * 360);
+    document.getElementById('bg-gradient').style.background =
+      `linear-gradient(${angle}deg, ${palette.colors.join(', ')})`;
+  }
+
+  // ---- Ghost image apparitions (subtle, silhouette only) ----
+  const canvas = document.getElementById('ghost-canvas');
   const ctx = canvas.getContext('2d');
-  let width, height, cx, cy, stars;
+  let width, height, cx, cy;
 
   const IMAGE_SOURCES = [
     'assets/img1.jpg',
@@ -1024,7 +1192,18 @@
     });
   }
 
-  function drawGhosts(now) {
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    cx = width / 2;
+    cy = height / 2;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function drawGhosts() {
+    const now = performance.now();
+    ctx.clearRect(0, 0, width, height);
     ghosts = ghosts.filter(g => now - g.born < GHOST_LIFETIME);
 
     for (const g of ghosts) {
@@ -1039,7 +1218,7 @@
       if (t < 0.15) alpha = t / 0.15;
       else if (t > 0.75) alpha = (1 - t) / 0.25;
       else alpha = 1;
-      alpha *= intensify ? 0.28 : 0.16;
+      alpha *= 0.18;
 
       ctx.save();
       ctx.translate(x, y);
@@ -1049,92 +1228,34 @@
       ctx.drawImage(g.img, -size / 2, -size / 2, size, size);
       ctx.restore();
     }
+    requestAnimationFrame(drawGhosts);
   }
-
-  function resize() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    cx = width / 2;
-    cy = height / 2;
-  }
-
-  function makeStar(randomDepth) {
-    return {
-      x: (Math.random() - 0.5) * width,
-      y: (Math.random() - 0.5) * height,
-      z: randomDepth ? Math.random() * width : width,
-      pz: 0
-    };
-  }
-
-  function initGalaxy() {
-    resize();
-    const density = Math.floor((width * height) / 3500);
-    stars = [];
-    for (let i = 0; i < density; i++) stars.push(makeStar(true));
-    ghosts = [];
-  }
-
-  const BASE_SPEED = 2.2;
-  const INTENSE_SPEED = 9;
-  let currentSpeed = BASE_SPEED;
-
-  function drawGalaxy() {
-    const now = performance.now();
-    const targetSpeed = intensify ? INTENSE_SPEED : BASE_SPEED;
-    currentSpeed += (targetSpeed - currentSpeed) * 0.06;
-
-    ctx.fillStyle = 'rgba(5, 5, 15, 0.35)';
-    ctx.fillRect(0, 0, width, height);
-
-    const glowStrength = intensify ? 0.15 : 0.06;
-    const glow1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.6);
-    glow1.addColorStop(0, `rgba(111, 91, 255, ${glowStrength})`);
-    glow1.addColorStop(1, 'rgba(111, 91, 255, 0)');
-    ctx.fillStyle = glow1;
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.filter = 'none';
-    drawGhosts(now);
-    ctx.globalAlpha = 1;
-    ctx.filter = 'none';
-
-    for (const s of stars) {
-      s.pz = s.z;
-      s.z -= currentSpeed;
-      if (s.z <= 1) {
-        Object.assign(s, makeStar(false));
-        s.z = width;
-        s.pz = width;
-      }
-
-      const sx = (s.x / s.z) * width + cx;
-      const sy = (s.y / s.z) * width + cy;
-      const px = (s.x / s.pz) * width + cx;
-      const py = (s.y / s.pz) * width + cy;
-
-      const r = Math.max(0.3, (1 - s.z / width) * (intensify ? 3 : 2.2));
-      const alpha = Math.min(1, (1 - s.z / width) * (intensify ? 1.6 : 1.3));
-
-      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-      ctx.lineWidth = r;
-      ctx.beginPath();
-      ctx.moveTo(px, py);
-      ctx.lineTo(sx, sy);
-      ctx.stroke();
-    }
-
-    requestAnimationFrame(drawGalaxy);
-  }
-
-  window.addEventListener('resize', initGalaxy);
-  initGalaxy();
-  requestAnimationFrame(drawGalaxy);
+  requestAnimationFrame(drawGhosts);
   setInterval(spawnGhost, 3500);
+
+  // ---- Handle returning from the Discord OAuth callback ----
+  function handleDiscordRedirect() {
+    if (window.location.hash.startsWith('#discord_token=')) {
+      const token = decodeURIComponent(window.location.hash.replace('#discord_token=', ''));
+      history.replaceState(null, '', window.location.pathname);
+      fetch('https://discord.com/api/users/@me', {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+        .then(res => res.json())
+        .then(data => {
+          discordUser = { id: data.id, username: data.global_name || data.username };
+          renderLoginUI();
+        })
+        .catch(() => { /* silently ignore — user can just try connecting again */ });
+    }
+  }
 
   // ---- init ----
   document.getElementById('version-tag').textContent = 'v' + SITE_VERSION;
+  document.getElementById('mailbox-btn-label').textContent = 'Snipecorp Mailbox';
+  applyRandomGradient();
   applyLanguage(currentLang);
+  handleDiscordRedirect();
 </script>
 
 </body>
