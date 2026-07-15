@@ -23,7 +23,7 @@
   .login-btn { background: #5865f2; color: white; border: none; font-weight: 700; }
   .login-btn:hover:not(.logged-in) { background: #4752c4; }
   .logged-in { background: #3ba55c; cursor: default; pointer-events: none; }
-  #cat-mailbox.disabled { opacity: 0.6; pointer-events: none; }
+  #cat-mailbox.disabled { opacity: 0.65; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -46,7 +46,6 @@
       </div>
     </div>
   </div>
-
   <div class="category" id="cat-discord">
     <div class="category-title" data-i18n="catDiscord">Discord</div>
     <div class="category-buttons">
@@ -54,7 +53,6 @@
       <button class="social-btn" id="discord-servers-btn">🎲 <span data-i18n="serversLabel">Get a random serv</span></button>
     </div>
   </div>
-
   <div class="category" id="cat-social">
     <div class="category-title" data-i18n="catSocial">Social networks</div>
     <div class="category-buttons">
@@ -63,7 +61,6 @@
       <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
     </div>
   </div>
-
   <div class="category" id="cat-fortnite">
     <div class="category-title" data-i18n="catFortnite">Fortnite</div>
     <div class="category-buttons">
@@ -71,118 +68,86 @@
       <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
     </div>
   </div>
-
   <div class="category" id="cat-faq">
     <div class="category-title" data-i18n="catFaq">FAQ</div>
     <div class="category-buttons" id="faq-wrap"></div>
   </div>
 </div>
 
-<!-- Modals -->
-<div class="modal-overlay" id="mailbox-overlay">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2 id="mailbox-modal-title"></h2>
-      <p id="mailbox-modal-subtitle"></p>
-    </div>
-    <div class="modal-body" id="mailbox-modal-body"></div>
-    <div class="modal-footer" id="mailbox-modal-footer">
-      <button class="btn-cancel" id="mailbox-cancel-btn" data-i18n="btnCancel">Annuler</button>
-      <button class="btn-submit" id="mailbox-submit-btn" data-i18n="btnSend">Envoyer</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="faq-overlay">
-  <div class="modal-box">
-    <div class="modal-header"><h2 id="faq-modal-title">FAQ</h2></div>
-    <div class="modal-body"><p class="faq-answer" id="faq-modal-answer"></p></div>
-    <div class="modal-footer"><button class="btn-cancel" id="faq-close-btn" data-i18n="btnClose">Fermer</button></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="discord-choice-overlay">
-  <div class="choice-box">
-    <div class="choice-header"><h2 data-i18n="discordChoiceTitle">Discord</h2></div>
-    <div class="choice-body">
-      <a class="choice-btn profile" id="discord-choice-profile" href="https://discord.com/users/1415766547321847930" target="_blank" data-i18n="discordViewProfile">Voir le profil de Snipepro</a>
-      <a class="choice-btn bot" id="discord-choice-bot" href="https://discord.com/oauth2/authorize?client_id=1517116269004984320&integration_type=1&scope=applications.commands" target="_blank" data-i18n="discordAddBot">Ajouter le bot officiel</a>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="widget-overlay">
-  <div class="widget-modal-box" id="widget-box"></div>
-</div>
-
 <script>
-// ==================== CONFIG ====================
+// CONFIG DISCORD
 const CLIENT_ID = "1526891762436538460";
 const REDIRECT_URI = "https://snipepro08.github.io/Snipepro08/callback";
-const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
 
-let currentLang = "en";
+let currentLang = "fr";
 let currentUser = null;
 
-// ==================== DISCORD LOGIN ====================
-const loginBtn = document.getElementById('discord-login-btn');
+// Traductions
+const translations = {
+  en: { catMailbox: "Mailbox", catDiscord: "Discord", catSocial: "Social networks", catFortnite: "Fortnite", catFaq: "FAQ", mailboxLabel: "Mailbox", serversLabel: "Get a random serv", loginButton: "Connect with Discord" },
+  fr: { catMailbox: "Messagerie", catDiscord: "Discord", catSocial: "Réseaux sociaux", catFortnite: "Fortnite", catFaq: "FAQ", mailboxLabel: "Messagerie", serversLabel: "Serv Discord au hasard", loginButton: "Se connecter avec Discord" }
+};
 
-function initDiscordLogin() {
-  loginBtn.addEventListener('click', () => {
-    if (loginBtn.classList.contains('logged-in')) return;
-    const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
-    window.location.href = url;
-  });
-}
+// Discord
+const loginBtn = document.getElementById('discord-login-btn');
+loginBtn.addEventListener('click', () => {
+  if (loginBtn.classList.contains('logged-in')) return;
+  const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+  window.location.href = url;
+});
 
 function handleCallback() {
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
   const token = params.get('access_token');
-
   if (token) {
-    fetch('https://discord.com/api/users/@me', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${token}` } })
     .then(r => r.json())
     .then(user => {
       currentUser = user;
       localStorage.setItem('discord_user', JSON.stringify(user));
-      localStorage.setItem('discord_token', token);
-      updateLoginUI();
-      window.history.replaceState({}, document.title, window.location.pathname);
+      loginBtn.textContent = `✅ ${user.username}`;
+      loginBtn.classList.add('logged-in');
+      document.getElementById('cat-mailbox').classList.remove('disabled');
+      window.history.replaceState({}, '', window.location.pathname);
     });
   }
 }
 
-function updateLoginUI() {
-  const user = JSON.parse(localStorage.getItem('discord_user'));
-  if (!user) return;
-
-  loginBtn.innerHTML = `✅ ${user.username}`;
-  loginBtn.classList.add('logged-in');
-  document.getElementById('cat-mailbox').classList.remove('disabled');
+// Langue
+function applyLanguage(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (translations[lang][key]) el.textContent = translations[lang][key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
 }
 
-// ==================== MAILBOX (sans username) ====================
-const MAILBOX_OPTIONS = [
-  { id: 'collab', menuKey: 'mailboxCollab', titleKey: 'collabModalTitle', subtitleKey: 'collabModalSubtitle', fields: [{id:'message', labelKey:'labelMessage', placeholderKey:'placeholderMessage', type:'textarea'}], buildContent: (v) => `📩 **${currentUser?.username || 'Utilisateur'}** requested a collab:\n${v.message}` },
-  { id: 'webhook', menuKey: 'mailboxWebhook', titleKey: 'webhookModalTitle', subtitleKey: 'webhookModalSubtitle', fields: [{id:'webhookUrl', labelKey:'labelWebhookUrl', placeholderKey:'placeholderWebhookUrl', type:'text'}], buildContent: (v) => `🔗 **${currentUser?.username || 'Utilisateur'}** proposed webhook: ${v.webhookUrl}` },
-  { id: 'roblox', menuKey: 'mailboxRoblox', titleKey: 'robloxModalTitle', subtitleKey: 'robloxModalSubtitle', fields: [{id:'gameLink', labelKey:'labelGameLink', placeholderKey:'placeholderGameLink', type:'text'}, {id:'message', labelKey:'labelGameDescription', placeholderKey:'placeholderGameDescription', type:'textarea'}], buildContent: (v) => `🎮 **${currentUser?.username || 'Utilisateur'}** submitted game: ${v.gameLink}\n${v.message}` },
-  { id: 'serverAdd', menuKey: 'mailboxServerAdd', titleKey: 'serverAddModalTitle', subtitleKey: 'serverAddModalSubtitle', fields: [{id:'serverInfo', labelKey:'labelServerInfo', placeholderKey:'placeholderServerInfo', type:'text'}], buildContent: (v) => `➕ **${currentUser?.username || 'Utilisateur'}** submitted server: ${v.serverInfo}` },
-  { id: 'report', menuKey: 'mailboxReport', titleKey: 'reportModalTitle', subtitleKey: 'reportModalSubtitle', fields: [{id:'reportedUser', labelKey:'labelReportedUser', placeholderKey:'placeholderReportedUser', type:'text'}, {id:'reason', labelKey:'labelReportReason', placeholderKey:'placeholderReportReason', type:'textarea'}], buildContent: (v) => `🚨 **${currentUser?.username || 'Utilisateur'}** reported ${v.reportedUser}\nReason: ${v.reason}` }
-];
+document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => applyLanguage(btn.dataset.lang)));
 
-// Le reste du code (i18n, galaxy, modals, etc.) est conservé de ton script original.
-// Colle ce code dans ton fichier et teste sur GitHub Pages.
-
-document.getElementById('cat-mailbox').classList.add('disabled'); // verrouillé au départ
+// Galaxy
+const canvas = document.getElementById('galaxy-canvas');
+const ctx = canvas.getContext('2d');
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+function draw() {
+  ctx.fillStyle = 'rgba(5,5,15,0.4)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  requestAnimationFrame(draw);
+}
+window.addEventListener('resize', resize);
+resize();
+draw();
 
 // Init
 handleCallback();
-if (localStorage.getItem('discord_user')) updateLoginUI();
-initDiscordLogin();
-applyLanguage(currentLang); // ta fonction originale
+if (localStorage.getItem('discord_user')) {
+  const u = JSON.parse(localStorage.getItem('discord_user'));
+  loginBtn.textContent = `✅ ${u.username}`;
+  loginBtn.classList.add('logged-in');
+  document.getElementById('cat-mailbox').classList.remove('disabled');
+}
+applyLanguage('fr');
 </script>
 </body>
 </html>
