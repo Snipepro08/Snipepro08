@@ -172,6 +172,130 @@
     padding: 15px 16px;
   }
 
+  /* Mailbox category focus: hovering it hides every other category */
+  .category {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  body.mailbox-focus .category:not(#cat-mailbox) {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+
+  /* Admin gear button */
+  #admin-toggle-btn {
+    position: fixed;
+    bottom: 16px;
+    left: 20px;
+    z-index: 3;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.7);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+  #admin-toggle-btn:hover {
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    transform: rotate(30deg);
+  }
+  .admin-box {
+    background: #1a1b1e;
+    width: 460px;
+    max-width: 90vw;
+    border-radius: 10px;
+    border: 1px solid rgba(88,101,242,0.25);
+    box-shadow: 0 0 40px rgba(88,101,242,0.15), 0 8px 24px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .admin-header {
+    background: linear-gradient(90deg, #201f3c, #17182e);
+    padding: 18px 24px;
+  }
+  .admin-header h2 {
+    margin: 0;
+    font-size: 17px;
+    color: #fff;
+  }
+  .admin-body {
+    padding: 20px 24px;
+  }
+  .admin-field {
+    margin-bottom: 16px;
+  }
+  .admin-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #8b8fa3;
+    margin-bottom: 8px;
+  }
+  .admin-field input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0f1015;
+    border: 1px solid #2b2c33;
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #dbdee1;
+    font-size: 14px;
+  }
+  .admin-field input:focus {
+    outline: none;
+    border-color: #5865f2;
+  }
+  .admin-save-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #6f5bff, #5865f2 60%, #33d0ff);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .admin-save-btn:hover {
+    filter: brightness(1.1);
+  }
+  .admin-note {
+    font-size: 12px;
+    color: #6b6f80;
+    margin-top: 14px;
+    line-height: 1.5;
+  }
+  .admin-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .admin-palette-swatch {
+    height: 44px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.15);
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    padding: 4px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  }
+  .admin-palette-swatch:hover {
+    outline: 2px solid #fff;
+  }
+
   #discord-login-area {
     margin-bottom: 4px;
   }
@@ -470,7 +594,7 @@
         <button class="cat-btn" id="mailbox-btn">📬 <span id="mailbox-btn-label">Snipecorp Mailbox</span> ▾</button>
         <div id="mailbox-menu"></div>
       </div>
-      <button class="cat-btn" id="mailbox-direct-btn">📨 <span data-i18n="mailboxDirect">Send a message</span></button>
+      <button class="cat-btn" id="mailbox-direct-btn">📨 <span data-i18n="mailboxDirect">Use ptx2's messagerie</span></button>
     </div>
   </div>
 
@@ -496,6 +620,13 @@
     <div class="category-buttons">
       <a class="social-btn" href="https://fortnite.gg/locker?id=3114783" target="_blank" rel="noopener">🎒 Fortnite Locker</a>
       <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
+    </div>
+  </div>
+
+  <div class="category" id="cat-game">
+    <div class="category-title" data-i18n="catGame">Game</div>
+    <div class="category-buttons">
+      <a class="social-btn" href="https://mobile-game-xi.vercel.app/" target="_blank" rel="noopener">🎮 <span data-i18n="gameLinkLabel">3D game made by AI</span></a>
     </div>
   </div>
 
@@ -568,6 +699,51 @@
   </div>
 </div>
 
+<button id="admin-toggle-btn" title="Admin">⚙</button>
+
+<!-- Admin login popup -->
+<div class="modal-overlay" id="admin-login-overlay">
+  <div class="admin-box">
+    <div class="admin-header">
+      <h2 data-i18n="adminAccessTitle">🔒 Admin Access</h2>
+    </div>
+    <div class="admin-body">
+      <div class="admin-field">
+        <label data-i18n="adminPasswordLabel">Password</label>
+        <input type="password" id="admin-password" placeholder="••••">
+      </div>
+      <div class="error-msg" id="admin-error-msg" data-i18n="adminIncorrect">Incorrect password.</div>
+      <button class="admin-save-btn" id="admin-unlock-btn" style="margin-top:14px;" data-i18n="adminUnlock">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin customization panel -->
+<div class="modal-overlay" id="admin-panel-overlay">
+  <div class="admin-box">
+    <div class="admin-header">
+      <h2 data-i18n="adminPanelTitle">⚙ Site Customization</h2>
+    </div>
+    <div class="admin-body">
+      <div class="admin-field">
+        <label data-i18n="adminGradientLabel">Background gradient</label>
+      </div>
+      <div class="admin-palette-grid" id="admin-palette-grid"></div>
+
+      <div class="admin-field">
+        <label data-i18n="adminBrandLabel">Brand text (top left)</label>
+        <input type="text" id="admin-brand-input" value="SnipeCorp">
+      </div>
+      <div class="admin-field">
+        <label data-i18n="adminVersionLabel">Version tag</label>
+        <input type="text" id="admin-version-input" value="v1.2.0">
+      </div>
+      <button class="admin-save-btn" id="admin-apply-btn" data-i18n="adminApply">Apply changes</button>
+      <p class="admin-note" data-i18n="adminNote">Changes apply instantly to this page but are not saved permanently — this is a static site with no server/database. Reloading the page resets everything.</p>
+    </div>
+  </div>
+</div>
+
 <script>
   // ⚠️ Main mailbox webhook (collab / webhook proposal / roblox / server add / report)
   const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
@@ -603,6 +779,8 @@
       catSocial: "Social networks",
       catFortnite: "Fortnite",
       catFaq: "FAQ",
+      catGame: "Game",
+      gameLinkLabel: "3D game made by AI",
       serversLabel: "Get a random serv",
       btnCancel: "Cancel",
       btnSend: "Send",
@@ -652,8 +830,19 @@
       labelReportReason: "Reason / details",
       placeholderReportReason: "Explain the situation...",
 
-      mailboxDirect: "Send a message",
+      mailboxDirect: "Use ptx2's messagerie",
       directModalTitle: "Send a Message",
+
+      adminAccessTitle: "🔒 Admin Access",
+      adminPasswordLabel: "Password",
+      adminUnlock: "Unlock",
+      adminIncorrect: "Incorrect password.",
+      adminPanelTitle: "⚙ Site Customization",
+      adminGradientLabel: "Background gradient",
+      adminBrandLabel: "Brand text (top left)",
+      adminVersionLabel: "Version tag",
+      adminApply: "Apply changes",
+      adminNote: "Changes apply instantly to this page but are not saved permanently — this is a static site with no server/database. Reloading the page resets everything.",
 
       discordChoiceTitle: "Discord",
       discordViewProfile: "View Snipepro's profile",
@@ -676,6 +865,8 @@
       catSocial: "Réseaux sociaux",
       catFortnite: "Fortnite",
       catFaq: "FAQ",
+      catGame: "Jeu",
+      gameLinkLabel: "Jeu 3D créé par IA",
       serversLabel: "Serv Discord au hasard",
       btnCancel: "Annuler",
       btnSend: "Envoyer",
@@ -725,8 +916,19 @@
       labelReportReason: "Raison / détails",
       placeholderReportReason: "Explique la situation...",
 
-      mailboxDirect: "Envoyer un message",
+      mailboxDirect: "Utiliser la messagerie de ptx2",
       directModalTitle: "Envoyer un message",
+
+      adminAccessTitle: "🔒 Accès Admin",
+      adminPasswordLabel: "Mot de passe",
+      adminUnlock: "Déverrouiller",
+      adminIncorrect: "Mot de passe incorrect.",
+      adminPanelTitle: "⚙ Personnalisation du site",
+      adminGradientLabel: "Dégradé de fond",
+      adminBrandLabel: "Texte de marque (en haut à gauche)",
+      adminVersionLabel: "Tag de version",
+      adminApply: "Appliquer",
+      adminNote: "Les changements s'appliquent instantanément à cette page mais ne sont pas sauvegardés — c'est un site statique sans serveur/base de données. Recharger la page réinitialise tout.",
 
       discordChoiceTitle: "Discord",
       discordViewProfile: "Voir le profil de Snipepro",
@@ -1123,14 +1325,15 @@
 
   // ---- Random gradient background (rainbow = rarest) ----
   const GRADIENT_PALETTES = [
-    { colors: ['#1b1035', '#3a1c71', '#5865f2', '#1b1035'], weight: 18 },
-    { colors: ['#0f2027', '#203a43', '#2c5364'], weight: 16 },
-    { colors: ['#1a0033', '#7303c0', '#ec38bc', '#1a0033'], weight: 14 },
-    { colors: ['#0b132b', '#1c2541', '#3a506b', '#0b132b'], weight: 16 },
-    { colors: ['#3d0000', '#7a0c0c', '#ff5e62', '#3d0000'], weight: 12 },
-    { colors: ['#013a63', '#2a9d8f', '#0b132b'], weight: 14 },
-    { colors: ['#2b1055', '#7597de', '#2b1055'], weight: 8 },
+    { name: 'Nebula', colors: ['#1b1035', '#3a1c71', '#5865f2', '#1b1035'], weight: 18 },
+    { name: 'Deep Sea', colors: ['#0f2027', '#203a43', '#2c5364'], weight: 16 },
+    { name: 'Magenta', colors: ['#1a0033', '#7303c0', '#ec38bc', '#1a0033'], weight: 14 },
+    { name: 'Slate', colors: ['#0b132b', '#1c2541', '#3a506b', '#0b132b'], weight: 16 },
+    { name: 'Ember', colors: ['#3d0000', '#7a0c0c', '#ff5e62', '#3d0000'], weight: 12 },
+    { name: 'Ocean', colors: ['#013a63', '#2a9d8f', '#0b132b'], weight: 14 },
+    { name: 'Violet', colors: ['#2b1055', '#7597de', '#2b1055'], weight: 8 },
     {
+      name: 'Rainbow',
       colors: ['#ff0000', '#ff9900', '#fff700', '#33ff00', '#00fff7', '#3300ff', '#ff00c8', '#ff0000'],
       weight: 3 // rainbow — the rarest variant
     }
@@ -1148,6 +1351,14 @@
 
   function applyRandomGradient() {
     const palette = pickWeightedPalette();
+    const angle = Math.floor(Math.random() * 360);
+    document.getElementById('bg-gradient').style.background =
+      `linear-gradient(${angle}deg, ${palette.colors.join(', ')})`;
+  }
+
+  function applyGradientByName(name) {
+    const palette = GRADIENT_PALETTES.find(p => p.name === name);
+    if (!palette) return;
     const angle = Math.floor(Math.random() * 360);
     document.getElementById('bg-gradient').style.background =
       `linear-gradient(${angle}deg, ${palette.colors.join(', ')})`;
