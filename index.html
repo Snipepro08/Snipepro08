@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Snipepro Official</title>
+<title>Snipepro - Contact</title>
 <style>
   * {
     box-sizing: border-box;
@@ -24,7 +24,7 @@
     padding: 100px 20px 60px;
   }
 
-  /* Animated galaxy background */
+  /* Animated warp-zoom space background */
   #galaxy-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -48,6 +48,38 @@
     color: transparent;
     text-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
     user-select: none;
+  }
+
+  /* Language switcher, top left */
+  #lang-switch {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 3;
+    display: flex;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+  }
+  .lang-btn {
+    background: transparent;
+    border: none;
+    color: #949ba4;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .lang-btn.active {
+    background: linear-gradient(135deg, #6f5bff, #5865f2);
+    color: #fff;
+  }
+  .lang-btn:not(.active):hover {
+    background: rgba(255,255,255,0.08);
+    color: #dbdee1;
   }
 
   /* Main call-to-action button */
@@ -106,13 +138,8 @@
     background: rgba(255,255,255,0.08);
     border-color: rgba(255,255,255,0.2);
   }
-  .social-btn .icon {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-  }
 
-  /* Overlay behind any modal */
+  /* Overlay behind the modal */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -234,134 +261,23 @@
     padding: 20px;
     font-size: 14px;
   }
-
-  /* Admin gear button */
-  #admin-toggle-btn {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 2;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #949ba4;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
-  }
-  #admin-toggle-btn:hover {
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-    transform: rotate(30deg);
-  }
-
-  /* Admin panel */
-  .admin-box {
-    background: #1a1b1e;
-    width: 480px;
-    max-width: 90vw;
-    border-radius: 10px;
-    border: 1px solid rgba(88,101,242,0.25);
-    box-shadow: 0 0 40px rgba(88,101,242,0.15), 0 8px 24px rgba(0,0,0,0.5);
-    overflow: hidden;
-  }
-  .admin-header {
-    background: linear-gradient(90deg, #201f3c, #17182e);
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .admin-header h2 {
-    margin: 0;
-    font-size: 17px;
-    color: #fff;
-  }
-  .admin-close {
-    background: none;
-    border: none;
-    color: #949ba4;
-    font-size: 20px;
-    cursor: pointer;
-    line-height: 1;
-  }
-  .admin-close:hover {
-    color: #fff;
-  }
-  .admin-body {
-    padding: 22px 24px;
-  }
-  .admin-field {
-    margin-bottom: 16px;
-  }
-  .admin-field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #8b8fa3;
-    margin-bottom: 8px;
-  }
-  .admin-field input {
-    width: 100%;
-    box-sizing: border-box;
-    background: #0f1015;
-    border: 1px solid #2b2c33;
-    border-radius: 6px;
-    padding: 10px 12px;
-    color: #dbdee1;
-    font-size: 14px;
-  }
-  .admin-field input:focus {
-    outline: none;
-    border-color: #5865f2;
-  }
-  .admin-save-btn {
-    width: 100%;
-    background: linear-gradient(135deg, #6f5bff, #5865f2 60%, #33d0ff);
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 6px;
-  }
-  .admin-save-btn:hover {
-    filter: brightness(1.1);
-  }
-  .admin-note {
-    font-size: 12px;
-    color: #6b6f80;
-    margin-top: 14px;
-    line-height: 1.5;
-  }
-  .admin-saved-msg {
-    display: none;
-    background: rgba(59, 165, 92, 0.15);
-    border: 1px solid rgba(59, 165, 92, 0.35);
-    color: #7fd99a;
-    font-size: 13px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 14px;
-  }
 </style>
 </head>
 <body>
 
 <canvas id="galaxy-canvas"></canvas>
+
+<div id="lang-switch">
+  <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
+  <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
+</div>
+
 <div id="brand-tag">SnipeCorp</div>
 
-<button id="open-modal-btn"> {Send a professional request to Snipepro} </button>
+<button id="open-modal-btn" data-i18n="cta">✦ Send a professional request to Snipepro</button>
 
 <div id="social-links">
+  <a class="social-btn" href="https://discord.com/users/1415766547321847930" target="_blank" rel="noopener">💬 Discord</a>
   <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
   <a class="social-btn" href="https://roblox.com/fr/games/75703894644091/City-Of-Fun" target="_blank" rel="noopener">🎮 Roblox</a>
   <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
@@ -371,93 +287,97 @@
   <a class="social-btn" href="https://bento.me/matagameur" target="_blank" rel="noopener">🔗 Bento</a>
 </div>
 
-<button id="admin-toggle-btn" title="Admin">⚙</button>
-
 <!-- Contact modal -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <h2>Contact Snipepro</h2>
-      <p>Submit your professional request below</p>
+      <h2 data-i18n="modalTitle">Contact Snipepro</h2>
+      <p data-i18n="modalSubtitle">Submit your professional request below</p>
     </div>
     <div class="modal-body" id="modal-body">
       <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" maxlength="32" placeholder="Your username">
+        <label for="username" data-i18n="labelUsername">Username</label>
+        <input type="text" id="username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="Your username">
       </div>
       <div class="form-group">
-        <label for="message">Message</label>
-        <textarea id="message" maxlength="1000" placeholder="Describe your request..."></textarea>
+        <label for="message" data-i18n="labelMessage">Message</label>
+        <textarea id="message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="Describe your request..."></textarea>
       </div>
       <div class="error-msg" id="error-msg"></div>
     </div>
     <div class="modal-footer" id="modal-footer">
-      <button class="btn-cancel" id="cancel-btn">Cancel</button>
-      <button class="btn-submit" id="submit-btn">Send</button>
-    </div>
-  </div>
-</div>
-
-<!-- Admin login modal -->
-<div class="modal-overlay" id="admin-login-overlay">
-  <div class="admin-box">
-    <div class="admin-header">
-      <h2>🔒 Admin Access</h2>
-      <button class="admin-close" id="admin-login-close">✕</button>
-    </div>
-    <div class="admin-body">
-      <div class="admin-field">
-        <label for="admin-password">Password</label>
-        <input type="password" id="admin-password" placeholder="Who Is The Goat ?">
-      </div>
-      <div class="error-msg" id="admin-error">Incorrect password.</div>
-      <button class="admin-save-btn" id="admin-login-btn" style="margin-top:14px;">Unlock</button>
-    </div>
-  </div>
-</div>
-
-<!-- Admin edit panel -->
-<div class="modal-overlay" id="admin-panel-overlay">
-  <div class="admin-box">
-    <div class="admin-header">
-      <h2>⚙ Site Editor</h2>
-      <button class="admin-close" id="admin-panel-close">✕</button>
-    </div>
-    <div class="admin-body">
-      <div class="admin-saved-msg" id="admin-saved-msg">✅ Changes applied to this page.</div>
-
-      <div class="admin-field">
-        <label for="edit-brand">Brand text (top right)</label>
-        <input type="text" id="edit-brand" value="SnipeCorp">
-      </div>
-      <div class="admin-field">
-        <label for="edit-cta">Main button text</label>
-        <input type="text" id="edit-cta" value="✦ Send a professional request to Snipepro">
-      </div>
-      <div class="admin-field">
-        <label for="edit-modal-title">Contact modal title</label>
-        <input type="text" id="edit-modal-title" value="Contact Snipepro">
-      </div>
-      <div class="admin-field">
-        <label for="edit-webhook">Discord webhook URL</label>
-        <input type="text" id="edit-webhook" placeholder="https://discord.com/api/webhooks/...">
-      </div>
-
-      <button class="admin-save-btn" id="admin-apply-btn">Apply changes</button>
-      <p class="admin-note">
-        Changes apply instantly to the page you're viewing, but are not saved permanently —
-        this is a static site with no server/database. Reloading the page resets everything
-        to the values in the HTML file. To make changes permanent, edit the file directly and
-        push it to your GitHub repo.
-      </p>
+      <button class="btn-cancel" id="cancel-btn" data-i18n="btnCancel">Cancel</button>
+      <button class="btn-submit" id="submit-btn" data-i18n="btnSend">Send</button>
     </div>
   </div>
 </div>
 
 <script>
   // ⚠️ Replace this with your own Discord webhook URL
-  const WEBHOOK_URL_DEFAULT = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
-  let currentWebhookUrl = WEBHOOK_URL_DEFAULT;
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
+
+  // ---- i18n ----
+  const translations = {
+    en: {
+      cta: "✦ Send a professional request to Snipepro",
+      modalTitle: "Contact Snipepro",
+      modalSubtitle: "Submit your professional request below",
+      labelUsername: "Username",
+      placeholderUsername: "Your username",
+      labelMessage: "Message",
+      placeholderMessage: "Describe your request...",
+      btnCancel: "Cancel",
+      btnSend: "Send",
+      btnSending: "Sending...",
+      errFill: "Please fill in both the username and the message.",
+      errSend: "Failed to send. Please check the webhook URL.",
+      successMsg: "✅ Message sent successfully!"
+    },
+    fr: {
+      cta: "✦ Envoyer une demande professionnelle à Snipepro",
+      modalTitle: "Contacter Snipepro",
+      modalSubtitle: "Soumets ta demande professionnelle ci-dessous",
+      labelUsername: "Pseudo",
+      placeholderUsername: "Ton pseudo",
+      labelMessage: "Message",
+      placeholderMessage: "Décris ta demande...",
+      btnCancel: "Annuler",
+      btnSend: "Envoyer",
+      btnSending: "Envoi...",
+      errFill: "Merci de remplir le pseudo et le message.",
+      errSend: "Échec de l'envoi. Vérifie l'URL du webhook.",
+      successMsg: "✅ Message envoyé avec succès !"
+    }
+  };
+
+  let currentLang = "en"; // default language
+
+  function applyLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key]) el.textContent = t[key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (t[key]) el.placeholder = t[key];
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    document.documentElement.lang = lang;
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-lang')));
+  });
+
+  // Any future feature should read strings via translations[currentLang].xxx
+  // and re-render itself inside applyLanguage() so language stays in sync site-wide.
 
   // ---- Contact modal ----
   const openBtn = document.getElementById('open-modal-btn');
@@ -484,20 +404,21 @@
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
 
   submitBtn.addEventListener('click', async () => {
+    const t = translations[currentLang];
     const username = usernameInput.value.trim();
     const message = messageInput.value.trim();
 
     if (!username || !message) {
-      errorMsg.textContent = "Please fill in both the username and the message.";
+      errorMsg.textContent = t.errFill;
       errorMsg.style.display = 'block';
       return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "Sending...";
+    submitBtn.textContent = t.btnSending;
 
     try {
-      const response = await fetch(currentWebhookUrl, {
+      const response = await fetch(WEBHOOK_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -509,147 +430,179 @@
         throw new Error("Failed to send (" + response.status + ")");
       }
 
-      modalBody.innerHTML = '<div class="status-msg">✅ Message sent successfully!</div>';
+      modalBody.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
       modalFooter.style.display = 'none';
-      setTimeout(closeModal, 1500);
+      setTimeout(() => {
+        closeModal();
+        modalBody.innerHTML = `
+          <div class="form-group">
+            <label for="username" data-i18n="labelUsername">${t.labelUsername}</label>
+            <input type="text" id="username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="${t.placeholderUsername}">
+          </div>
+          <div class="form-group">
+            <label for="message" data-i18n="labelMessage">${t.labelMessage}</label>
+            <textarea id="message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="${t.placeholderMessage}"></textarea>
+          </div>
+          <div class="error-msg" id="error-msg"></div>`;
+        modalFooter.style.display = 'flex';
+        submitBtn.disabled = false;
+        submitBtn.textContent = translations[currentLang].btnSend;
+        // Re-bind references since we replaced the inner HTML
+        window.usernameInput = document.getElementById('username');
+        window.messageInput = document.getElementById('message');
+        window.errorMsg = document.getElementById('error-msg');
+      }, 1500);
 
     } catch (err) {
-      errorMsg.textContent = "Failed to send. Please check the webhook URL.";
+      errorMsg.textContent = t.errSend;
       errorMsg.style.display = 'block';
       submitBtn.disabled = false;
-      submitBtn.textContent = "Send";
+      submitBtn.textContent = t.btnSend;
     }
   });
 
-  // ---- Admin login + panel ----
-  const ADMIN_PASSWORD = "Snipepro";
-
-  const adminToggleBtn = document.getElementById('admin-toggle-btn');
-  const adminLoginOverlay = document.getElementById('admin-login-overlay');
-  const adminLoginClose = document.getElementById('admin-login-close');
-  const adminPasswordInput = document.getElementById('admin-password');
-  const adminLoginBtn = document.getElementById('admin-login-btn');
-  const adminError = document.getElementById('admin-error');
-
-  const adminPanelOverlay = document.getElementById('admin-panel-overlay');
-  const adminPanelClose = document.getElementById('admin-panel-close');
-  const adminApplyBtn = document.getElementById('admin-apply-btn');
-  const adminSavedMsg = document.getElementById('admin-saved-msg');
-
-  adminToggleBtn.addEventListener('click', () => {
-    adminPasswordInput.value = '';
-    adminError.style.display = 'none';
-    adminLoginOverlay.classList.add('active');
-  });
-  adminLoginClose.addEventListener('click', () => adminLoginOverlay.classList.remove('active'));
-  adminLoginOverlay.addEventListener('click', (e) => {
-    if (e.target === adminLoginOverlay) adminLoginOverlay.classList.remove('active');
-  });
-
-  adminLoginBtn.addEventListener('click', () => {
-    if (adminPasswordInput.value === ADMIN_PASSWORD) {
-      adminLoginOverlay.classList.remove('active');
-      // Pre-fill the editor with current live values
-      document.getElementById('edit-brand').value = document.getElementById('brand-tag').textContent;
-      document.getElementById('edit-cta').value = openBtn.textContent;
-      document.getElementById('edit-modal-title').value = document.querySelector('.modal-header h2').textContent;
-      document.getElementById('edit-webhook').value = currentWebhookUrl;
-      adminSavedMsg.style.display = 'none';
-      adminPanelOverlay.classList.add('active');
-    } else {
-      adminError.style.display = 'block';
-    }
-  });
-  adminPasswordInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') adminLoginBtn.click();
-  });
-
-  adminPanelClose.addEventListener('click', () => adminPanelOverlay.classList.remove('active'));
-  adminPanelOverlay.addEventListener('click', (e) => {
-    if (e.target === adminPanelOverlay) adminPanelOverlay.classList.remove('active');
-  });
-
-  adminApplyBtn.addEventListener('click', () => {
-    const newBrand = document.getElementById('edit-brand').value.trim();
-    const newCta = document.getElementById('edit-cta').value.trim();
-    const newModalTitle = document.getElementById('edit-modal-title').value.trim();
-    const newWebhook = document.getElementById('edit-webhook').value.trim();
-
-    if (newBrand) document.getElementById('brand-tag').textContent = newBrand;
-    if (newCta) openBtn.textContent = newCta;
-    if (newModalTitle) document.querySelector('.modal-header h2').textContent = newModalTitle;
-    if (newWebhook) currentWebhookUrl = newWebhook;
-
-    adminSavedMsg.style.display = 'block';
-  });
-
-  // ---- Animated galaxy background ----
+  // ---- Warp-zoom space background with hidden-shape image ghosts ----
   const canvas = document.getElementById('galaxy-canvas');
   const ctx = canvas.getContext('2d');
-  let width, height, stars;
+  let width, height, cx, cy, stars;
+
+  const IMAGE_SOURCES = [
+    'assets/img1.jpg',
+    'assets/img2.png',
+    'assets/img3.jpg',
+    'assets/img4.png',
+    'assets/img5.jpeg'
+  ];
+  const loadedImages = [];
+  IMAGE_SOURCES.forEach(src => {
+    const img = new Image();
+    img.src = src;
+    loadedImages.push(img);
+  });
+
+  let ghosts = []; // ghost images drifting through the background
+  const MAX_GHOSTS = 2;
+  const GHOST_LIFETIME = 7000; // ms
+
+  function spawnGhost() {
+    if (ghosts.length >= MAX_GHOSTS) return;
+    const img = loadedImages[Math.floor(Math.random() * loadedImages.length)];
+    if (!img.complete || img.naturalWidth === 0) return;
+
+    const angle = Math.random() * Math.PI * 2;
+    const startRadius = 20;
+    ghosts.push({
+      img,
+      angle,
+      startRadius,
+      born: performance.now(),
+      size: 90 + Math.random() * 60,
+      spin: (Math.random() - 0.5) * 0.4
+    });
+  }
+
+  function drawGhosts(now) {
+    ghosts = ghosts.filter(g => now - g.born < GHOST_LIFETIME);
+
+    for (const g of ghosts) {
+      const t = (now - g.born) / GHOST_LIFETIME; // 0 -> 1
+      const radius = g.startRadius + t * (Math.max(width, height) * 0.7);
+      const x = cx + Math.cos(g.angle) * radius;
+      const y = cy + Math.sin(g.angle) * radius;
+      const scale = 0.4 + t * 1.6;
+      const size = g.size * scale;
+
+      // fade in quickly, hold, fade out at the end
+      let alpha;
+      if (t < 0.15) alpha = t / 0.15;
+      else if (t > 0.75) alpha = (1 - t) / 0.25;
+      else alpha = 1;
+      alpha *= 0.16; // keep it subtle / hidden, only the silhouette reads
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(t * g.spin);
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+      ctx.filter = 'grayscale(1) blur(3px) brightness(0.55) contrast(1.1)';
+      ctx.drawImage(g.img, -size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+  }
 
   function resize() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
+    cx = width / 2;
+    cy = height / 2;
   }
 
   function createStars(count) {
     const arr = [];
     for (let i = 0; i < count; i++) {
-      arr.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        radius: Math.random() * 1.4 + 0.2,
-        baseAlpha: Math.random() * 0.6 + 0.3,
-        twinkleSpeed: Math.random() * 0.02 + 0.005,
-        phase: Math.random() * Math.PI * 2,
-        driftX: (Math.random() - 0.5) * 0.05,
-        driftY: (Math.random() - 0.5) * 0.05,
-        hue: Math.random() < 0.15 ? (Math.random() < 0.5 ? 260 : 190) : 0
-      });
+      arr.push(makeStar(true));
     }
     return arr;
   }
 
-  function initGalaxy() {
-    resize();
-    const density = Math.floor((width * height) / 2200);
-    stars = createStars(density);
+  function makeStar(randomDepth) {
+    return {
+      x: (Math.random() - 0.5) * width,
+      y: (Math.random() - 0.5) * height,
+      z: randomDepth ? Math.random() * width : width,
+      pz: 0
+    };
   }
 
-  function drawGalaxy(time) {
-    ctx.clearRect(0, 0, width, height);
+  function initGalaxy() {
+    resize();
+    const density = Math.floor((width * height) / 3500);
+    stars = createStars(density);
+    ghosts = [];
+  }
 
-    const glow1 = ctx.createRadialGradient(width * 0.25, height * 0.3, 0, width * 0.25, height * 0.3, width * 0.5);
-    glow1.addColorStop(0, 'rgba(111, 91, 255, 0.10)');
+  const SPEED = 2.2;
+
+  function drawGalaxy() {
+    const now = performance.now();
+
+    ctx.fillStyle = 'rgba(5, 5, 15, 0.35)';
+    ctx.fillRect(0, 0, width, height);
+
+    // soft nebula glow, gives depth to the zoom
+    const glow1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.6);
+    glow1.addColorStop(0, 'rgba(111, 91, 255, 0.06)');
     glow1.addColorStop(1, 'rgba(111, 91, 255, 0)');
     ctx.fillStyle = glow1;
     ctx.fillRect(0, 0, width, height);
 
-    const glow2 = ctx.createRadialGradient(width * 0.75, height * 0.7, 0, width * 0.75, height * 0.7, width * 0.5);
-    glow2.addColorStop(0, 'rgba(51, 208, 255, 0.08)');
-    glow2.addColorStop(1, 'rgba(51, 208, 255, 0)');
-    ctx.fillStyle = glow2;
-    ctx.fillRect(0, 0, width, height);
+    ctx.filter = 'none';
+    drawGhosts(now);
+    ctx.globalAlpha = 1;
+    ctx.filter = 'none';
 
     for (const s of stars) {
-      s.x += s.driftX;
-      s.y += s.driftY;
-      if (s.x < 0) s.x = width;
-      if (s.x > width) s.x = 0;
-      if (s.y < 0) s.y = height;
-      if (s.y > height) s.y = 0;
+      s.pz = s.z;
+      s.z -= SPEED;
+      if (s.z <= 1) {
+        Object.assign(s, makeStar(false));
+        s.z = width;
+        s.pz = width;
+      }
 
-      const twinkle = Math.sin(time * s.twinkleSpeed + s.phase) * 0.35 + 0.65;
-      const alpha = s.baseAlpha * twinkle;
-      const color = s.hue === 260 ? `rgba(180,160,255,${alpha})`
-                  : s.hue === 190 ? `rgba(160,230,255,${alpha})`
-                  : `rgba(255,255,255,${alpha})`;
+      const sx = (s.x / s.z) * width + cx;
+      const sy = (s.y / s.z) * width + cy;
+      const px = (s.x / s.pz) * width + cx;
+      const py = (s.y / s.pz) * width + cy;
 
+      const r = Math.max(0.3, (1 - s.z / width) * 2.2);
+      const alpha = Math.min(1, (1 - s.z / width) * 1.3);
+
+      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+      ctx.lineWidth = r;
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
+      ctx.moveTo(px, py);
+      ctx.lineTo(sx, sy);
+      ctx.stroke();
     }
 
     requestAnimationFrame(drawGalaxy);
@@ -658,6 +611,10 @@
   window.addEventListener('resize', initGalaxy);
   initGalaxy();
   requestAnimationFrame(drawGalaxy);
+  setInterval(spawnGhost, 3500);
+
+  // ---- init ----
+  applyLanguage(currentLang);
 </script>
 
 </body>
