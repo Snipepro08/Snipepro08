@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Connecting to Discord...</title>
+<style>
+  body {
+    background: #05050f;
+    color: #dbdee1;
+    font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+<p>Connecting to Discord...</p>
+<script>
+  // Discord redirects here with the access token in the URL fragment
+  // (e.g. #access_token=XXXX&token_type=Bearer&...) because we use the
+  // implicit grant flow — no client secret involved, nothing to leak.
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const token = params.get('access_token');
+
+  // Hand the token back to the main page via its own URL fragment,
+  // then let the main page fetch the Discord profile itself.
+  if (token) {
+    window.location.href = '../index.html#discord_token=' + encodeURIComponent(token);
+  } else {
+    window.location.href = '../index.html';
+  }
+</script>
+</body>
+</html>
