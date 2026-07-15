@@ -4,48 +4,450 @@
 <meta charset="UTF-8">
 <title>Snipepro Officiel</title>
 <style>
-  * { box-sizing: border-box; }
-  html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; }
-  body { background: #05050f; color: #dbdee1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; min-height: 100vh; padding: 130px 20px 60px; }
-  #galaxy-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: radial-gradient(ellipse at center, #10102a 0%, #05050f 70%); }
-  #brand-tag { position: fixed; top: 20px; left: 20px; z-index: 3; font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 0 20px rgba(88, 101, 242, 0.4); user-select: none; }
-  #lang-switch { position: fixed; top: 62px; left: 20px; z-index: 3; display: flex; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; overflow: hidden; backdrop-filter: blur(6px); }
-  .lang-btn { background: transparent; border: none; color: #949ba4; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
-  .lang-btn.active { background: linear-gradient(135deg, #6f5bff, #5865f2); color: #fff; }
-  #version-tag { position: fixed; bottom: 14px; right: 18px; z-index: 3; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: #5a5e6b; user-select: none; }
-  #categories { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; width: 100%; max-width: 900px; }
-  .category { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; backdrop-filter: blur(6px); transition: all 0.35s ease; }
-  .category-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #8b8fa3; margin-bottom: 10px; }
-  .category-buttons { display: flex; flex-direction: column; gap: 10px; }
-  .social-btn, .cat-btn { display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #dbdee1; text-decoration: none; padding: 12px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.15s ease; }
-  .social-btn:hover, .cat-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
-  #cat-mailbox .cat-btn { background: linear-gradient(135deg, #6f5bff, #5865f2 40%, #33d0ff); border: none; color: #fff; font-size: 15px; padding: 15px 16px; box-shadow: 0 0 20px rgba(88, 101, 242, 0.45); }
-  .login-btn { background: #5865f2; color: white; border: none; font-weight: 700; }
-  .login-btn:hover:not(.logged-in) { background: #4752c4; }
-  .logged-in { background: #3ba55c; cursor: default; pointer-events: none; }
-  #cat-mailbox.disabled { opacity: 0.65; pointer-events: none; }
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    min-height: 100%;
+    margin: 0;
+    font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
+  }
+  body {
+    background: #05050f;
+    color: #dbdee1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 100vh;
+    padding: 130px 20px 60px;
+  }
+
+  #galaxy-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    background: radial-gradient(ellipse at center, #10102a 0%, #05050f 70%);
+  }
+
+  #brand-tag {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 3;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
+    user-select: none;
+  }
+
+  #lang-switch {
+    position: fixed;
+    top: 62px;
+    left: 20px;
+    z-index: 3;
+    display: flex;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .lang-btn {
+    background: transparent;
+    border: none;
+    color: #949ba4;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .lang-btn.active {
+    background: linear-gradient(135deg, #6f5bff, #5865f2);
+    color: #fff;
+  }
+  .lang-btn:not(.active):hover {
+    background: rgba(255,255,255,0.08);
+    color: #dbdee1;
+  }
+
+  #version-tag {
+    position: fixed;
+    bottom: 14px;
+    right: 18px;
+    z-index: 3;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #5a5e6b;
+    user-select: none;
+  }
+
+  #categories {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+  }
+  .category {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px;
+    backdrop-filter: blur(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .category-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8b8fa3;
+    margin-bottom: 10px;
+  }
+  .category-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  body.cta-focus .category {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+  body.cta-focus .category.active-hover {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .social-btn, .cat-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #dbdee1;
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .social-btn:hover, .cat-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+  }
+
+  #cat-mailbox .cat-btn {
+    background: linear-gradient(135deg, #6f5bff, #5865f2 40%, #33d0ff);
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    padding: 15px 16px;
+    box-shadow: 0 0 20px rgba(88, 101, 242, 0.45);
+  }
+  #cat-mailbox .cat-btn:hover {
+    box-shadow: 0 0 32px rgba(88, 101, 242, 0.75);
+  }
+
+  #mailbox-wrap {
+    position: relative;
+  }
+  #mailbox-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #1a1b1e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+    z-index: 6;
+  }
+  #mailbox-wrap.open #mailbox-menu {
+    display: block;
+  }
+  .menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #dbdee1;
+    padding: 12px 14px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .menu-item:hover {
+    background: rgba(88,101,242,0.18);
+  }
+  .menu-item + .menu-item {
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  #faq-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .faq-btn {
+    text-align: left;
+    font-size: 13px;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal-box {
+    background: #313338;
+    width: 440px;
+    max-width: 90vw;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .modal-header {
+    background: #2b2d31;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .modal-header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 20px;
+  }
+  .modal-header p {
+    margin: 6px 0 0;
+    color: #949ba4;
+    font-size: 13px;
+  }
+  .modal-body {
+    padding: 20px 24px;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #b5bac1;
+    margin-bottom: 8px;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #1e1f22;
+    border: 1px solid #1e1f22;
+    border-radius: 4px;
+    padding: 10px;
+    color: #dbdee1;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .form-group textarea {
+    min-height: 90px;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #5865f2;
+  }
+  .form-note {
+    font-size: 12px;
+    color: #949ba4;
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+  .modal-footer {
+    background: #2b2d31;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  .btn-cancel {
+    background: transparent;
+    color: #dbdee1;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-cancel:hover {
+    text-decoration: underline;
+  }
+  .btn-submit {
+    background: #5865f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-submit:hover {
+    background: #4752c4;
+  }
+  .btn-submit:disabled {
+    background: #4752c4;
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .error-msg {
+    color: #f23f42;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+  }
+  .status-msg {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+  }
+  .faq-answer {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #dbdee1;
+    white-space: pre-line;
+  }
+
+  .widget-modal-box {
+    background: transparent;
+  }
+  .widget-modal-box iframe {
+    border-radius: 8px;
+    display: block;
+  }
+  .widget-close-btn {
+    display: block;
+    margin: 0 auto 10px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .widget-close-btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .choice-box {
+    background: #313338;
+    width: 380px;
+    max-width: 90vw;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .choice-header {
+    background: #2b2d31;
+    padding: 18px 22px;
+    text-align: center;
+  }
+  .choice-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #fff;
+  }
+  .choice-body {
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .choice-btn {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    padding: 13px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+  }
+  .choice-btn.profile {
+    background: rgba(255,255,255,0.06);
+    color: #dbdee1;
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+  .choice-btn.profile:hover {
+    background: rgba(255,255,255,0.12);
+  }
+  .choice-btn.bot {
+    background: linear-gradient(135deg, #6f5bff, #5865f2 60%, #33d0ff);
+    color: #fff;
+  }
+  .choice-btn.bot:hover {
+    filter: brightness(1.1);
+  }
 </style>
 </head>
 <body>
+
 <canvas id="galaxy-canvas"></canvas>
+
 <div id="brand-tag">SnipeCorp</div>
+
 <div id="lang-switch">
   <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
   <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
 </div>
-<div id="version-tag">v1.2.0</div>
+
+<div id="version-tag">v1.1.0</div>
 
 <div id="categories">
+
   <div class="category" id="cat-mailbox">
     <div class="category-title" data-i18n="catMailbox">Mailbox</div>
     <div class="category-buttons">
-      <button class="social-btn login-btn" id="discord-login-btn">🔑 <span data-i18n="loginButton">Se connecter avec Discord</span></button>
       <div id="mailbox-wrap">
         <button class="cat-btn" id="mailbox-btn">📬 <span data-i18n="mailboxLabel">Mailbox</span> ▾</button>
         <div id="mailbox-menu"></div>
       </div>
     </div>
   </div>
+
   <div class="category" id="cat-discord">
     <div class="category-title" data-i18n="catDiscord">Discord</div>
     <div class="category-buttons">
@@ -53,6 +455,7 @@
       <button class="social-btn" id="discord-servers-btn">🎲 <span data-i18n="serversLabel">Get a random serv</span></button>
     </div>
   </div>
+
   <div class="category" id="cat-social">
     <div class="category-title" data-i18n="catSocial">Social networks</div>
     <div class="category-buttons">
@@ -61,6 +464,7 @@
       <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
     </div>
   </div>
+
   <div class="category" id="cat-fortnite">
     <div class="category-title" data-i18n="catFortnite">Fortnite</div>
     <div class="category-buttons">
@@ -68,86 +472,670 @@
       <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
     </div>
   </div>
+
   <div class="category" id="cat-faq">
     <div class="category-title" data-i18n="catFaq">FAQ</div>
     <div class="category-buttons" id="faq-wrap"></div>
   </div>
+
+</div>
+
+<!-- Generic mailbox modal (populated dynamically per option) -->
+<div class="modal-overlay" id="mailbox-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="mailbox-modal-title">Mailbox</h2>
+      <p id="mailbox-modal-subtitle"></p>
+    </div>
+    <div class="modal-body" id="mailbox-modal-body"></div>
+    <div class="modal-footer" id="mailbox-modal-footer">
+      <button class="btn-cancel" id="mailbox-cancel-btn" data-i18n="btnCancel">Cancel</button>
+      <button class="btn-submit" id="mailbox-submit-btn" data-i18n="btnSend">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generic FAQ answer modal -->
+<div class="modal-overlay" id="faq-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="faq-modal-title">FAQ</h2>
+    </div>
+    <div class="modal-body">
+      <p class="faq-answer" id="faq-modal-answer"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="faq-close-btn" data-i18n="btnClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Discord server widget popup -->
+<div class="modal-overlay" id="widget-overlay">
+  <div class="widget-modal-box" id="widget-box"></div>
+</div>
+
+<!-- Discord choice popup (profile vs bot) -->
+<div class="modal-overlay" id="discord-choice-overlay">
+  <div class="choice-box">
+    <div class="choice-header">
+      <h2 data-i18n="discordChoiceTitle">Discord</h2>
+    </div>
+    <div class="choice-body">
+      <a class="choice-btn profile" id="discord-choice-profile" href="https://discord.com/users/1415766547321847930" target="_blank" rel="noopener" data-i18n="discordViewProfile">View Snipepro's profile</a>
+      <a class="choice-btn bot" id="discord-choice-bot" href="https://discord.com/oauth2/authorize?client_id=1517116269004984320&integration_type=1&scope=applications.commands" target="_blank" rel="noopener" data-i18n="discordAddBot">Add the official Snipepro bot</a>
+    </div>
+  </div>
 </div>
 
 <script>
-// CONFIG DISCORD
-const CLIENT_ID = "1526891762436538460";
-const REDIRECT_URI = "https://snipepro08.github.io/Snipepro08/callback";
+  // ⚠️ Replace this with your own Discord webhook URL — used for EVERY mailbox option
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
 
-let currentLang = "fr";
-let currentUser = null;
+  const SITE_VERSION = "1.1.0";
 
-// Traductions
-const translations = {
-  en: { catMailbox: "Mailbox", catDiscord: "Discord", catSocial: "Social networks", catFortnite: "Fortnite", catFaq: "FAQ", mailboxLabel: "Mailbox", serversLabel: "Get a random serv", loginButton: "Connect with Discord" },
-  fr: { catMailbox: "Messagerie", catDiscord: "Discord", catSocial: "Réseaux sociaux", catFortnite: "Fortnite", catFaq: "FAQ", mailboxLabel: "Messagerie", serversLabel: "Serv Discord au hasard", loginButton: "Se connecter avec Discord" }
-};
+  // Discord servers used by the "random serv" button.
+  const DISCORD_SERVERS = [
+    { name: "Server 1", id: "1421178923034869975" },
+    { name: "Server 2", id: "1389895023570714727" },
+    { name: "Server 3", id: "1518314264165617855" },
+    { name: "Server 4", id: "1501860935151910942" },
+    { name: "Server 5", id: "1518527780353085540" }
+  ];
 
-// Discord
-const loginBtn = document.getElementById('discord-login-btn');
-loginBtn.addEventListener('click', () => {
-  if (loginBtn.classList.contains('logged-in')) return;
-  const url = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
-  window.location.href = url;
-});
+  // ---- i18n ----
+  const translations = {
+    en: {
+      pageTitle: "Snipepro Official",
+      catMailbox: "Mailbox",
+      catDiscord: "Discord",
+      catSocial: "Social networks",
+      catFortnite: "Fortnite",
+      catFaq: "FAQ",
+      mailboxLabel: "Mailbox",
+      serversLabel: "Get a random serv",
+      btnCancel: "Cancel",
+      btnSend: "Send",
+      btnClose: "Close",
+      btnSending: "Sending...",
+      errFillAll: "Please fill in every field.",
+      errSend: "Failed to send. Please check the webhook URL.",
+      successMsg: "✅ Sent successfully!",
+      dmNote: "Reminder: your Discord DMs must be open so the SnipeCorp team can reach you.",
+      labelDiscordUsername: "Discord username",
+      placeholderDiscordUsername: "yourname or @yourname",
 
-function handleCallback() {
-  const hash = window.location.hash.substring(1);
-  const params = new URLSearchParams(hash);
-  const token = params.get('access_token');
-  if (token) {
-    fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${token}` } })
-    .then(r => r.json())
-    .then(user => {
-      currentUser = user;
-      localStorage.setItem('discord_user', JSON.stringify(user));
-      loginBtn.textContent = `✅ ${user.username}`;
-      loginBtn.classList.add('logged-in');
-      document.getElementById('cat-mailbox').classList.remove('disabled');
-      window.history.replaceState({}, '', window.location.pathname);
+      mailboxCollab: "Request a collab with Snipepro",
+      collabModalTitle: "Collab Request",
+      collabModalSubtitle: "Submit your professional request below",
+      labelMessage: "Message",
+      placeholderMessage: "Describe your request...",
+
+      mailboxWebhook: "Propose your Discord webhook",
+      webhookModalTitle: "Propose your webhook",
+      webhookModalSubtitle: "Submit your server's webhook below",
+      labelWebhookUrl: "Webhook URL",
+      placeholderWebhookUrl: "https://discord.com/api/webhooks/...",
+
+      mailboxRoblox: "Apply to add your Roblox game to City Of Fun",
+      robloxModalTitle: "Roblox Game Submission",
+      robloxModalSubtitle: "Apply to get your game added to City Of Fun",
+      labelGameLink: "Roblox game link",
+      placeholderGameLink: "https://www.roblox.com/games/...",
+      labelGameDescription: "Describe your game",
+      placeholderGameDescription: "What makes it a good fit?",
+
+      mailboxServerAdd: "Add your Discord server to the random pool",
+      serverAddModalTitle: "Add Your Server",
+      serverAddModalSubtitle: "Submit your server for the random server pool",
+      labelServerInfo: "Server ID or invite link",
+      placeholderServerInfo: "123456789012345678 or discord.gg/...",
+      serverAddNote: "Make sure your server's widget is enabled beforehand. Submissions are reviewed by staff before being published.",
+
+      mailboxReport: "Report a user",
+      reportModalTitle: "Report a User",
+      reportModalSubtitle: "For example: identity theft / impersonation",
+      labelReportedUser: "User being reported",
+      placeholderReportedUser: "Username or user ID",
+      labelReportReason: "Reason / details",
+      placeholderReportReason: "Explain the situation...",
+
+      discordChoiceTitle: "Discord",
+      discordViewProfile: "View Snipepro's profile",
+      discordAddBot: "Add the official Snipepro bot",
+      widgetClose: "Close",
+
+      faqWebhookQ: "How to create a webhook and copy its URL?",
+      faqWebhookA: "1. Open your Discord server settings.\n2. Go to Integrations → Webhooks.\n3. Click \"New Webhook\" and give it a name.\n4. Click \"Copy Webhook URL\".",
+      faqDmPhoneQ: "How to open your DMs on phone?",
+      faqDmPhoneA: "1. Open the Discord app.\n2. Tap your profile picture (bottom right) → Settings.\n3. Go to Privacy & Safety.\n4. Enable \"Allow direct messages from server members\".",
+      faqDmPcQ: "How to open your DMs on computer?",
+      faqDmPcA: "1. Open Discord.\n2. Click the gear icon near your username (User Settings).\n3. Go to Privacy & Safety.\n4. Enable \"Allow direct messages from server members\".",
+      faqDataQ: "Where does the info I give the mailbox go?",
+      faqDataA: "It's stored in SnipeCorp's database."
+    },
+    fr: {
+      pageTitle: "Snipepro Officiel",
+      catMailbox: "Messagerie",
+      catDiscord: "Discord",
+      catSocial: "Réseaux sociaux",
+      catFortnite: "Fortnite",
+      catFaq: "FAQ",
+      mailboxLabel: "Messagerie",
+      serversLabel: "Serv Discord au hasard",
+      btnCancel: "Annuler",
+      btnSend: "Envoyer",
+      btnClose: "Fermer",
+      btnSending: "Envoi...",
+      errFillAll: "Merci de remplir tous les champs.",
+      errSend: "Échec de l'envoi. Vérifie l'URL du webhook.",
+      successMsg: "✅ Envoyé avec succès !",
+      dmNote: "Rappel : tes MP Discord doivent être ouverts pour que l'équipe SnipeCorp puisse te contacter.",
+      labelDiscordUsername: "Nom d'utilisateur Discord",
+      placeholderDiscordUsername: "tonpseudo ou @tonpseudo",
+
+      mailboxCollab: "Demander une collab avec Snipepro",
+      collabModalTitle: "Demande de collab",
+      collabModalSubtitle: "Soumets ta demande professionnelle ci-dessous",
+      labelMessage: "Message",
+      placeholderMessage: "Décris ta demande...",
+
+      mailboxWebhook: "Proposer son webhook Discord",
+      webhookModalTitle: "Proposer ton webhook",
+      webhookModalSubtitle: "Soumets le webhook de ton serveur ci-dessous",
+      labelWebhookUrl: "URL du webhook",
+      placeholderWebhookUrl: "https://discord.com/api/webhooks/...",
+
+      mailboxRoblox: "Postuler pour ajouter son jeu Roblox à City Of Fun",
+      robloxModalTitle: "Candidature jeu Roblox",
+      robloxModalSubtitle: "Postule pour ajouter ton jeu à City Of Fun",
+      labelGameLink: "Lien du jeu Roblox",
+      placeholderGameLink: "https://www.roblox.com/games/...",
+      labelGameDescription: "Décris ton jeu",
+      placeholderGameDescription: "Qu'est-ce qui en fait un bon choix ?",
+
+      mailboxServerAdd: "Ajouter son serveur Discord aux serveurs aléatoires",
+      serverAddModalTitle: "Ajouter ton serveur",
+      serverAddModalSubtitle: "Soumets ton serveur pour le tirage aléatoire",
+      labelServerInfo: "ID du serveur ou lien d'invitation",
+      placeholderServerInfo: "123456789012345678 ou discord.gg/...",
+      serverAddNote: "Assure-toi d'avoir activé le widget de ton serveur au préalable. Les soumissions sont examinées par le staff avant publication.",
+
+      mailboxReport: "Signaler un utilisateur",
+      reportModalTitle: "Signaler un utilisateur",
+      reportModalSubtitle: "Par exemple : usurpation d'identité",
+      labelReportedUser: "Utilisateur signalé",
+      placeholderReportedUser: "Pseudo ou ID utilisateur",
+      labelReportReason: "Raison / détails",
+      placeholderReportReason: "Explique la situation...",
+
+      discordChoiceTitle: "Discord",
+      discordViewProfile: "Voir le profil de Snipepro",
+      discordAddBot: "Ajouter le bot officiel de Snipepro",
+      widgetClose: "Fermer",
+
+      faqWebhookQ: "Comment créer un webhook et copier son URL ?",
+      faqWebhookA: "1. Ouvre les paramètres de ton serveur Discord.\n2. Va dans Intégrations → Webhooks.\n3. Clique sur \"Nouveau Webhook\" et donne-lui un nom.\n4. Clique sur \"Copier l'URL du Webhook\".",
+      faqDmPhoneQ: "Comment ouvrir ses MP sur téléphone ?",
+      faqDmPhoneA: "1. Ouvre l'application Discord.\n2. Appuie sur ta photo de profil (en bas à droite) → Paramètres.\n3. Va dans Confidentialité et sécurité.\n4. Active \"Autoriser les messages privés des membres du serveur\".",
+      faqDmPcQ: "Comment ouvrir ses MP sur ordinateur ?",
+      faqDmPcA: "1. Ouvre Discord.\n2. Clique sur l'icône d'engrenage à côté de ton pseudo (Paramètres utilisateur).\n3. Va dans Confidentialité et sécurité.\n4. Active \"Autoriser les messages privés des membres du serveur\".",
+      faqDataQ: "Où vont les informations que je donne à la mailbox ?",
+      faqDataA: "Elles sont stockées dans la base de données de la SnipeCorp."
+    }
+  };
+
+  let currentLang = "en";
+
+  // ---- Mailbox options (source of truth) ----
+  const MAILBOX_OPTIONS = [
+    {
+      id: 'collab',
+      menuKey: 'mailboxCollab',
+      titleKey: 'collabModalTitle',
+      subtitleKey: 'collabModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'message', labelKey: 'labelMessage', placeholderKey: 'placeholderMessage', type: 'textarea' }
+      ],
+      buildContent: (v) => `📩 **${v.discordUsername}** requested a collab:\n${v.message}`
+    },
+    {
+      id: 'webhook',
+      menuKey: 'mailboxWebhook',
+      titleKey: 'webhookModalTitle',
+      subtitleKey: 'webhookModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'webhookUrl', labelKey: 'labelWebhookUrl', placeholderKey: 'placeholderWebhookUrl', type: 'text' }
+      ],
+      buildContent: (v) => `🔗 **${v.discordUsername}** proposed their webhook: ${v.webhookUrl}`
+    },
+    {
+      id: 'roblox',
+      menuKey: 'mailboxRoblox',
+      titleKey: 'robloxModalTitle',
+      subtitleKey: 'robloxModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'gameLink', labelKey: 'labelGameLink', placeholderKey: 'placeholderGameLink', type: 'text' },
+        { id: 'message', labelKey: 'labelGameDescription', placeholderKey: 'placeholderGameDescription', type: 'textarea' }
+      ],
+      buildContent: (v) => `🎮 **${v.discordUsername}** submitted a Roblox game for City Of Fun\nLink: ${v.gameLink}\n${v.message}`
+    },
+    {
+      id: 'serverAdd',
+      menuKey: 'mailboxServerAdd',
+      titleKey: 'serverAddModalTitle',
+      subtitleKey: 'serverAddModalSubtitle',
+      noteKey: 'serverAddNote',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'serverInfo', labelKey: 'labelServerInfo', placeholderKey: 'placeholderServerInfo', type: 'text' }
+      ],
+      buildContent: (v) => `➕ **${v.discordUsername}** submitted a server for the random pool: ${v.serverInfo}\n(Pending staff review)`
+    },
+    {
+      id: 'report',
+      menuKey: 'mailboxReport',
+      titleKey: 'reportModalTitle',
+      subtitleKey: 'reportModalSubtitle',
+      fields: [
+        { id: 'discordUsername', labelKey: 'labelDiscordUsername', placeholderKey: 'placeholderDiscordUsername', type: 'text' },
+        { id: 'reportedUser', labelKey: 'labelReportedUser', placeholderKey: 'placeholderReportedUser', type: 'text' },
+        { id: 'reason', labelKey: 'labelReportReason', placeholderKey: 'placeholderReportReason', type: 'textarea' }
+      ],
+      buildContent: (v) => `🚨 **${v.discordUsername}** reported a user: ${v.reportedUser}\nReason: ${v.reason}`
+    }
+  ];
+
+  const FAQ_ITEMS = [
+    { id: 'webhook', qKey: 'faqWebhookQ', aKey: 'faqWebhookA' },
+    { id: 'dmPhone', qKey: 'faqDmPhoneQ', aKey: 'faqDmPhoneA' },
+    { id: 'dmPc', qKey: 'faqDmPcQ', aKey: 'faqDmPcA' },
+    { id: 'data', qKey: 'faqDataQ', aKey: 'faqDataA' }
+  ];
+
+  function renderMailboxMenu() {
+    const t = translations[currentLang];
+    const menu = document.getElementById('mailbox-menu');
+    menu.innerHTML = '';
+    MAILBOX_OPTIONS.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'menu-item';
+      btn.textContent = t[opt.menuKey];
+      btn.addEventListener('click', () => openMailboxModal(opt.id));
+      menu.appendChild(btn);
     });
   }
-}
 
-// Langue
-function applyLanguage(lang) {
-  currentLang = lang;
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (translations[lang][key]) el.textContent = translations[lang][key];
+  function renderFaqButtons() {
+    const t = translations[currentLang];
+    const wrap = document.getElementById('faq-wrap');
+    wrap.innerHTML = '';
+    FAQ_ITEMS.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'social-btn faq-btn';
+      btn.textContent = '❓ ' + t[item.qKey];
+      btn.addEventListener('click', () => openFaqModal(item.id));
+      wrap.appendChild(btn);
+    });
+  }
+
+  function applyLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key]) el.textContent = t[key];
+    });
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    document.documentElement.lang = lang;
+    document.title = t.pageTitle;
+
+    renderMailboxMenu();
+    renderFaqButtons();
+  }
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-lang')));
   });
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
-}
 
-document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => applyLanguage(btn.dataset.lang)));
+  // Any future feature should read strings via translations[currentLang].xxx
+  // and re-render itself inside applyLanguage() so language stays in sync site-wide.
 
-// Galaxy
-const canvas = document.getElementById('galaxy-canvas');
-const ctx = canvas.getContext('2d');
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-function draw() {
-  ctx.fillStyle = 'rgba(5,5,15,0.4)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  requestAnimationFrame(draw);
-}
-window.addEventListener('resize', resize);
-resize();
-draw();
+  // ---- Category hover focus ----
+  let intensify = false;
+  document.querySelectorAll('.category').forEach(cat => {
+    cat.addEventListener('mouseenter', () => {
+      intensify = true;
+      document.body.classList.add('cta-focus');
+      cat.classList.add('active-hover');
+    });
+    cat.addEventListener('mouseleave', () => {
+      intensify = false;
+      document.body.classList.remove('cta-focus');
+      cat.classList.remove('active-hover');
+    });
+  });
 
-// Init
-handleCallback();
-if (localStorage.getItem('discord_user')) {
-  const u = JSON.parse(localStorage.getItem('discord_user'));
-  loginBtn.textContent = `✅ ${u.username}`;
-  loginBtn.classList.add('logged-in');
-  document.getElementById('cat-mailbox').classList.remove('disabled');
-}
-applyLanguage('fr');
+  // ---- Mailbox dropdown ----
+  const mailboxWrap = document.getElementById('mailbox-wrap');
+  const mailboxBtn = document.getElementById('mailbox-btn');
+  mailboxBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    mailboxWrap.classList.toggle('open');
+  });
+  document.addEventListener('click', () => mailboxWrap.classList.remove('open'));
+
+  // ---- Generic mailbox modal ----
+  const mailboxOverlay = document.getElementById('mailbox-overlay');
+  const mailboxTitleEl = document.getElementById('mailbox-modal-title');
+  const mailboxSubtitleEl = document.getElementById('mailbox-modal-subtitle');
+  const mailboxBodyEl = document.getElementById('mailbox-modal-body');
+  const mailboxFooterEl = document.getElementById('mailbox-modal-footer');
+  const mailboxCancelBtn = document.getElementById('mailbox-cancel-btn');
+  const mailboxSubmitBtn = document.getElementById('mailbox-submit-btn');
+  let currentMailboxOption = null;
+
+  function fieldHTML(f, t) {
+    const label = t[f.labelKey];
+    const placeholder = t[f.placeholderKey];
+    if (f.type === 'textarea') {
+      return `<div class="form-group">
+        <label>${label}</label>
+        <textarea id="mb-${f.id}" placeholder="${placeholder}"></textarea>
+      </div>`;
+    }
+    return `<div class="form-group">
+      <label>${label}</label>
+      <input type="text" id="mb-${f.id}" placeholder="${placeholder}">
+    </div>`;
+  }
+
+  function renderMailboxModal() {
+    const t = translations[currentLang];
+    const opt = currentMailboxOption;
+    mailboxTitleEl.textContent = t[opt.titleKey];
+    mailboxSubtitleEl.textContent = t[opt.subtitleKey];
+
+    let html = opt.fields.map(f => fieldHTML(f, t)).join('');
+    if (opt.noteKey) html += `<p class="form-note">${t[opt.noteKey]}</p>`;
+    html += `<p class="form-note">${t.dmNote}</p>`;
+    html += `<div class="error-msg" id="mailbox-error-msg"></div>`;
+    mailboxBodyEl.innerHTML = html;
+
+    mailboxFooterEl.style.display = 'flex';
+    mailboxSubmitBtn.disabled = false;
+    mailboxSubmitBtn.textContent = t.btnSend;
+  }
+
+  function openMailboxModal(optionId) {
+    currentMailboxOption = MAILBOX_OPTIONS.find(o => o.id === optionId);
+    mailboxWrap.classList.remove('open');
+    renderMailboxModal();
+    mailboxOverlay.classList.add('active');
+  }
+  function closeMailboxModal() {
+    mailboxOverlay.classList.remove('active');
+  }
+  mailboxCancelBtn.addEventListener('click', closeMailboxModal);
+  mailboxOverlay.addEventListener('click', (e) => { if (e.target === mailboxOverlay) closeMailboxModal(); });
+
+  mailboxSubmitBtn.addEventListener('click', async () => {
+    const t = translations[currentLang];
+    const opt = currentMailboxOption;
+    const values = {};
+    let hasEmpty = false;
+
+    opt.fields.forEach(f => {
+      const el = document.getElementById('mb-' + f.id);
+      const val = el.value.trim();
+      if (!val) hasEmpty = true;
+      values[f.id] = val;
+    });
+
+    const errorMsg = document.getElementById('mailbox-error-msg');
+    if (hasEmpty) {
+      errorMsg.textContent = t.errFillAll;
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    mailboxSubmitBtn.disabled = true;
+    mailboxSubmitBtn.textContent = t.btnSending;
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: opt.buildContent(values) })
+      });
+      if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
+
+      mailboxBodyEl.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
+      mailboxFooterEl.style.display = 'none';
+      setTimeout(() => {
+        closeMailboxModal();
+      }, 1500);
+    } catch (err) {
+      errorMsg.textContent = t.errSend;
+      errorMsg.style.display = 'block';
+      mailboxSubmitBtn.disabled = false;
+      mailboxSubmitBtn.textContent = t.btnSend;
+    }
+  });
+
+  // ---- FAQ modal ----
+  const faqOverlay = document.getElementById('faq-overlay');
+  const faqTitleEl = document.getElementById('faq-modal-title');
+  const faqAnswerEl = document.getElementById('faq-modal-answer');
+  const faqCloseBtn = document.getElementById('faq-close-btn');
+
+  function openFaqModal(itemId) {
+    const t = translations[currentLang];
+    const item = FAQ_ITEMS.find(i => i.id === itemId);
+    faqTitleEl.textContent = t[item.qKey];
+    faqAnswerEl.textContent = t[item.aKey];
+    faqOverlay.classList.add('active');
+  }
+  faqCloseBtn.addEventListener('click', () => faqOverlay.classList.remove('active'));
+  faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) faqOverlay.classList.remove('active'); });
+
+  // ---- Discord choice popup (profile vs bot) ----
+  const discordChoiceOpen = document.getElementById('discord-choice-open');
+  const discordChoiceOverlay = document.getElementById('discord-choice-overlay');
+  discordChoiceOpen.addEventListener('click', () => discordChoiceOverlay.classList.add('active'));
+  discordChoiceOverlay.addEventListener('click', (e) => {
+    if (e.target === discordChoiceOverlay) discordChoiceOverlay.classList.remove('active');
+  });
+
+  // ---- "Gacha" random Discord server button ----
+  const serversBtn = document.getElementById('discord-servers-btn');
+  serversBtn.addEventListener('click', () => {
+    const randomServer = DISCORD_SERVERS[Math.floor(Math.random() * DISCORD_SERVERS.length)];
+    openServerWidget(randomServer);
+  });
+
+  // ---- Discord widget popup ----
+  const widgetOverlay = document.getElementById('widget-overlay');
+  const widgetBox = document.getElementById('widget-box');
+
+  function openServerWidget(server) {
+    const t = translations[currentLang];
+    widgetBox.innerHTML = `
+      <button class="widget-close-btn" id="widget-close-btn">${t.widgetClose} ✕</button>
+      <iframe src="https://discord.com/widget?id=${server.id}&theme=dark"
+        width="350" height="500" allowtransparency="true" frameborder="0"
+        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+    `;
+    document.getElementById('widget-close-btn').addEventListener('click', closeServerWidget);
+    widgetOverlay.classList.add('active');
+  }
+  function closeServerWidget() {
+    widgetOverlay.classList.remove('active');
+    widgetBox.innerHTML = '';
+  }
+  widgetOverlay.addEventListener('click', (e) => {
+    if (e.target === widgetOverlay) closeServerWidget();
+  });
+
+  // ---- Warp-zoom space background with hidden-shape image ghosts ----
+  const canvas = document.getElementById('galaxy-canvas');
+  const ctx = canvas.getContext('2d');
+  let width, height, cx, cy, stars;
+
+  const IMAGE_SOURCES = [
+    'assets/img1.jpg',
+    'assets/img2.png',
+    'assets/img3.jpg',
+    'assets/img4.png',
+    'assets/img5.jpeg'
+  ];
+  const loadedImages = [];
+  IMAGE_SOURCES.forEach(src => {
+    const img = new Image();
+    img.src = src;
+    loadedImages.push(img);
+  });
+
+  let ghosts = [];
+  const MAX_GHOSTS = 2;
+  const GHOST_LIFETIME = 7000;
+
+  function spawnGhost() {
+    if (ghosts.length >= MAX_GHOSTS) return;
+    const img = loadedImages[Math.floor(Math.random() * loadedImages.length)];
+    if (!img.complete || img.naturalWidth === 0) return;
+
+    const angle = Math.random() * Math.PI * 2;
+    ghosts.push({
+      img,
+      angle,
+      startRadius: 20,
+      born: performance.now(),
+      size: 90 + Math.random() * 60,
+      spin: (Math.random() - 0.5) * 0.4
+    });
+  }
+
+  function drawGhosts(now) {
+    ghosts = ghosts.filter(g => now - g.born < GHOST_LIFETIME);
+
+    for (const g of ghosts) {
+      const t = (now - g.born) / GHOST_LIFETIME;
+      const radius = g.startRadius + t * (Math.max(width, height) * 0.7);
+      const x = cx + Math.cos(g.angle) * radius;
+      const y = cy + Math.sin(g.angle) * radius;
+      const scale = 0.4 + t * 1.6;
+      const size = g.size * scale;
+
+      let alpha;
+      if (t < 0.15) alpha = t / 0.15;
+      else if (t > 0.75) alpha = (1 - t) / 0.25;
+      else alpha = 1;
+      alpha *= intensify ? 0.28 : 0.16;
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(t * g.spin);
+      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
+      ctx.filter = 'grayscale(1) blur(3px) brightness(0.55) contrast(1.1)';
+      ctx.drawImage(g.img, -size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+  }
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    cx = width / 2;
+    cy = height / 2;
+  }
+
+  function makeStar(randomDepth) {
+    return {
+      x: (Math.random() - 0.5) * width,
+      y: (Math.random() - 0.5) * height,
+      z: randomDepth ? Math.random() * width : width,
+      pz: 0
+    };
+  }
+
+  function initGalaxy() {
+    resize();
+    const density = Math.floor((width * height) / 3500);
+    stars = [];
+    for (let i = 0; i < density; i++) stars.push(makeStar(true));
+    ghosts = [];
+  }
+
+  const BASE_SPEED = 2.2;
+  const INTENSE_SPEED = 9;
+  let currentSpeed = BASE_SPEED;
+
+  function drawGalaxy() {
+    const now = performance.now();
+    const targetSpeed = intensify ? INTENSE_SPEED : BASE_SPEED;
+    currentSpeed += (targetSpeed - currentSpeed) * 0.06;
+
+    ctx.fillStyle = 'rgba(5, 5, 15, 0.35)';
+    ctx.fillRect(0, 0, width, height);
+
+    const glowStrength = intensify ? 0.15 : 0.06;
+    const glow1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.6);
+    glow1.addColorStop(0, `rgba(111, 91, 255, ${glowStrength})`);
+    glow1.addColorStop(1, 'rgba(111, 91, 255, 0)');
+    ctx.fillStyle = glow1;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.filter = 'none';
+    drawGhosts(now);
+    ctx.globalAlpha = 1;
+    ctx.filter = 'none';
+
+    for (const s of stars) {
+      s.pz = s.z;
+      s.z -= currentSpeed;
+      if (s.z <= 1) {
+        Object.assign(s, makeStar(false));
+        s.z = width;
+        s.pz = width;
+      }
+
+      const sx = (s.x / s.z) * width + cx;
+      const sy = (s.y / s.z) * width + cy;
+      const px = (s.x / s.pz) * width + cx;
+      const py = (s.y / s.pz) * width + cy;
+
+      const r = Math.max(0.3, (1 - s.z / width) * (intensify ? 3 : 2.2));
+      const alpha = Math.min(1, (1 - s.z / width) * (intensify ? 1.6 : 1.3));
+
+      ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+      ctx.lineWidth = r;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(sx, sy);
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(drawGalaxy);
+  }
+
+  window.addEventListener('resize', initGalaxy);
+  initGalaxy();
+  requestAnimationFrame(drawGalaxy);
+  setInterval(spawnGhost, 3500);
+
+  // ---- init ----
+  document.getElementById('version-tag').textContent = 'v' + SITE_VERSION;
+  applyLanguage(currentLang);
 </script>
+
 </body>
 </html>
