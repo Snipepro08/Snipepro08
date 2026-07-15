@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Snipepro Official</title>
+<title>Snipepro Officiel</title>
 <style>
   * {
     box-sizing: border-box;
@@ -21,7 +21,7 @@
     align-items: center;
     position: relative;
     min-height: 100vh;
-    padding: 100px 20px 60px;
+    padding: 130px 20px 60px;
   }
 
   /* Animated warp-zoom space background */
@@ -33,12 +33,12 @@
     background: radial-gradient(ellipse at center, #10102a 0%, #05050f 70%);
   }
 
-  /* SnipeCorp brand text, top right */
+  /* SnipeCorp brand tag, top left */
   #brand-tag {
     position: fixed;
     top: 20px;
-    right: 28px;
-    z-index: 2;
+    left: 20px;
+    z-index: 3;
     font-size: 20px;
     font-weight: 800;
     letter-spacing: 1px;
@@ -50,10 +50,10 @@
     user-select: none;
   }
 
-  /* Language switcher, top left */
+  /* Language switcher, below the brand tag */
   #lang-switch {
     position: fixed;
-    top: 20px;
+    top: 62px;
     left: 20px;
     z-index: 3;
     display: flex;
@@ -83,106 +83,134 @@
     color: #dbdee1;
   }
 
-  /* Main call-to-action button */
-  #open-modal-btn {
-    position: relative;
-    z-index: 2;
-    background: linear-gradient(135deg, #6f5bff, #5865f2 40%, #33d0ff);
-    color: white;
-    border: none;
-    padding: 18px 34px;
-    border-radius: 12px;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    cursor: pointer;
-    box-shadow: 0 0 25px rgba(88, 101, 242, 0.55), 0 8px 20px rgba(0,0,0,0.4);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    margin-bottom: 36px;
-  }
-  #open-modal-btn:hover {
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 0 55px rgba(88, 101, 242, 0.95), 0 10px 24px rgba(0,0,0,0.5);
-  }
-  #open-modal-btn:active {
-    transform: translateY(0) scale(0.98);
+  /* Version counter, bottom right */
+  #version-tag {
+    position: fixed;
+    bottom: 14px;
+    right: 18px;
+    z-index: 3;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #5a5e6b;
+    user-select: none;
   }
 
-  /* Elements that hide while the CTA button is hovered */
-  #social-links,
-  #discord-servers-wrap,
-  #lang-switch {
+  /* Category grid */
+  #categories {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+  }
+  .category {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px;
+    backdrop-filter: blur(6px);
     transition: opacity 0.35s ease, transform 0.35s ease;
   }
-  body.cta-focus #social-links,
-  body.cta-focus #discord-servers-wrap,
-  body.cta-focus #lang-switch {
+  .category-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #8b8fa3;
+    margin-bottom: 10px;
+  }
+  .category-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Focus effect: hovered category stays, all others fade out */
+  body.cta-focus .category {
     opacity: 0;
     transform: translateY(10px);
     pointer-events: none;
   }
-
-  /* Discord servers dropdown */
-  #discord-servers-wrap {
-    position: relative;
-    z-index: 5;
-    margin-bottom: 20px;
-  }
-  #discord-servers-btn {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: #dbdee1;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    backdrop-filter: blur(6px);
-    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-  }
-  #discord-servers-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.25);
-    transform: translateY(-2px);
-  }
-  #discord-servers-btn:active {
-    transform: translateY(0) scale(0.97);
+  body.cta-focus .category.active-hover {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
   }
 
-  /* Social links grid */
-  #social-links {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 14px;
-    width: 100%;
-    max-width: 720px;
-  }
-  .social-btn {
+  .social-btn, .cat-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
     color: #dbdee1;
     text-decoration: none;
-    padding: 14px 16px;
-    border-radius: 10px;
+    padding: 12px 14px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
-    backdrop-filter: blur(6px);
     cursor: pointer;
+    width: 100%;
     transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   }
-  .social-btn:hover {
+  .social-btn:hover, .cat-btn:hover {
     transform: translateY(-2px);
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+  }
+
+  /* Mailbox category gets the strongest visual treatment */
+  #cat-mailbox .cat-btn {
+    background: linear-gradient(135deg, #6f5bff, #5865f2 40%, #33d0ff);
+    border: none;
+    color: #fff;
+    font-size: 15px;
+    padding: 15px 16px;
+    box-shadow: 0 0 20px rgba(88, 101, 242, 0.45);
+  }
+  #cat-mailbox .cat-btn:hover {
+    box-shadow: 0 0 32px rgba(88, 101, 242, 0.75);
+  }
+
+  #mailbox-wrap {
+    position: relative;
+  }
+  #mailbox-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #1a1b1e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+    z-index: 6;
+  }
+  #mailbox-wrap.open #mailbox-menu {
+    display: block;
+  }
+  .menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #dbdee1;
+    padding: 12px 14px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .menu-item:hover {
+    background: rgba(88,101,242,0.18);
+  }
+  .menu-item + .menu-item {
+    border-top: 1px solid rgba(255,255,255,0.06);
   }
 
   /* Generic overlay */
@@ -259,6 +287,12 @@
   .form-group textarea:focus {
     outline: none;
     border-color: #5865f2;
+  }
+  .form-note {
+    font-size: 12px;
+    color: #949ba4;
+    margin: -8px 0 16px;
+    line-height: 1.5;
   }
   .modal-footer {
     background: #2b2d31;
@@ -388,51 +422,111 @@
 
 <canvas id="galaxy-canvas"></canvas>
 
+<div id="brand-tag">SnipeCorp</div>
+
 <div id="lang-switch">
   <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
   <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
 </div>
 
-<div id="brand-tag">SnipeCorp</div>
+<div id="version-tag">v1.0.0</div>
 
-<button id="open-modal-btn" data-i18n="cta">✦ Send a professional request to Snipepro</button>
+<div id="categories">
 
-<div id="discord-servers-wrap">
-  <button id="discord-servers-btn" data-i18n="serversLabel">🎲 Get a random serv</button>
+  <div class="category" id="cat-mailbox">
+    <div class="category-title" data-i18n="catMailbox">Mailbox</div>
+    <div class="category-buttons">
+      <div id="mailbox-wrap">
+        <button class="cat-btn" id="mailbox-btn">📬 <span data-i18n="mailboxLabel">Mailbox</span> ▾</button>
+        <div id="mailbox-menu">
+          <button class="menu-item" id="mailbox-collab" data-i18n="mailboxCollab">Request a collab with Snipepro</button>
+          <button class="menu-item" id="mailbox-webhook" data-i18n="mailboxWebhook">Propose your Discord webhook</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="category" id="cat-discord">
+    <div class="category-title" data-i18n="catDiscord">Discord</div>
+    <div class="category-buttons">
+      <button class="social-btn" id="discord-choice-open">💬 Discord</button>
+      <button class="social-btn" id="discord-servers-btn">🎲 <span data-i18n="serversLabel">Get a random serv</span></button>
+    </div>
+  </div>
+
+  <div class="category" id="cat-social">
+    <div class="category-title" data-i18n="catSocial">Social networks</div>
+    <div class="category-buttons">
+      <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
+      <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
+      <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
+    </div>
+  </div>
+
+  <div class="category" id="cat-fortnite">
+    <div class="category-title" data-i18n="catFortnite">Fortnite</div>
+    <div class="category-buttons">
+      <a class="social-btn" href="https://fortnite.gg/locker?id=3114783" target="_blank" rel="noopener">🎒 Fortnite Locker</a>
+      <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
+    </div>
+  </div>
+
+  <div class="category" id="cat-other">
+    <div class="category-title" data-i18n="catOther">Other</div>
+    <div class="category-buttons">
+      <a class="social-btn" href="https://bento.me/matagameur" target="_blank" rel="noopener">🔗 Bento</a>
+    </div>
+  </div>
+
 </div>
 
-<div id="social-links">
-  <button class="social-btn" id="discord-choice-open">💬 Discord</button>
-  <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
-  <a class="social-btn" href="https://roblox.com/fr/games/75703894644091/City-Of-Fun" target="_blank" rel="noopener">🎮 Roblox</a>
-  <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
-  <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
-  <a class="social-btn" href="https://fortnite.gg/locker?id=3114783" target="_blank" rel="noopener">🎒 Fortnite Locker</a>
-  <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
-  <a class="social-btn" href="https://bento.me/matagameur" target="_blank" rel="noopener">🔗 Bento</a>
-</div>
-
-<!-- Contact modal -->
-<div class="modal-overlay" id="modal-overlay">
+<!-- Collab request modal -->
+<div class="modal-overlay" id="collab-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <h2 data-i18n="modalTitle">Contact Snipepro</h2>
+      <h2 data-i18n="collabModalTitle">Collab Request</h2>
       <p data-i18n="modalSubtitle">Submit your professional request below</p>
     </div>
-    <div class="modal-body" id="modal-body">
+    <div class="modal-body" id="collab-modal-body">
       <div class="form-group">
-        <label for="username" data-i18n="labelUsername">Username</label>
-        <input type="text" id="username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="Your username">
+        <label for="collab-username" data-i18n="labelUsername">Username</label>
+        <input type="text" id="collab-username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="Your username">
       </div>
       <div class="form-group">
-        <label for="message" data-i18n="labelMessage">Message</label>
-        <textarea id="message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="Describe your request..."></textarea>
+        <label for="collab-message" data-i18n="labelMessage">Message</label>
+        <textarea id="collab-message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="Describe your request..."></textarea>
       </div>
-      <div class="error-msg" id="error-msg"></div>
+      <div class="error-msg" id="collab-error-msg"></div>
     </div>
-    <div class="modal-footer" id="modal-footer">
-      <button class="btn-cancel" id="cancel-btn" data-i18n="btnCancel">Cancel</button>
-      <button class="btn-submit" id="submit-btn" data-i18n="btnSend">Send</button>
+    <div class="modal-footer" id="collab-modal-footer">
+      <button class="btn-cancel" id="collab-cancel-btn" data-i18n="btnCancel">Cancel</button>
+      <button class="btn-submit" id="collab-submit-btn" data-i18n="btnSend">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Webhook proposal modal -->
+<div class="modal-overlay" id="webhook-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 data-i18n="webhookModalTitle">Propose your webhook</h2>
+      <p data-i18n="webhookModalSubtitle">Make sure your Discord DMs are open</p>
+    </div>
+    <div class="modal-body" id="webhook-modal-body">
+      <div class="form-group">
+        <label for="webhook-username" data-i18n="labelDiscordUsername">Discord username</label>
+        <input type="text" id="webhook-username" maxlength="40" data-i18n-placeholder="placeholderDiscordUsername" placeholder="yourname or @yourname">
+      </div>
+      <div class="form-group">
+        <label for="webhook-url" data-i18n="labelWebhookUrl">Webhook URL</label>
+        <input type="text" id="webhook-url" maxlength="200" data-i18n-placeholder="placeholderWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+      </div>
+      <p class="form-note" data-i18n="webhookNote">Reminder: your Discord DMs must be open so we can reach you.</p>
+      <div class="error-msg" id="webhook-error-msg"></div>
+    </div>
+    <div class="modal-footer" id="webhook-modal-footer">
+      <button class="btn-cancel" id="webhook-cancel-btn" data-i18n="btnCancel">Cancel</button>
+      <button class="btn-submit" id="webhook-submit-btn" data-i18n="btnSend">Send</button>
     </div>
   </div>
 </div>
@@ -456,10 +550,12 @@
 </div>
 
 <script>
-  // ⚠️ Replace this with your own Discord webhook URL
+  // ⚠️ Replace this with your own Discord webhook URL — used for BOTH mailbox options
   const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
 
-  // Discord servers shown in the dropdown.
+  const SITE_VERSION = "1.0.0";
+
+  // Discord servers used by the "random serv" button.
   // Rename the "name" fields to your actual server names.
   const DISCORD_SERVERS = [
     { name: "Server 1", id: "1421178923034869975" },
@@ -472,9 +568,17 @@
   // ---- i18n ----
   const translations = {
     en: {
-      cta: "✦ Send a professional request to Snipepro",
-      serversLabel: "🎲 Get a random serv",
-      modalTitle: "Contact Snipepro",
+      pageTitle: "Snipepro Official",
+      catMailbox: "Mailbox",
+      catDiscord: "Discord",
+      catSocial: "Social networks",
+      catFortnite: "Fortnite",
+      catOther: "Other",
+      mailboxLabel: "Mailbox",
+      mailboxCollab: "Request a collab with Snipepro",
+      mailboxWebhook: "Propose your Discord webhook",
+      serversLabel: "Get a random serv",
+      collabModalTitle: "Collab Request",
       modalSubtitle: "Submit your professional request below",
       labelUsername: "Username",
       placeholderUsername: "Your username",
@@ -486,15 +590,31 @@
       errFill: "Please fill in both the username and the message.",
       errSend: "Failed to send. Please check the webhook URL.",
       successMsg: "✅ Message sent successfully!",
+      webhookModalTitle: "Propose your webhook",
+      webhookModalSubtitle: "Make sure your Discord DMs are open",
+      labelDiscordUsername: "Discord username",
+      placeholderDiscordUsername: "yourname or @yourname",
+      labelWebhookUrl: "Webhook URL",
+      placeholderWebhookUrl: "https://discord.com/api/webhooks/...",
+      webhookNote: "Reminder: your Discord DMs must be open so we can reach you.",
+      errFillWebhook: "Please fill in both fields.",
       discordChoiceTitle: "Discord",
       discordViewProfile: "View Snipepro's profile",
       discordAddBot: "Add the official Snipepro bot",
       widgetClose: "Close"
     },
     fr: {
-      cta: "✦ Envoyer une demande professionnelle à Snipepro",
-      serversLabel: "🎲 Serv Discord au hasard",
-      modalTitle: "Contacter Snipepro",
+      pageTitle: "Snipepro Officiel",
+      catMailbox: "Messagerie",
+      catDiscord: "Discord",
+      catSocial: "Réseaux sociaux",
+      catFortnite: "Fortnite",
+      catOther: "Autre",
+      mailboxLabel: "Messagerie",
+      mailboxCollab: "Demander une collab avec Snipepro",
+      mailboxWebhook: "Proposer son webhook Discord",
+      serversLabel: "Serv Discord au hasard",
+      collabModalTitle: "Demande de collab",
       modalSubtitle: "Soumets ta demande professionnelle ci-dessous",
       labelUsername: "Pseudo",
       placeholderUsername: "Ton pseudo",
@@ -506,6 +626,14 @@
       errFill: "Merci de remplir le pseudo et le message.",
       errSend: "Échec de l'envoi. Vérifie l'URL du webhook.",
       successMsg: "✅ Message envoyé avec succès !",
+      webhookModalTitle: "Proposer ton webhook",
+      webhookModalSubtitle: "Assure-toi que tes MP Discord sont ouverts",
+      labelDiscordUsername: "Nom d'utilisateur Discord",
+      placeholderDiscordUsername: "tonpseudo ou @tonpseudo",
+      labelWebhookUrl: "URL du webhook",
+      placeholderWebhookUrl: "https://discord.com/api/webhooks/...",
+      webhookNote: "Rappel : tes MP Discord doivent être ouverts pour qu'on puisse te contacter.",
+      errFillWebhook: "Merci de remplir les deux champs.",
       discordChoiceTitle: "Discord",
       discordViewProfile: "Voir le profil de Snipepro",
       discordAddBot: "Ajouter le bot officiel de Snipepro",
@@ -533,6 +661,7 @@
     });
 
     document.documentElement.lang = lang;
+    document.title = t.pageTitle;
   }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -542,34 +671,79 @@
   // Any future feature should read strings via translations[currentLang].xxx
   // and re-render itself inside applyLanguage() so language stays in sync site-wide.
 
-  // ---- Contact modal ----
-  const openBtn = document.getElementById('open-modal-btn');
-  const overlay = document.getElementById('modal-overlay');
-  const cancelBtn = document.getElementById('cancel-btn');
-  const submitBtn = document.getElementById('submit-btn');
-  const modalBody = document.getElementById('modal-body');
-  const modalFooter = document.getElementById('modal-footer');
+  // ---- Category hover focus (applies to every category, mailbox included) ----
+  let intensify = false;
+  document.querySelectorAll('.category').forEach(cat => {
+    cat.addEventListener('mouseenter', () => {
+      intensify = true;
+      document.body.classList.add('cta-focus');
+      cat.classList.add('active-hover');
+    });
+    cat.addEventListener('mouseleave', () => {
+      intensify = false;
+      document.body.classList.remove('cta-focus');
+      cat.classList.remove('active-hover');
+    });
+  });
 
-  function openModal() {
-    overlay.classList.add('active');
-    document.getElementById('error-msg').style.display = 'none';
+  // ---- Mailbox dropdown ----
+  const mailboxWrap = document.getElementById('mailbox-wrap');
+  const mailboxBtn = document.getElementById('mailbox-btn');
+  mailboxBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    mailboxWrap.classList.toggle('open');
+  });
+  document.addEventListener('click', () => mailboxWrap.classList.remove('open'));
+
+  // ---- Generic modal helpers ----
+  function openOverlay(id) {
+    document.getElementById(id).classList.add('active');
   }
-  function closeModal() {
-    overlay.classList.remove('active');
-    const u = document.getElementById('username');
-    const m = document.getElementById('message');
+  function closeOverlay(id) {
+    document.getElementById(id).classList.remove('active');
+  }
+
+  // ---- Collab request modal ----
+  const collabOverlay = document.getElementById('collab-overlay');
+  const collabCancelBtn = document.getElementById('collab-cancel-btn');
+  const collabSubmitBtn = document.getElementById('collab-submit-btn');
+  const collabModalBody = document.getElementById('collab-modal-body');
+  const collabModalFooter = document.getElementById('collab-modal-footer');
+
+  document.getElementById('mailbox-collab').addEventListener('click', () => {
+    mailboxWrap.classList.remove('open');
+    openOverlay('collab-overlay');
+    document.getElementById('collab-error-msg').style.display = 'none';
+  });
+  function closeCollabModal() {
+    closeOverlay('collab-overlay');
+    const u = document.getElementById('collab-username');
+    const m = document.getElementById('collab-message');
     if (u) u.value = '';
     if (m) m.value = '';
   }
-  openBtn.addEventListener('click', openModal);
-  cancelBtn.addEventListener('click', closeModal);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+  collabCancelBtn.addEventListener('click', closeCollabModal);
+  collabOverlay.addEventListener('click', (e) => { if (e.target === collabOverlay) closeCollabModal(); });
 
-  submitBtn.addEventListener('click', async () => {
+  function rebuildCollabForm() {
     const t = translations[currentLang];
-    const usernameInput = document.getElementById('username');
-    const messageInput = document.getElementById('message');
-    const errorMsg = document.getElementById('error-msg');
+    collabModalBody.innerHTML = `
+      <div class="form-group">
+        <label for="collab-username" data-i18n="labelUsername">${t.labelUsername}</label>
+        <input type="text" id="collab-username" maxlength="32" placeholder="${t.placeholderUsername}">
+      </div>
+      <div class="form-group">
+        <label for="collab-message" data-i18n="labelMessage">${t.labelMessage}</label>
+        <textarea id="collab-message" maxlength="1000" placeholder="${t.placeholderMessage}"></textarea>
+      </div>
+      <div class="error-msg" id="collab-error-msg"></div>`;
+  }
+
+  collabSubmitBtn.addEventListener('click', async () => {
+    const t = translations[currentLang];
+    const usernameInput = document.getElementById('collab-username');
+    const messageInput = document.getElementById('collab-message');
+    const errorMsg = document.getElementById('collab-error-msg');
     const username = usernameInput.value.trim();
     const message = messageInput.value.trim();
 
@@ -579,8 +753,8 @@
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = t.btnSending;
+    collabSubmitBtn.disabled = true;
+    collabSubmitBtn.textContent = t.btnSending;
 
     try {
       const response = await fetch(WEBHOOK_URL, {
@@ -590,42 +764,105 @@
           content: `**${username}** sent a message: ${message}`
         })
       });
+      if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
 
-      if (!response.ok) {
-        throw new Error("Failed to send (" + response.status + ")");
-      }
-
-      modalBody.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
-      modalFooter.style.display = 'none';
+      collabModalBody.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
+      collabModalFooter.style.display = 'none';
       setTimeout(() => {
-        closeModal();
-        rebuildModalForm();
-        modalFooter.style.display = 'flex';
-        submitBtn.disabled = false;
-        submitBtn.textContent = translations[currentLang].btnSend;
+        closeCollabModal();
+        rebuildCollabForm();
+        collabModalFooter.style.display = 'flex';
+        collabSubmitBtn.disabled = false;
+        collabSubmitBtn.textContent = translations[currentLang].btnSend;
       }, 1500);
-
     } catch (err) {
       errorMsg.textContent = t.errSend;
       errorMsg.style.display = 'block';
-      submitBtn.disabled = false;
-      submitBtn.textContent = t.btnSend;
+      collabSubmitBtn.disabled = false;
+      collabSubmitBtn.textContent = t.btnSend;
     }
   });
 
-  function rebuildModalForm() {
-    const t = translations[currentLang];
-    modalBody.innerHTML = `
-      <div class="form-group">
-        <label for="username" data-i18n="labelUsername">${t.labelUsername}</label>
-        <input type="text" id="username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="${t.placeholderUsername}">
-      </div>
-      <div class="form-group">
-        <label for="message" data-i18n="labelMessage">${t.labelMessage}</label>
-        <textarea id="message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="${t.placeholderMessage}"></textarea>
-      </div>
-      <div class="error-msg" id="error-msg"></div>`;
+  // ---- Webhook proposal modal ----
+  const webhookOverlay = document.getElementById('webhook-overlay');
+  const webhookCancelBtn = document.getElementById('webhook-cancel-btn');
+  const webhookSubmitBtn = document.getElementById('webhook-submit-btn');
+  const webhookModalBody = document.getElementById('webhook-modal-body');
+  const webhookModalFooter = document.getElementById('webhook-modal-footer');
+
+  document.getElementById('mailbox-webhook').addEventListener('click', () => {
+    mailboxWrap.classList.remove('open');
+    openOverlay('webhook-overlay');
+    document.getElementById('webhook-error-msg').style.display = 'none';
+  });
+  function closeWebhookModal() {
+    closeOverlay('webhook-overlay');
+    const u = document.getElementById('webhook-username');
+    const w = document.getElementById('webhook-url');
+    if (u) u.value = '';
+    if (w) w.value = '';
   }
+  webhookCancelBtn.addEventListener('click', closeWebhookModal);
+  webhookOverlay.addEventListener('click', (e) => { if (e.target === webhookOverlay) closeWebhookModal(); });
+
+  function rebuildWebhookForm() {
+    const t = translations[currentLang];
+    webhookModalBody.innerHTML = `
+      <div class="form-group">
+        <label for="webhook-username" data-i18n="labelDiscordUsername">${t.labelDiscordUsername}</label>
+        <input type="text" id="webhook-username" maxlength="40" placeholder="${t.placeholderDiscordUsername}">
+      </div>
+      <div class="form-group">
+        <label for="webhook-url" data-i18n="labelWebhookUrl">${t.labelWebhookUrl}</label>
+        <input type="text" id="webhook-url" maxlength="200" placeholder="${t.placeholderWebhookUrl}">
+      </div>
+      <p class="form-note">${t.webhookNote}</p>
+      <div class="error-msg" id="webhook-error-msg"></div>`;
+  }
+
+  webhookSubmitBtn.addEventListener('click', async () => {
+    const t = translations[currentLang];
+    const discordUsernameInput = document.getElementById('webhook-username');
+    const webhookUrlInput = document.getElementById('webhook-url');
+    const errorMsg = document.getElementById('webhook-error-msg');
+    const discordUsername = discordUsernameInput.value.trim();
+    const proposedWebhook = webhookUrlInput.value.trim();
+
+    if (!discordUsername || !proposedWebhook) {
+      errorMsg.textContent = t.errFillWebhook;
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    webhookSubmitBtn.disabled = true;
+    webhookSubmitBtn.textContent = t.btnSending;
+
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `🔗 **${discordUsername}** proposed their webhook: ${proposedWebhook}\n(Reminder: DMs must be open)`
+        })
+      });
+      if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
+
+      webhookModalBody.innerHTML = `<div class="status-msg">${t.successMsg}</div>`;
+      webhookModalFooter.style.display = 'none';
+      setTimeout(() => {
+        closeWebhookModal();
+        rebuildWebhookForm();
+        webhookModalFooter.style.display = 'flex';
+        webhookSubmitBtn.disabled = false;
+        webhookSubmitBtn.textContent = translations[currentLang].btnSend;
+      }, 1500);
+    } catch (err) {
+      errorMsg.textContent = t.errSend;
+      errorMsg.style.display = 'block';
+      webhookSubmitBtn.disabled = false;
+      webhookSubmitBtn.textContent = t.btnSend;
+    }
+  });
 
   // ---- Discord choice popup (profile vs bot) ----
   const discordChoiceOpen = document.getElementById('discord-choice-open');
@@ -663,17 +900,6 @@
   }
   widgetOverlay.addEventListener('click', (e) => {
     if (e.target === widgetOverlay) closeServerWidget();
-  });
-
-  // ---- CTA hover: hide other buttons + intensify background ----
-  let intensify = false;
-  openBtn.addEventListener('mouseenter', () => {
-    intensify = true;
-    document.body.classList.add('cta-focus');
-  });
-  openBtn.addEventListener('mouseleave', () => {
-    intensify = false;
-    document.body.classList.remove('cta-focus');
   });
 
   // ---- Warp-zoom space background with hidden-shape image ghosts ----
@@ -824,6 +1050,7 @@
   setInterval(spawnGhost, 3500);
 
   // ---- init ----
+  document.getElementById('version-tag').textContent = 'v' + SITE_VERSION;
   applyLanguage(currentLang);
 </script>
 
