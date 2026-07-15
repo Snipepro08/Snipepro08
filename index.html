@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Snipepro - Contact</title>
+<title>Snipepro Official</title>
 <style>
   * {
     box-sizing: border-box;
@@ -62,6 +62,7 @@
     border-radius: 8px;
     overflow: hidden;
     backdrop-filter: blur(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
   }
   .lang-btn {
     background: transparent;
@@ -100,11 +101,55 @@
     margin-bottom: 36px;
   }
   #open-modal-btn:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 0 40px rgba(88, 101, 242, 0.8), 0 10px 24px rgba(0,0,0,0.5);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 0 55px rgba(88, 101, 242, 0.95), 0 10px 24px rgba(0,0,0,0.5);
   }
   #open-modal-btn:active {
     transform: translateY(0) scale(0.98);
+  }
+
+  /* Elements that hide while the CTA button is hovered */
+  #social-links,
+  #discord-servers-wrap,
+  #lang-switch {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  body.cta-focus #social-links,
+  body.cta-focus #discord-servers-wrap,
+  body.cta-focus #lang-switch {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+
+  /* Discord servers dropdown */
+  #discord-servers-wrap {
+    position: relative;
+    z-index: 5;
+    margin-bottom: 20px;
+  }
+  #discord-servers-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #dbdee1;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(6px);
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  }
+  #discord-servers-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+    transform: translateY(-2px);
+  }
+  #discord-servers-btn:active {
+    transform: translateY(0) scale(0.97);
   }
 
   /* Social links grid */
@@ -131,6 +176,7 @@
     font-size: 14px;
     font-weight: 600;
     backdrop-filter: blur(6px);
+    cursor: pointer;
     transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   }
   .social-btn:hover {
@@ -139,7 +185,7 @@
     border-color: rgba(255,255,255,0.2);
   }
 
-  /* Overlay behind the modal */
+  /* Generic overlay */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -261,6 +307,81 @@
     padding: 20px;
     font-size: 14px;
   }
+
+  /* Discord widget popup */
+  .widget-modal-box {
+    background: transparent;
+  }
+  .widget-modal-box iframe {
+    border-radius: 8px;
+    display: block;
+  }
+  .widget-close-btn {
+    display: block;
+    margin: 0 auto 10px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .widget-close-btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Discord choice popup */
+  .choice-box {
+    background: #313338;
+    width: 380px;
+    max-width: 90vw;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  .choice-header {
+    background: #2b2d31;
+    padding: 18px 22px;
+    text-align: center;
+  }
+  .choice-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #fff;
+  }
+  .choice-body {
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .choice-btn {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    padding: 13px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+  }
+  .choice-btn.profile {
+    background: rgba(255,255,255,0.06);
+    color: #dbdee1;
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+  .choice-btn.profile:hover {
+    background: rgba(255,255,255,0.12);
+  }
+  .choice-btn.bot {
+    background: linear-gradient(135deg, #6f5bff, #5865f2 60%, #33d0ff);
+    color: #fff;
+  }
+  .choice-btn.bot:hover {
+    filter: brightness(1.1);
+  }
 </style>
 </head>
 <body>
@@ -276,8 +397,12 @@
 
 <button id="open-modal-btn" data-i18n="cta">✦ Send a professional request to Snipepro</button>
 
+<div id="discord-servers-wrap">
+  <button id="discord-servers-btn" data-i18n="serversLabel">🎲 Get a random serv</button>
+</div>
+
 <div id="social-links">
-  <a class="social-btn" href="https://discord.com/users/1415766547321847930" target="_blank" rel="noopener">💬 Discord</a>
+  <button class="social-btn" id="discord-choice-open">💬 Discord</button>
   <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
   <a class="social-btn" href="https://roblox.com/fr/games/75703894644091/City-Of-Fun" target="_blank" rel="noopener">🎮 Roblox</a>
   <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
@@ -312,14 +437,43 @@
   </div>
 </div>
 
+<!-- Discord server widget popup -->
+<div class="modal-overlay" id="widget-overlay">
+  <div class="widget-modal-box" id="widget-box"></div>
+</div>
+
+<!-- Discord choice popup (profile vs bot) -->
+<div class="modal-overlay" id="discord-choice-overlay">
+  <div class="choice-box">
+    <div class="choice-header">
+      <h2 data-i18n="discordChoiceTitle">Discord</h2>
+    </div>
+    <div class="choice-body">
+      <a class="choice-btn profile" id="discord-choice-profile" href="https://discord.com/users/1415766547321847930" target="_blank" rel="noopener" data-i18n="discordViewProfile">View Snipepro's profile</a>
+      <a class="choice-btn bot" id="discord-choice-bot" href="https://discord.com/oauth2/authorize?client_id=1517116269004984320&integration_type=1&scope=applications.commands" target="_blank" rel="noopener" data-i18n="discordAddBot">Add the official Snipepro bot</a>
+    </div>
+  </div>
+</div>
+
 <script>
   // ⚠️ Replace this with your own Discord webhook URL
   const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
+
+  // Discord servers shown in the dropdown.
+  // Rename the "name" fields to your actual server names.
+  const DISCORD_SERVERS = [
+    { name: "Server 1", id: "1421178923034869975" },
+    { name: "Server 2", id: "1389895023570714727" },
+    { name: "Server 3", id: "1518314264165617855" },
+    { name: "Server 4", id: "1501860935151910942" },
+    { name: "Server 5", id: "1518527780353085540" }
+  ];
 
   // ---- i18n ----
   const translations = {
     en: {
       cta: "✦ Send a professional request to Snipepro",
+      serversLabel: "🎲 Get a random serv",
       modalTitle: "Contact Snipepro",
       modalSubtitle: "Submit your professional request below",
       labelUsername: "Username",
@@ -331,10 +485,15 @@
       btnSending: "Sending...",
       errFill: "Please fill in both the username and the message.",
       errSend: "Failed to send. Please check the webhook URL.",
-      successMsg: "✅ Message sent successfully!"
+      successMsg: "✅ Message sent successfully!",
+      discordChoiceTitle: "Discord",
+      discordViewProfile: "View Snipepro's profile",
+      discordAddBot: "Add the official Snipepro bot",
+      widgetClose: "Close"
     },
     fr: {
       cta: "✦ Envoyer une demande professionnelle à Snipepro",
+      serversLabel: "🎲 Serv Discord au hasard",
       modalTitle: "Contacter Snipepro",
       modalSubtitle: "Soumets ta demande professionnelle ci-dessous",
       labelUsername: "Pseudo",
@@ -346,7 +505,11 @@
       btnSending: "Envoi...",
       errFill: "Merci de remplir le pseudo et le message.",
       errSend: "Échec de l'envoi. Vérifie l'URL du webhook.",
-      successMsg: "✅ Message envoyé avec succès !"
+      successMsg: "✅ Message envoyé avec succès !",
+      discordChoiceTitle: "Discord",
+      discordViewProfile: "Voir le profil de Snipepro",
+      discordAddBot: "Ajouter le bot officiel de Snipepro",
+      widgetClose: "Fermer"
     }
   };
 
@@ -384,20 +547,19 @@
   const overlay = document.getElementById('modal-overlay');
   const cancelBtn = document.getElementById('cancel-btn');
   const submitBtn = document.getElementById('submit-btn');
-  const usernameInput = document.getElementById('username');
-  const messageInput = document.getElementById('message');
-  const errorMsg = document.getElementById('error-msg');
   const modalBody = document.getElementById('modal-body');
   const modalFooter = document.getElementById('modal-footer');
 
   function openModal() {
     overlay.classList.add('active');
-    errorMsg.style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
   }
   function closeModal() {
     overlay.classList.remove('active');
-    usernameInput.value = '';
-    messageInput.value = '';
+    const u = document.getElementById('username');
+    const m = document.getElementById('message');
+    if (u) u.value = '';
+    if (m) m.value = '';
   }
   openBtn.addEventListener('click', openModal);
   cancelBtn.addEventListener('click', closeModal);
@@ -405,6 +567,9 @@
 
   submitBtn.addEventListener('click', async () => {
     const t = translations[currentLang];
+    const usernameInput = document.getElementById('username');
+    const messageInput = document.getElementById('message');
+    const errorMsg = document.getElementById('error-msg');
     const username = usernameInput.value.trim();
     const message = messageInput.value.trim();
 
@@ -434,23 +599,10 @@
       modalFooter.style.display = 'none';
       setTimeout(() => {
         closeModal();
-        modalBody.innerHTML = `
-          <div class="form-group">
-            <label for="username" data-i18n="labelUsername">${t.labelUsername}</label>
-            <input type="text" id="username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="${t.placeholderUsername}">
-          </div>
-          <div class="form-group">
-            <label for="message" data-i18n="labelMessage">${t.labelMessage}</label>
-            <textarea id="message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="${t.placeholderMessage}"></textarea>
-          </div>
-          <div class="error-msg" id="error-msg"></div>`;
+        rebuildModalForm();
         modalFooter.style.display = 'flex';
         submitBtn.disabled = false;
         submitBtn.textContent = translations[currentLang].btnSend;
-        // Re-bind references since we replaced the inner HTML
-        window.usernameInput = document.getElementById('username');
-        window.messageInput = document.getElementById('message');
-        window.errorMsg = document.getElementById('error-msg');
       }, 1500);
 
     } catch (err) {
@@ -459,6 +611,69 @@
       submitBtn.disabled = false;
       submitBtn.textContent = t.btnSend;
     }
+  });
+
+  function rebuildModalForm() {
+    const t = translations[currentLang];
+    modalBody.innerHTML = `
+      <div class="form-group">
+        <label for="username" data-i18n="labelUsername">${t.labelUsername}</label>
+        <input type="text" id="username" maxlength="32" data-i18n-placeholder="placeholderUsername" placeholder="${t.placeholderUsername}">
+      </div>
+      <div class="form-group">
+        <label for="message" data-i18n="labelMessage">${t.labelMessage}</label>
+        <textarea id="message" maxlength="1000" data-i18n-placeholder="placeholderMessage" placeholder="${t.placeholderMessage}"></textarea>
+      </div>
+      <div class="error-msg" id="error-msg"></div>`;
+  }
+
+  // ---- Discord choice popup (profile vs bot) ----
+  const discordChoiceOpen = document.getElementById('discord-choice-open');
+  const discordChoiceOverlay = document.getElementById('discord-choice-overlay');
+  discordChoiceOpen.addEventListener('click', () => discordChoiceOverlay.classList.add('active'));
+  discordChoiceOverlay.addEventListener('click', (e) => {
+    if (e.target === discordChoiceOverlay) discordChoiceOverlay.classList.remove('active');
+  });
+
+  // ---- "Gacha" random Discord server button ----
+  const serversBtn = document.getElementById('discord-servers-btn');
+  serversBtn.addEventListener('click', () => {
+    const randomServer = DISCORD_SERVERS[Math.floor(Math.random() * DISCORD_SERVERS.length)];
+    openServerWidget(randomServer);
+  });
+
+  // ---- Discord widget popup ----
+  const widgetOverlay = document.getElementById('widget-overlay');
+  const widgetBox = document.getElementById('widget-box');
+
+  function openServerWidget(server) {
+    const t = translations[currentLang];
+    widgetBox.innerHTML = `
+      <button class="widget-close-btn" id="widget-close-btn">${t.widgetClose} ✕</button>
+      <iframe src="https://discord.com/widget?id=${server.id}&theme=dark"
+        width="350" height="500" allowtransparency="true" frameborder="0"
+        sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+    `;
+    document.getElementById('widget-close-btn').addEventListener('click', closeServerWidget);
+    widgetOverlay.classList.add('active');
+  }
+  function closeServerWidget() {
+    widgetOverlay.classList.remove('active');
+    widgetBox.innerHTML = '';
+  }
+  widgetOverlay.addEventListener('click', (e) => {
+    if (e.target === widgetOverlay) closeServerWidget();
+  });
+
+  // ---- CTA hover: hide other buttons + intensify background ----
+  let intensify = false;
+  openBtn.addEventListener('mouseenter', () => {
+    intensify = true;
+    document.body.classList.add('cta-focus');
+  });
+  openBtn.addEventListener('mouseleave', () => {
+    intensify = false;
+    document.body.classList.remove('cta-focus');
   });
 
   // ---- Warp-zoom space background with hidden-shape image ghosts ----
@@ -480,7 +695,7 @@
     loadedImages.push(img);
   });
 
-  let ghosts = []; // ghost images drifting through the background
+  let ghosts = [];
   const MAX_GHOSTS = 2;
   const GHOST_LIFETIME = 7000; // ms
 
@@ -490,11 +705,10 @@
     if (!img.complete || img.naturalWidth === 0) return;
 
     const angle = Math.random() * Math.PI * 2;
-    const startRadius = 20;
     ghosts.push({
       img,
       angle,
-      startRadius,
+      startRadius: 20,
       born: performance.now(),
       size: 90 + Math.random() * 60,
       spin: (Math.random() - 0.5) * 0.4
@@ -505,19 +719,18 @@
     ghosts = ghosts.filter(g => now - g.born < GHOST_LIFETIME);
 
     for (const g of ghosts) {
-      const t = (now - g.born) / GHOST_LIFETIME; // 0 -> 1
+      const t = (now - g.born) / GHOST_LIFETIME;
       const radius = g.startRadius + t * (Math.max(width, height) * 0.7);
       const x = cx + Math.cos(g.angle) * radius;
       const y = cy + Math.sin(g.angle) * radius;
       const scale = 0.4 + t * 1.6;
       const size = g.size * scale;
 
-      // fade in quickly, hold, fade out at the end
       let alpha;
       if (t < 0.15) alpha = t / 0.15;
       else if (t > 0.75) alpha = (1 - t) / 0.25;
       else alpha = 1;
-      alpha *= 0.16; // keep it subtle / hidden, only the silhouette reads
+      alpha *= intensify ? 0.28 : 0.16;
 
       ctx.save();
       ctx.translate(x, y);
@@ -536,14 +749,6 @@
     cy = height / 2;
   }
 
-  function createStars(count) {
-    const arr = [];
-    for (let i = 0; i < count; i++) {
-      arr.push(makeStar(true));
-    }
-    return arr;
-  }
-
   function makeStar(randomDepth) {
     return {
       x: (Math.random() - 0.5) * width,
@@ -556,21 +761,26 @@
   function initGalaxy() {
     resize();
     const density = Math.floor((width * height) / 3500);
-    stars = createStars(density);
+    stars = [];
+    for (let i = 0; i < density; i++) stars.push(makeStar(true));
     ghosts = [];
   }
 
-  const SPEED = 2.2;
+  const BASE_SPEED = 2.2;
+  const INTENSE_SPEED = 9;
+  let currentSpeed = BASE_SPEED;
 
   function drawGalaxy() {
     const now = performance.now();
+    const targetSpeed = intensify ? INTENSE_SPEED : BASE_SPEED;
+    currentSpeed += (targetSpeed - currentSpeed) * 0.06;
 
     ctx.fillStyle = 'rgba(5, 5, 15, 0.35)';
     ctx.fillRect(0, 0, width, height);
 
-    // soft nebula glow, gives depth to the zoom
+    const glowStrength = intensify ? 0.15 : 0.06;
     const glow1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.6);
-    glow1.addColorStop(0, 'rgba(111, 91, 255, 0.06)');
+    glow1.addColorStop(0, `rgba(111, 91, 255, ${glowStrength})`);
     glow1.addColorStop(1, 'rgba(111, 91, 255, 0)');
     ctx.fillStyle = glow1;
     ctx.fillRect(0, 0, width, height);
@@ -582,7 +792,7 @@
 
     for (const s of stars) {
       s.pz = s.z;
-      s.z -= SPEED;
+      s.z -= currentSpeed;
       if (s.z <= 1) {
         Object.assign(s, makeStar(false));
         s.z = width;
@@ -594,8 +804,8 @@
       const px = (s.x / s.pz) * width + cx;
       const py = (s.y / s.pz) * width + cy;
 
-      const r = Math.max(0.3, (1 - s.z / width) * 2.2);
-      const alpha = Math.min(1, (1 - s.z / width) * 1.3);
+      const r = Math.max(0.3, (1 - s.z / width) * (intensify ? 3 : 2.2));
+      const alpha = Math.min(1, (1 - s.z / width) * (intensify ? 1.6 : 1.3));
 
       ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
       ctx.lineWidth = r;
