@@ -15,13 +15,8 @@
   body {
     background: #05050f;
     color: #dbdee1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     position: relative;
     min-height: 100vh;
-    padding: 130px 20px 60px;
   }
 
   /* Random gradient background, animated */
@@ -39,8 +34,39 @@
     100% { background-position: 0% 50%; }
   }
 
-  /* Transparent canvas layered above the gradient, used only for the
-     occasional hidden-shape image apparitions */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-16px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.9) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { text-shadow: 0 0 20px rgba(88, 101, 242, 0.4); }
+    50% { text-shadow: 0 0 32px rgba(88, 101, 242, 0.85), 0 0 10px rgba(51,208,255,0.5); }
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  @keyframes spinSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes iconBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
   #ghost-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -63,6 +89,7 @@
     color: transparent;
     text-shadow: 0 0 20px rgba(88, 101, 242, 0.4);
     user-select: none;
+    animation: fadeInUp 0.6s ease both, pulseGlow 3.5s ease-in-out 0.6s infinite;
   }
 
   #lang-switch {
@@ -76,6 +103,7 @@
     border-radius: 8px;
     overflow: hidden;
     backdrop-filter: blur(6px);
+    animation: fadeInUp 0.6s ease 0.1s both;
   }
   .lang-btn {
     background: transparent;
@@ -85,11 +113,15 @@
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+  .lang-btn:active {
+    transform: scale(0.9);
   }
   .lang-btn.active {
     background: rgba(0,0,0,0.5);
     color: #fff;
+    animation: popIn 0.25s ease;
   }
   .lang-btn:not(.active):hover {
     background: rgba(0,0,0,0.35);
@@ -105,36 +137,54 @@
     letter-spacing: 0.5px;
     color: rgba(255,255,255,0.55);
     user-select: none;
+    animation: breathe 4s ease-in-out infinite;
   }
 
-  #categories {
-    position: relative;
+  /* Left-side category navigation */
+  #category-nav {
+    position: fixed;
+    top: 120px;
+    left: 20px;
     z-index: 2;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    width: 100%;
-    max-width: 900px;
-  }
-  .category {
-    background: rgba(0,0,0,0.28);
-    border: 1px solid rgba(255,255,255,0.14);
-    border-radius: 12px;
-    padding: 16px;
-    backdrop-filter: blur(6px);
-  }
-  .category-title {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: rgba(255,255,255,0.65);
-    margin-bottom: 10px;
-  }
-  .category-buttons {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 210px;
+  }
+  .cat-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0,0,0,0.32);
+    border: 1px solid rgba(255,255,255,0.16);
+    color: #fff;
+    padding: 13px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    animation: fadeInLeft 0.5s ease both;
+  }
+  #category-nav .cat-nav-btn:nth-child(1) { animation-delay: 0.05s; }
+  #category-nav .cat-nav-btn:nth-child(2) { animation-delay: 0.12s; }
+  #category-nav .cat-nav-btn:nth-child(3) { animation-delay: 0.19s; }
+  #category-nav .cat-nav-btn:nth-child(4) { animation-delay: 0.26s; }
+  #category-nav .cat-nav-btn:nth-child(5) { animation-delay: 0.33s; }
+  #category-nav .cat-nav-btn:nth-child(6) { animation-delay: 0.40s; }
+  .cat-nav-btn:hover {
+    transform: translateX(4px);
+    background: rgba(0,0,0,0.5);
+    border-color: rgba(255,255,255,0.35);
+    box-shadow: 0 4px 18px rgba(88,101,242,0.25);
+  }
+  .cat-nav-btn:active {
+    transform: translateX(4px) scale(0.96);
+  }
+  .cat-nav-btn:hover .nav-icon {
+    display: inline-block;
+    animation: iconBounce 0.6s ease infinite;
   }
 
   .social-btn, .cat-btn {
@@ -142,9 +192,9 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.18);
-    color: #fff;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #dbdee1;
     text-decoration: none;
     padding: 12px 14px;
     border-radius: 8px;
@@ -156,8 +206,11 @@
   }
   .social-btn:hover, .cat-btn:hover {
     transform: translateY(-2px);
-    background: rgba(0,0,0,0.45);
-    border-color: rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.3);
+  }
+  .social-btn:active, .cat-btn:active {
+    transform: translateY(0) scale(0.96);
   }
   .social-btn:disabled, .cat-btn:disabled {
     opacity: 0.5;
@@ -165,21 +218,309 @@
     transform: none;
   }
 
-  #cat-mailbox .cat-btn {
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.25);
-    font-size: 15px;
-    padding: 15px 16px;
+  #discord-login-area {
+    margin-bottom: 4px;
+  }
+  .login-status {
+    font-size: 12px;
+    color: #dbdee1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: popIn 0.3s ease;
   }
 
-  /* Mailbox category focus: hovering it hides every other category */
-  .category {
-    transition: opacity 0.35s ease, transform 0.35s ease;
+  #mailbox-wrap {
+    position: relative;
   }
-  body.mailbox-focus .category:not(#cat-mailbox) {
-    opacity: 0;
-    transform: translateY(10px);
-    pointer-events: none;
+  #mailbox-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: #1a1b1e;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    overflow: hidden;
+    z-index: 1100;
+  }
+  #mailbox-wrap.open #mailbox-menu {
+    display: block;
+    animation: fadeInUp 0.2s ease;
+  }
+  .menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: #dbdee1;
+    padding: 12px 14px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .menu-item:hover {
+    background: rgba(88,101,242,0.18);
+  }
+  .menu-item + .menu-item {
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .cat-panel {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cat-panel.active {
+    display: flex;
+  }
+  .faq-btn {
+    text-align: left;
+    font-size: 13px;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal-overlay.active {
+    display: flex;
+    animation: fadeInUp 0.2s ease;
+  }
+
+  .modal-box {
+    background: #313338;
+    width: 440px;
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: popIn 0.25s ease;
+  }
+  .modal-header {
+    background: #2b2d31;
+    padding: 20px 24px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .modal-header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 20px;
+  }
+  .modal-header p {
+    margin: 6px 0 0;
+    color: #949ba4;
+    font-size: 13px;
+  }
+  .modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #b5bac1;
+    margin-bottom: 8px;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #1e1f22;
+    border: 1px solid #1e1f22;
+    border-radius: 4px;
+    padding: 10px;
+    color: #dbdee1;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .form-group textarea {
+    min-height: 90px;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #1e1f22;
+    border: 1px solid #1e1f22;
+    border-radius: 4px;
+    padding: 10px;
+    color: #dbdee1;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #5865f2;
+    box-shadow: 0 0 0 3px rgba(88,101,242,0.25);
+  }
+  .form-note {
+    font-size: 12px;
+    color: #949ba4;
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+  .sending-as {
+    font-size: 12px;
+    color: #949ba4;
+    margin: -6px 0 16px;
+  }
+  .modal-footer {
+    background: #2b2d31;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .btn-cancel {
+    background: transparent;
+    color: #dbdee1;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-cancel:hover {
+    text-decoration: underline;
+  }
+  .btn-submit {
+    background: #5865f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-submit:hover {
+    background: #4752c4;
+  }
+  .btn-submit:disabled {
+    background: #4752c4;
+    opacity: 0.6;
+    cursor: not-allowed;
+    animation: breathe 1.2s ease-in-out infinite;
+  }
+  .error-msg {
+    color: #f23f42;
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+  }
+  .status-msg {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    animation: popIn 0.3s ease;
+  }
+  .faq-answer {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #dbdee1;
+    white-space: pre-line;
+    animation: fadeInUp 0.3s ease;
+  }
+
+  .widget-modal-box {
+    background: transparent;
+  }
+  .widget-modal-box iframe {
+    border-radius: 8px;
+    display: block;
+  }
+  .widget-close-btn {
+    display: block;
+    margin: 0 auto 10px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .widget-close-btn:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  .choice-box {
+    background: #313338;
+    width: 380px;
+    max-width: 90vw;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    animation: popIn 0.25s ease;
+  }
+  .choice-header {
+    background: #2b2d31;
+    padding: 18px 22px;
+    text-align: center;
+  }
+  .choice-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #fff;
+  }
+  .choice-body {
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .choice-btn {
+    display: block;
+    text-decoration: none;
+    text-align: center;
+    padding: 13px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+  }
+  .choice-btn.profile {
+    background: rgba(255,255,255,0.06);
+    color: #dbdee1;
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+  .choice-btn.profile:hover {
+    background: rgba(255,255,255,0.12);
+  }
+  .choice-btn.bot {
+    background: linear-gradient(135deg, #6f5bff, #5865f2 60%, #33d0ff);
+    color: #fff;
+  }
+  .choice-btn.bot:hover {
+    filter: brightness(1.1);
   }
 
   /* Admin gear button */
@@ -201,10 +542,17 @@
     justify-content: center;
     transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
   }
+  #admin-toggle-btn .gear-icon {
+    display: inline-block;
+    animation: spinSlow 10s linear infinite;
+  }
+  #admin-toggle-btn:hover .gear-icon {
+    animation-duration: 1.2s;
+  }
   #admin-toggle-btn:hover {
     background: rgba(0,0,0,0.5);
     color: #fff;
-    transform: rotate(30deg);
+    transform: scale(1.1);
   }
   .admin-box {
     background: #1a1b1e;
@@ -214,6 +562,7 @@
     border: 1px solid rgba(88,101,242,0.25);
     box-shadow: 0 0 40px rgba(88,101,242,0.15), 0 8px 24px rgba(0,0,0,0.5);
     overflow: hidden;
+    animation: popIn 0.25s ease;
   }
   .admin-header {
     background: linear-gradient(90deg, #201f3c, #17182e);
@@ -226,6 +575,8 @@
   }
   .admin-body {
     padding: 20px 24px;
+    max-height: 70vh;
+    overflow-y: auto;
   }
   .admin-field {
     margin-bottom: 16px;
@@ -283,7 +634,6 @@
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.15);
     cursor: pointer;
-    position: relative;
     display: flex;
     align-items: flex-end;
     padding: 4px 6px;
@@ -291,282 +641,11 @@
     font-weight: 700;
     color: #fff;
     text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    transition: transform 0.15s ease, outline 0.15s ease;
   }
   .admin-palette-swatch:hover {
     outline: 2px solid #fff;
-  }
-
-  #discord-login-area {
-    margin-bottom: 4px;
-  }
-  .login-status {
-    font-size: 12px;
-    color: rgba(255,255,255,0.85);
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.16);
-    border-radius: 8px;
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  #mailbox-wrap {
-    position: relative;
-  }
-  #mailbox-menu {
-    display: none;
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    background: #1a1b1e;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    overflow: hidden;
-    z-index: 6;
-  }
-  #mailbox-wrap.open #mailbox-menu {
-    display: block;
-  }
-  .menu-item {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    color: #dbdee1;
-    padding: 12px 14px;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  .menu-item:hover {
-    background: rgba(88,101,242,0.18);
-  }
-  .menu-item + .menu-item {
-    border-top: 1px solid rgba(255,255,255,0.06);
-  }
-
-  #faq-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .faq-btn {
-    text-align: left;
-    font-size: 13px;
-  }
-
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(2px);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  .modal-overlay.active {
-    display: flex;
-  }
-
-  .modal-box {
-    background: #313338;
-    width: 440px;
-    max-width: 90vw;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    overflow: hidden;
-  }
-  .modal-header {
-    background: #2b2d31;
-    padding: 20px 24px;
-    text-align: center;
-  }
-  .modal-header h2 {
-    margin: 0;
-    color: #fff;
-    font-size: 20px;
-  }
-  .modal-header p {
-    margin: 6px 0 0;
-    color: #949ba4;
-    font-size: 13px;
-  }
-  .modal-body {
-    padding: 20px 24px;
-  }
-  .form-group {
-    margin-bottom: 16px;
-  }
-  .form-group label {
-    display: block;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #b5bac1;
-    margin-bottom: 8px;
-  }
-  .form-group input,
-  .form-group textarea {
-    width: 100%;
-    box-sizing: border-box;
-    background: #1e1f22;
-    border: 1px solid #1e1f22;
-    border-radius: 4px;
-    padding: 10px;
-    color: #dbdee1;
-    font-size: 14px;
-    font-family: inherit;
-    resize: vertical;
-  }
-  .form-group textarea {
-    min-height: 90px;
-  }
-  .form-group input:focus,
-  .form-group textarea:focus {
-    outline: none;
-    border-color: #5865f2;
-  }
-  .form-note {
-    font-size: 12px;
-    color: #949ba4;
-    margin: 0 0 16px;
-    line-height: 1.5;
-  }
-  .sending-as {
-    font-size: 12px;
-    color: #949ba4;
-    margin: -6px 0 16px;
-  }
-  .modal-footer {
-    background: #2b2d31;
-    padding: 16px 24px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-  }
-  .btn-cancel {
-    background: transparent;
-    color: #dbdee1;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  .btn-cancel:hover {
-    text-decoration: underline;
-  }
-  .btn-submit {
-    background: #5865f2;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-  }
-  .btn-submit:hover {
-    background: #4752c4;
-  }
-  .btn-submit:disabled {
-    background: #4752c4;
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .error-msg {
-    color: #f23f42;
-    font-size: 13px;
-    margin-top: 6px;
-    display: none;
-  }
-  .status-msg {
-    text-align: center;
-    padding: 20px;
-    font-size: 14px;
-  }
-  .faq-answer {
-    font-size: 14px;
-    line-height: 1.7;
-    color: #dbdee1;
-    white-space: pre-line;
-  }
-
-  .widget-modal-box {
-    background: transparent;
-  }
-  .widget-modal-box iframe {
-    border-radius: 8px;
-    display: block;
-  }
-  .widget-close-btn {
-    display: block;
-    margin: 0 auto 10px;
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-  }
-  .widget-close-btn:hover {
-    background: rgba(255,255,255,0.2);
-  }
-
-  .choice-box {
-    background: #313338;
-    width: 380px;
-    max-width: 90vw;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-  }
-  .choice-header {
-    background: #2b2d31;
-    padding: 18px 22px;
-    text-align: center;
-  }
-  .choice-header h2 {
-    margin: 0;
-    font-size: 18px;
-    color: #fff;
-  }
-  .choice-body {
-    padding: 20px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .choice-btn {
-    display: block;
-    text-decoration: none;
-    text-align: center;
-    padding: 13px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    cursor: pointer;
-    border: none;
-  }
-  .choice-btn.profile {
-    background: rgba(255,255,255,0.06);
-    color: #dbdee1;
-    border: 1px solid rgba(255,255,255,0.14);
-  }
-  .choice-btn.profile:hover {
-    background: rgba(255,255,255,0.12);
-  }
-  .choice-btn.bot {
-    background: linear-gradient(135deg, #6f5bff, #5865f2 60%, #33d0ff);
-    color: #fff;
-  }
-  .choice-btn.bot:hover {
-    filter: brightness(1.1);
+    transform: scale(1.05);
   }
 </style>
 </head>
@@ -582,59 +661,64 @@
   <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
 </div>
 
-<div id="version-tag">v1.2.0</div>
+<div id="version-tag">v1.3.0</div>
 
-<div id="categories">
+<!-- Left-side category navigation -->
+<div id="category-nav">
+  <button class="cat-nav-btn" data-cat="mailbox"><span class="nav-icon">📬</span> <span data-i18n="catMailbox">Mailbox</span></button>
+  <button class="cat-nav-btn" data-cat="discord"><span class="nav-icon">💬</span> <span data-i18n="catDiscord">Discord</span></button>
+  <button class="cat-nav-btn" data-cat="social"><span class="nav-icon">🌐</span> <span data-i18n="catSocial">Social networks</span></button>
+  <button class="cat-nav-btn" data-cat="fortnite"><span class="nav-icon">🎒</span> <span data-i18n="catFortnite">Fortnite</span></button>
+  <button class="cat-nav-btn" data-cat="game"><span class="nav-icon">🕹</span> <span data-i18n="catGame">Game</span></button>
+  <button class="cat-nav-btn" data-cat="faq"><span class="nav-icon">❓</span> <span data-i18n="catFaq">FAQ</span></button>
+</div>
 
-  <div class="category" id="cat-mailbox">
-    <div class="category-title" data-i18n="catMailbox">Mailbox</div>
-    <div class="category-buttons">
-      <div id="discord-login-area"></div>
-      <div id="mailbox-wrap">
-        <button class="cat-btn" id="mailbox-btn">📬 <span id="mailbox-btn-label">Snipecorp Mailbox</span> ▾</button>
-        <div id="mailbox-menu"></div>
+<!-- Category detail popup: one overlay, panels swapped by JS -->
+<div class="modal-overlay" id="category-modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 id="category-modal-title"></h2>
+    </div>
+    <div class="modal-body">
+
+      <div class="cat-panel" id="panel-mailbox">
+        <div id="discord-login-area"></div>
+        <div id="mailbox-wrap">
+          <button class="cat-btn" id="mailbox-btn">📬 <span id="mailbox-btn-label">Snipecorp Mailbox</span> ▾</button>
+          <div id="mailbox-menu"></div>
+        </div>
+        <button class="cat-btn" id="mailbox-direct-btn">📨 <span data-i18n="mailboxDirect">ptx2's mailbox</span></button>
       </div>
-      <button class="cat-btn" id="mailbox-direct-btn">📨 <span data-i18n="mailboxDirect">Use ptx2's messagerie</span></button>
+
+      <div class="cat-panel" id="panel-discord">
+        <button class="social-btn" id="discord-choice-open">💬 Discord</button>
+        <button class="social-btn" id="discord-servers-btn">🎲 <span data-i18n="serversLabel">Get a random serv</span></button>
+      </div>
+
+      <div class="cat-panel" id="panel-social">
+        <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
+        <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
+        <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
+      </div>
+
+      <div class="cat-panel" id="panel-fortnite">
+        <a class="social-btn" href="https://fortnite.gg/locker?id=3114783" target="_blank" rel="noopener">🎒 Fortnite Locker</a>
+        <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
+      </div>
+
+      <div class="cat-panel" id="panel-game">
+        <a class="social-btn" href="https://mobile-game-xi.vercel.app/" target="_blank" rel="noopener">🎮 <span data-i18n="gameLinkLabel">3D game made by AI</span></a>
+      </div>
+
+      <div class="cat-panel" id="panel-faq">
+        <div id="faq-wrap" style="display:flex; flex-direction:column; gap:10px;"></div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" id="category-modal-close" data-i18n="btnClose">Close</button>
     </div>
   </div>
-
-  <div class="category" id="cat-discord">
-    <div class="category-title" data-i18n="catDiscord">Discord</div>
-    <div class="category-buttons">
-      <button class="social-btn" id="discord-choice-open">💬 Discord</button>
-      <button class="social-btn" id="discord-servers-btn">🎲 <span data-i18n="serversLabel">Get a random serv</span></button>
-    </div>
-  </div>
-
-  <div class="category" id="cat-social">
-    <div class="category-title" data-i18n="catSocial">Social networks</div>
-    <div class="category-buttons">
-      <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
-      <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
-      <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
-    </div>
-  </div>
-
-  <div class="category" id="cat-fortnite">
-    <div class="category-title" data-i18n="catFortnite">Fortnite</div>
-    <div class="category-buttons">
-      <a class="social-btn" href="https://fortnite.gg/locker?id=3114783" target="_blank" rel="noopener">🎒 Fortnite Locker</a>
-      <a class="social-btn" href="https://fortnite.gg/wishlist?id=3114783" target="_blank" rel="noopener">⭐ Fortnite Wishlist</a>
-    </div>
-  </div>
-
-  <div class="category" id="cat-game">
-    <div class="category-title" data-i18n="catGame">Game</div>
-    <div class="category-buttons">
-      <a class="social-btn" href="https://mobile-game-xi.vercel.app/" target="_blank" rel="noopener">🎮 <span data-i18n="gameLinkLabel">3D game made by AI</span></a>
-    </div>
-  </div>
-
-  <div class="category" id="cat-faq">
-    <div class="category-title" data-i18n="catFaq">FAQ</div>
-    <div class="category-buttons" id="faq-wrap"></div>
-  </div>
-
 </div>
 
 <!-- Generic mailbox modal -->
@@ -656,7 +740,7 @@
 <div class="modal-overlay" id="direct-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <h2 data-i18n="directModalTitle">Send a Message</h2>
+      <h2 data-i18n="directModalTitle">ptx2's Mailbox</h2>
     </div>
     <div class="modal-body" id="direct-modal-body"></div>
     <div class="modal-footer" id="direct-modal-footer">
@@ -699,7 +783,7 @@
   </div>
 </div>
 
-<button id="admin-toggle-btn" title="Admin">⚙</button>
+<button id="admin-toggle-btn" title="Admin"><span class="gear-icon">⚙</span></button>
 
 <!-- Admin login popup -->
 <div class="modal-overlay" id="admin-login-overlay">
@@ -736,7 +820,7 @@
       </div>
       <div class="admin-field">
         <label data-i18n="adminVersionLabel">Version tag</label>
-        <input type="text" id="admin-version-input" value="v1.2.0">
+        <input type="text" id="admin-version-input" value="v1.3.0">
       </div>
       <button class="admin-save-btn" id="admin-apply-btn" data-i18n="adminApply">Apply changes</button>
       <p class="admin-note" data-i18n="adminNote">Changes apply instantly to this page but are not saved permanently — this is a static site with no server/database. Reloading the page resets everything.</p>
@@ -747,10 +831,11 @@
 <script>
   // ⚠️ Main mailbox webhook (collab / webhook proposal / roblox / server add / report)
   const WEBHOOK_URL = "https://discord.com/api/webhooks/1526567795578372257/T0r-r67nrO_ptOMpy1twDr_HtCiNEsmEs_ThRJpsFDtLMQczy2UZJrYZq-0M7tta7ZO9";
-  // ⚠️ Secondary webhook used only by the standalone "Send a message" button
+  // ⚠️ Secondary webhook used only by "ptx2's mailbox"
   const WEBHOOK_URL_2 = "https://discord.com/api/webhooks/1526869294565294163/pJYYMi0ystp5pG5LVlVaNYXP5v_chNzWs8IHVQhPIEXCiDyH-knrV--CHGlLsT7_CXzs";
 
-  const SITE_VERSION = "1.2.0";
+  const SITE_VERSION = "1.3.0";
+  const ADMIN_PASSWORD = "1238";
 
   // ---- Discord OAuth2 (implicit grant — no client secret needed) ----
   const DISCORD_CLIENT_ID = "1526891762436538460";
@@ -760,7 +845,7 @@
     + "&redirect_uri=" + encodeURIComponent(DISCORD_REDIRECT_URI)
     + "&response_type=token&scope=identify";
 
-  let discordUser = null; // { id, username } once logged in — cleared on reload
+  let discordUser = null;
 
   const DISCORD_SERVERS = [
     { name: "Server 1", id: "1421178923034869975" },
@@ -830,19 +915,8 @@
       labelReportReason: "Reason / details",
       placeholderReportReason: "Explain the situation...",
 
-      mailboxDirect: "Use ptx2's messagerie",
-      directModalTitle: "Send a Message",
-
-      adminAccessTitle: "🔒 Admin Access",
-      adminPasswordLabel: "Password",
-      adminUnlock: "Unlock",
-      adminIncorrect: "Incorrect password.",
-      adminPanelTitle: "⚙ Site Customization",
-      adminGradientLabel: "Background gradient",
-      adminBrandLabel: "Brand text (top left)",
-      adminVersionLabel: "Version tag",
-      adminApply: "Apply changes",
-      adminNote: "Changes apply instantly to this page but are not saved permanently — this is a static site with no server/database. Reloading the page resets everything.",
+      mailboxDirect: "ptx2's mailbox",
+      directModalTitle: "ptx2's Mailbox",
 
       discordChoiceTitle: "Discord",
       discordViewProfile: "View Snipepro's profile",
@@ -856,7 +930,18 @@
       faqDmPcQ: "How to open your DMs on computer?",
       faqDmPcA: "1. Open Discord.\n2. Click the gear icon near your username (User Settings).\n3. Go to Privacy & Safety.\n4. Enable \"Allow direct messages from server members\".",
       faqDataQ: "Where does the info I give the mailbox go?",
-      faqDataA: "It's stored in SnipeCorp's database."
+      faqDataA: "It's stored in SnipeCorp's database.",
+
+      adminAccessTitle: "🔒 Admin Access",
+      adminPasswordLabel: "Password",
+      adminUnlock: "Unlock",
+      adminIncorrect: "Incorrect password.",
+      adminPanelTitle: "⚙ Site Customization",
+      adminGradientLabel: "Background gradient",
+      adminBrandLabel: "Brand text (top left)",
+      adminVersionLabel: "Version tag",
+      adminApply: "Apply changes",
+      adminNote: "Changes apply instantly to this page but are not saved permanently — this is a static site with no server/database. Reloading the page resets everything."
     },
     fr: {
       pageTitle: "Snipepro Officiel",
@@ -916,19 +1001,8 @@
       labelReportReason: "Raison / détails",
       placeholderReportReason: "Explique la situation...",
 
-      mailboxDirect: "Utiliser la messagerie de ptx2",
-      directModalTitle: "Envoyer un message",
-
-      adminAccessTitle: "🔒 Accès Admin",
-      adminPasswordLabel: "Mot de passe",
-      adminUnlock: "Déverrouiller",
-      adminIncorrect: "Mot de passe incorrect.",
-      adminPanelTitle: "⚙ Personnalisation du site",
-      adminGradientLabel: "Dégradé de fond",
-      adminBrandLabel: "Texte de marque (en haut à gauche)",
-      adminVersionLabel: "Tag de version",
-      adminApply: "Appliquer",
-      adminNote: "Les changements s'appliquent instantanément à cette page mais ne sont pas sauvegardés — c'est un site statique sans serveur/base de données. Recharger la page réinitialise tout.",
+      mailboxDirect: "La mailbox de ptx2",
+      directModalTitle: "Mailbox de ptx2",
 
       discordChoiceTitle: "Discord",
       discordViewProfile: "Voir le profil de Snipepro",
@@ -942,13 +1016,24 @@
       faqDmPcQ: "Comment ouvrir ses MP sur ordinateur ?",
       faqDmPcA: "1. Ouvre Discord.\n2. Clique sur l'icône d'engrenage à côté de ton pseudo (Paramètres utilisateur).\n3. Va dans Confidentialité et sécurité.\n4. Active \"Autoriser les messages privés des membres du serveur\".",
       faqDataQ: "Où vont les informations que je donne à la mailbox ?",
-      faqDataA: "Elles sont stockées dans la base de données de la SnipeCorp."
+      faqDataA: "Elles sont stockées dans la base de données de la SnipeCorp.",
+
+      adminAccessTitle: "🔒 Accès Admin",
+      adminPasswordLabel: "Mot de passe",
+      adminUnlock: "Déverrouiller",
+      adminIncorrect: "Mot de passe incorrect.",
+      adminPanelTitle: "⚙ Personnalisation du site",
+      adminGradientLabel: "Dégradé de fond",
+      adminBrandLabel: "Texte de marque (en haut à gauche)",
+      adminVersionLabel: "Tag de version",
+      adminApply: "Appliquer",
+      adminNote: "Les changements s'appliquent instantanément à cette page mais ne sont pas sauvegardés — c'est un site statique sans serveur/base de données. Recharger la page réinitialise tout."
     }
   };
 
   let currentLang = "en";
 
-  // ---- Mailbox options (Discord username is taken from the login, not typed) ----
+  // ---- Mailbox options ----
   const MAILBOX_OPTIONS = [
     {
       id: 'collab',
@@ -1011,6 +1096,35 @@
     { id: 'dmPc', qKey: 'faqDmPcQ', aKey: 'faqDmPcA' },
     { id: 'data', qKey: 'faqDataQ', aKey: 'faqDataA' }
   ];
+
+  // ---- Category nav -> popup ----
+  const CATEGORY_TITLE_KEYS = {
+    mailbox: 'catMailbox',
+    discord: 'catDiscord',
+    social: 'catSocial',
+    fortnite: 'catFortnite',
+    game: 'catGame',
+    faq: 'catFaq'
+  };
+
+  const categoryModalOverlay = document.getElementById('category-modal-overlay');
+  const categoryModalTitle = document.getElementById('category-modal-title');
+
+  function openCategoryModal(catId) {
+    const t = translations[currentLang];
+    categoryModalTitle.textContent = t[CATEGORY_TITLE_KEYS[catId]];
+    document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + catId).classList.add('active');
+    categoryModalOverlay.classList.add('active');
+  }
+  function closeCategoryModal() {
+    categoryModalOverlay.classList.remove('active');
+  }
+  document.querySelectorAll('.cat-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => openCategoryModal(btn.getAttribute('data-cat')));
+  });
+  document.getElementById('category-modal-close').addEventListener('click', closeCategoryModal);
+  categoryModalOverlay.addEventListener('click', (e) => { if (e.target === categoryModalOverlay) closeCategoryModal(); });
 
   function renderMailboxMenu() {
     const t = translations[currentLang];
@@ -1077,6 +1191,13 @@
     renderMailboxMenu();
     renderFaqButtons();
     renderLoginUI();
+
+    // keep an open category popup's title in sync if the language changes mid-view
+    const activePanel = document.querySelector('.cat-panel.active');
+    if (activePanel && categoryModalOverlay.classList.contains('active')) {
+      const catId = activePanel.id.replace('panel-', '');
+      categoryModalTitle.textContent = t[CATEGORY_TITLE_KEYS[catId]];
+    }
   }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -1086,7 +1207,6 @@
   // Any future feature should read strings via translations[currentLang].xxx
   // and re-render itself inside applyLanguage() so language stays in sync site-wide.
 
-  // ---- Require login before using the mailbox ----
   function requireLogin() {
     if (!discordUser) {
       window.location.href = DISCORD_AUTH_URL;
@@ -1203,7 +1323,7 @@
     }
   });
 
-  // ---- Direct message modal (second webhook) ----
+  // ---- ptx2's mailbox (second webhook) ----
   const directOverlay = document.getElementById('direct-overlay');
   const directBodyEl = document.getElementById('direct-modal-body');
   const directFooterEl = document.getElementById('direct-modal-footer');
@@ -1257,7 +1377,7 @@
       });
       if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
 
-      // This confirmation is always shown in English, regardless of site language.
+      // Always shown in English, regardless of site language.
       directBodyEl.innerHTML = `<div class="status-msg">✅ Sent thanks to SnipeCorp's services!</div>`;
       directFooterEl.style.display = 'none';
       setTimeout(() => { directOverlay.classList.remove('active'); }, 1500);
@@ -1364,7 +1484,7 @@
       `linear-gradient(${angle}deg, ${palette.colors.join(', ')})`;
   }
 
-  // ---- Ghost image apparitions (subtle, silhouette only) ----
+  // ---- Ghost image apparitions ----
   const canvas = document.getElementById('ghost-canvas');
   const ctx = canvas.getContext('2d');
   let width, height, cx, cy;
@@ -1443,6 +1563,68 @@
   }
   requestAnimationFrame(drawGhosts);
   setInterval(spawnGhost, 3500);
+
+  // ---- Admin panel ----
+  const adminToggleBtn = document.getElementById('admin-toggle-btn');
+  const adminLoginOverlay = document.getElementById('admin-login-overlay');
+  const adminPasswordInput = document.getElementById('admin-password');
+  const adminUnlockBtn = document.getElementById('admin-unlock-btn');
+  const adminErrorMsg = document.getElementById('admin-error-msg');
+  const adminPanelOverlay = document.getElementById('admin-panel-overlay');
+  const adminPaletteGrid = document.getElementById('admin-palette-grid');
+  const adminBrandInput = document.getElementById('admin-brand-input');
+  const adminVersionInput = document.getElementById('admin-version-input');
+  const adminApplyBtn = document.getElementById('admin-apply-btn');
+
+  adminToggleBtn.addEventListener('click', () => {
+    adminPasswordInput.value = '';
+    adminErrorMsg.style.display = 'none';
+    adminLoginOverlay.classList.add('active');
+    setTimeout(() => adminPasswordInput.focus(), 50);
+  });
+  adminLoginOverlay.addEventListener('click', (e) => {
+    if (e.target === adminLoginOverlay) adminLoginOverlay.classList.remove('active');
+  });
+
+  function renderAdminPaletteGrid() {
+    adminPaletteGrid.innerHTML = '';
+    GRADIENT_PALETTES.forEach(p => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'admin-palette-swatch';
+      btn.style.background = `linear-gradient(135deg, ${p.colors.join(', ')})`;
+      btn.textContent = p.name;
+      btn.addEventListener('click', () => applyGradientByName(p.name));
+      adminPaletteGrid.appendChild(btn);
+    });
+  }
+
+  function tryAdminUnlock() {
+    if (adminPasswordInput.value === ADMIN_PASSWORD) {
+      adminLoginOverlay.classList.remove('active');
+      renderAdminPaletteGrid();
+      adminBrandInput.value = document.getElementById('brand-tag').textContent;
+      adminVersionInput.value = document.getElementById('version-tag').textContent;
+      adminPanelOverlay.classList.add('active');
+    } else {
+      adminErrorMsg.style.display = 'block';
+    }
+  }
+  adminUnlockBtn.addEventListener('click', tryAdminUnlock);
+  adminPasswordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') tryAdminUnlock();
+  });
+
+  adminPanelOverlay.addEventListener('click', (e) => {
+    if (e.target === adminPanelOverlay) adminPanelOverlay.classList.remove('active');
+  });
+
+  adminApplyBtn.addEventListener('click', () => {
+    const newBrand = adminBrandInput.value.trim();
+    const newVersion = adminVersionInput.value.trim();
+    if (newBrand) document.getElementById('brand-tag').textContent = newBrand;
+    if (newVersion) document.getElementById('version-tag').textContent = newVersion;
+  });
 
   // ---- Handle returning from the Discord OAuth callback ----
   function handleDiscordRedirect() {
