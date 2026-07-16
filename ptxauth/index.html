@@ -2,531 +2,281 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Use ptx2's Mailbox</title>
-
+<title>ptx2's Mailbox</title>
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'gg sans','Segoe UI',Arial,sans-serif;
-}
-
-body{
-    background:#05050f;
-    color:white;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    overflow:hidden;
-}
-
-/* Animated background */
-
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    background:linear-gradient(
-        135deg,
-        #1b1035,
-        #3a1c71,
-        #5865f2,
-        #33d0ff,
-        #1b1035
-    );
-    background-size:400% 400%;
-    animation:bgMove 18s ease infinite;
-    z-index:-2;
-}
-
-@keyframes bgMove{
-
-0%{
-background-position:0% 50%;
-}
-
-50%{
-background-position:100% 50%;
-}
-
-100%{
-background-position:0% 50%;
-}
-
-}
-
-/* Main button */
-
-#mailboxBtn{
-
-background:linear-gradient(
-135deg,
-#6f5bff,
-#5865f2,
-#33d0ff
-);
-
-border:none;
-
-color:white;
-
-font-size:17px;
-
-font-weight:700;
-
-padding:16px 24px;
-
-border-radius:12px;
-
-cursor:pointer;
-
-transition:.2s;
-
-box-shadow:
-0 0 25px rgba(88,101,242,.35);
-
-}
-
-#mailboxBtn:hover{
-
-transform:translateY(-3px);
-
-box-shadow:
-0 0 40px rgba(88,101,242,.6);
-
-}
-
-#mailboxBtn:active{
-
-transform:scale(.96);
-
-}
-
-/* Overlay */
-
-.overlay{
-
-display:none;
-
-position:fixed;
-
-left:0;
-top:0;
-
-width:100%;
-height:100%;
-
-background:rgba(0,0,0,.65);
-
-backdrop-filter:blur(3px);
-
-justify-content:center;
-
-align-items:center;
-
-z-index:999;
-
-}
-
-/* Popup */
-
-.popup{
-
-width:440px;
-
-max-width:92vw;
-
-background:#313338;
-
-border-radius:12px;
-
-overflow:hidden;
-
-animation:popup .25s ease;
-
-box-shadow:
-0 10px 30px rgba(0,0,0,.5);
-
-}
-
-@keyframes popup{
-
-from{
-
-opacity:0;
-
-transform:scale(.92);
-
-}
-
-to{
-
-opacity:1;
-
-transform:scale(1);
-
-}
-
-}
-
-.popup-header{
-
-background:#2b2d31;
-
-padding:20px;
-
-text-align:center;
-
-}
-
-.popup-header h2{
-
-font-size:22px;
-
-}
-
-.popup-body{
-
-padding:20px;
-
-}
-
-.popup-footer{
-
-background:#2b2d31;
-
-padding:15px;
-
-display:flex;
-
-justify-content:flex-end;
-
-gap:10px;
-
-}
-
-/* Form */
-
-label{
-
-display:block;
-
-margin-bottom:8px;
-
-font-size:13px;
-
-font-weight:bold;
-
-color:#b5bac1;
-
-}
-
-textarea{
-
-width:100%;
-
-height:140px;
-
-resize:none;
-
-background:#1e1f22;
-
-border:1px solid #1e1f22;
-
-border-radius:6px;
-
-padding:12px;
-
-color:white;
-
-font-size:14px;
-
-outline:none;
-
-transition:.2s;
-
-}
-
-textarea:focus{
-
-border-color:#5865f2;
-
-box-shadow:
-0 0 0 3px rgba(88,101,242,.25);
-
-}
-
-/* Buttons */
-
-.cancelBtn{
-
-background:transparent;
-
-border:none;
-
-color:white;
-
-cursor:pointer;
-
-padding:10px 18px;
-
-font-size:15px;
-
-}
-
-.cancelBtn:hover{
-
-text-decoration:underline;
-
-}
-
-.sendBtn{
-
-background:#5865f2;
-
-border:none;
-
-color:white;
-
-padding:10px 18px;
-
-border-radius:6px;
-
-cursor:pointer;
-
-font-weight:bold;
-
-}
-
-.sendBtn:hover{
-
-background:#4752c4;
-
-}
-
-.sendBtn:disabled{
-
-opacity:.6;
-
-cursor:not-allowed;
-
-}
-
-/* Status */
-
-.status{
-
-margin-top:14px;
-
-font-size:14px;
-
-text-align:center;
-
-display:none;
-
-}
-
-.success{
-
-color:#39d353;
-
-}
-
-.error{
-
-color:#ff5d5d;
-
-}
-
-/* Login */
-
-#loginArea{
-
-position:fixed;
-
-top:20px;
-
-right:20px;
-
-display:flex;
-
-flex-direction:column;
-
-gap:10px;
-
-align-items:flex-end;
-
-}
-
-.loginButton{
-
-background:#5865F2;
-
-border:none;
-
-color:white;
-
-padding:12px 18px;
-
-border-radius:8px;
-
-cursor:pointer;
-
-font-weight:bold;
-
-}
-
-.loginButton:hover{
-
-background:#4752c4;
-
-}
-
-.userBox{
-
-background:rgba(255,255,255,.08);
-
-padding:12px;
-
-border-radius:8px;
-
-font-size:14px;
-
-backdrop-filter:blur(5px);
-
-}
-
-.logoutBtn{
-
-margin-top:10px;
-
-background:#ff5555;
-
-border:none;
-
-padding:8px 12px;
-
-color:white;
-
-border-radius:6px;
-
-cursor:pointer;
-
-}
-
-.logoutBtn:hover{
-
-background:#dd4444;
-
-}
-
+  * { box-sizing: border-box; }
+  html, body {
+    min-height: 100%;
+    margin: 0;
+    font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif;
+    background: #05050f;
+    color: #dbdee1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 280px;
+  }
+  #discord-login-area {
+    margin-bottom: 4px;
+  }
+  .login-status {
+    font-size: 12px;
+    color: #dbdee1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .cat-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #dbdee1;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .cat-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.3);
+  }
+  .menu-item {
+    padding: 10px 14px;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(2px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: #313338;
+    width: 400px;
+    max-width: 90vw;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .modal-header {
+    background: #2b2d31;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .modal-header h2 { margin: 0; color: #fff; font-size: 20px; }
+  .modal-body { padding: 20px 24px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #b5bac1;
+    margin-bottom: 8px;
+  }
+  .form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #1e1f22;
+    border: 1px solid #1e1f22;
+    border-radius: 4px;
+    padding: 10px;
+    color: #dbdee1;
+    font-size: 14px;
+    font-family: inherit;
+    min-height: 90px;
+    resize: vertical;
+  }
+  .form-group textarea:focus { outline: none; border-color: #5865f2; }
+  .form-note { font-size: 12px; color: #949ba4; margin: 0 0 16px; line-height: 1.5; }
+  .sending-as { font-size: 12px; color: #949ba4; margin: -6px 0 16px; }
+  .modal-footer {
+    background: #2b2d31;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  .btn-cancel {
+    background: transparent; color: #dbdee1; border: none;
+    padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;
+  }
+  .btn-cancel:hover { text-decoration: underline; }
+  .btn-submit {
+    background: #5865f2; color: white; border: none;
+    padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 500;
+  }
+  .btn-submit:hover { background: #4752c4; }
+  .btn-submit:disabled { background: #4752c4; opacity: 0.6; cursor: not-allowed; }
+  .error-msg { color: #f23f42; font-size: 13px; margin-top: 6px; display: none; }
+  .status-msg { text-align: center; padding: 20px; font-size: 14px; }
 </style>
-
 </head>
-
 <body>
 
-<div id="loginArea"></div>
-
-<button id="mailboxBtn">
-📨 Use ptx2's Mailbox
-</button>
-
-<div class="overlay" id="overlay">
-
-<div class="popup">
-
-<div class="popup-header">
-
-<h2>ptx2's Mailbox</h2>
-
+<div id="wrap">
+  <div id="discord-login-area"></div>
+  <button class="cat-btn" id="mailbox-direct-btn">📨 ptx2's mailbox</button>
 </div>
 
-<div class="popup-body">
-
-<p id="sendingAs"></p>
-
-<br>
-
-<label>Message</label>
-
-<textarea
-id="message"
-placeholder="Write your message..."></textarea>
-
-<div
-id="status"
-class="status"></div>
-
-</div>
-
-<div class="popup-footer">
-
-<button
-class="cancelBtn"
-id="cancelBtn">
-
-Cancel
-
-</button>
-
-<button
-class="sendBtn"
-id="sendBtn">
-
-Send
-
-</button>
-
-</div>
-
-</div>
-
+<!-- ptx2's mailbox modal -->
+<div class="modal-overlay" id="direct-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h2>ptx2's Mailbox</h2></div>
+    <div class="modal-body" id="direct-modal-body"></div>
+    <div class="modal-footer" id="direct-modal-footer">
+      <button class="btn-cancel" id="direct-cancel-btn">Cancel</button>
+      <button class="btn-submit" id="direct-submit-btn">Send</button>
+    </div>
+  </div>
 </div>
 
 <script>
+  // ⚠️ Webhook used by ptx2's mailbox
+  const WEBHOOK_URL_2 = "https://discord.com/api/webhooks/1526869294565294163/pJYYMi0ystp5pG5LVlVaNYXP5v_chNzWs8IHVQhPIEXCiDyH-knrV--CHGlLsT7_CXzs";
 
-/* ===========================
-   CONFIG
-=========================== */
+  // ---- Discord OAuth2 (implicit grant — no client secret needed) ----
+  const DISCORD_CLIENT_ID = "1526891762436538460";
+  const DISCORD_REDIRECT_URI = "https://snipepro08.github.io/Snipepro08/callback";
+  const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize"
+    + "?client_id=" + DISCORD_CLIENT_ID
+    + "&redirect_uri=" + encodeURIComponent(DISCORD_REDIRECT_URI)
+    + "&response_type=token&scope=identify";
 
-const WEBHOOK_URL =
-"TON_WEBHOOK_ICI";
+  let discordUser = null;
 
-const DISCORD_CLIENT_ID =
-"1526891762436538460";
+  function renderLoginUI() {
+    const area = document.getElementById('discord-login-area');
+    if (discordUser) {
+      area.innerHTML = `<div class="login-status">
+        ✅ Connected as <strong>${discordUser.username}</strong>
+        <button class="cat-btn" id="logout-btn">Log out</button>
+      </div>`;
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        discordUser = null;
+        renderLoginUI();
+      });
+    } else {
+      area.innerHTML = `<button class="cat-btn" id="discord-login-btn">🔐 Connect with Discord</button>`;
+      document.getElementById('discord-login-btn').addEventListener('click', () => {
+        window.location.href = DISCORD_AUTH_URL;
+      });
+    }
+  }
 
-const DISCORD_REDIRECT_URI =
-"https://snipepro08.github.io/Snipepro08/ptxauth/callback";
+  function requireLogin() {
+    if (!discordUser) {
+      window.location.href = DISCORD_AUTH_URL;
+      return false;
+    }
+    return true;
+  }
 
-const DISCORD_AUTH_URL =
-"https://discord.com/oauth2/authorize"
-+"?client_id="+DISCORD_CLIENT_ID
-+"&redirect_uri="+encodeURIComponent(DISCORD_REDIRECT_URI)
-+"&response_type=token"
-+"&scope=identify";
+  // ---- ptx2's mailbox modal ----
+  const directOverlay = document.getElementById('direct-overlay');
+  const directBodyEl = document.getElementById('direct-modal-body');
+  const directFooterEl = document.getElementById('direct-modal-footer');
+  const directCancelBtn = document.getElementById('direct-cancel-btn');
+  const directSubmitBtn = document.getElementById('direct-submit-btn');
+  const directBtn = document.getElementById('mailbox-direct-btn');
 
-/* variables */
+  function renderDirectModal() {
+    directBodyEl.innerHTML = `
+      <p class="sending-as">Sending as: <strong>${discordUser.username}</strong></p>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea id="direct-message" placeholder="Describe your request..."></textarea>
+      </div>
+      <p class="form-note">Reminder: your Discord DMs must be open so the SnipeCorp team can reach you.</p>
+      <div class="error-msg" id="direct-error-msg"></div>`;
+    directFooterEl.style.display = 'flex';
+    directSubmitBtn.disabled = false;
+    directSubmitBtn.textContent = 'Send';
+  }
 
-let discordUser=null;
+  directBtn.addEventListener('click', () => {
+    if (!requireLogin()) return;
+    renderDirectModal();
+    directOverlay.classList.add('active');
+  });
+  directCancelBtn.addEventListener('click', () => directOverlay.classList.remove('active'));
+  directOverlay.addEventListener('click', (e) => { if (e.target === directOverlay) directOverlay.classList.remove('active'); });
 
-const loginArea=document.getElementById("loginArea");
+  directSubmitBtn.addEventListener('click', async () => {
+    const messageEl = document.getElementById('direct-message');
+    const errorMsg = document.getElementById('direct-error-msg');
+    const message = messageEl.value.trim();
 
-const overlay=document.getElementById("overlay");
+    if (!message) {
+      errorMsg.textContent = "Please fill in the message.";
+      errorMsg.style.display = 'block';
+      return;
+    }
 
-const mailboxBtn=document.getElementById("mailboxBtn");
+    directSubmitBtn.disabled = true;
+    directSubmitBtn.textContent = 'Sending...';
 
-const cancelBtn=document.getElementById("cancelBtn");
+    try {
+      const response = await fetch(WEBHOOK_URL_2, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: `**${discordUser.username}**: ${message}` })
+      });
+      if (!response.ok) throw new Error("Failed to send (" + response.status + ")");
 
-const sendBtn=document.getElementById("sendBtn");
+      directBodyEl.innerHTML = `<div class="status-msg">✅ Sent thanks to SnipeCorp's services!</div>`;
+      directFooterEl.style.display = 'none';
+      setTimeout(() => { directOverlay.classList.remove('active'); }, 1500);
+    } catch (err) {
+      errorMsg.textContent = "Failed to send. Please check the webhook URL.";
+      errorMsg.style.display = 'block';
+      directSubmitBtn.disabled = false;
+      directSubmitBtn.textContent = 'Send';
+    }
+  });
 
-const status=document.getElementById("status");
+  // ---- Handle returning from the Discord OAuth callback ----
+  function handleDiscordRedirect() {
+    if (window.location.hash.startsWith('#discord_token=')) {
+      const token = decodeURIComponent(window.location.hash.replace('#discord_token=', ''));
+      history.replaceState(null, '', window.location.pathname);
+      fetch('https://discord.com/api/users/@me', {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+        .then(res => res.json())
+        .then(data => {
+          discordUser = { id: data.id, username: data.global_name || data.username };
+          renderLoginUI();
+        })
+        .catch(() => { /* silently ignore — user can just try connecting again */ });
+    }
+  }
 
-const sendingAs=document.getElementById("sendingAs");
+  renderLoginUI();
+  handleDiscordRedirect();
+</script>
 
-const message=document.getElementById("message");
+</body>
+</html>
