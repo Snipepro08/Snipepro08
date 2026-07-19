@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Snipepro - Social</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
+  #wrap { display: flex; flex-direction: column; gap: 12px; width: 300px; }
+  #brand-tag { font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
+  #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+  .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .lang-btn.active { background: rgba(0,0,0,0.5); color: #fff; }
+  .social-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #dbdee1;
+    text-decoration: none; padding: 13px 14px; border-radius: 8px; font-size: 15px; font-weight: 600; width: 100%;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .social-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); }
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="brand-tag">SnipeCorp</div>
+  <div id="lang-switch">
+    <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
+    <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
+  </div>
+  <a class="social-btn" href="https://youtube.com/@snipepro_8" target="_blank" rel="noopener">▶ YouTube</a>
+  <a class="social-btn" href="https://instagram.com/3gameur1yt/" target="_blank" rel="noopener">📷 Instagram</a>
+  <a class="social-btn" href="https://twitch.tv/3gameur1" target="_blank" rel="noopener">🎥 Twitch</a>
+</div>
+
+<script>
+  function applyLanguage(lang) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === lang));
+  }
+  document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => applyLanguage(b.getAttribute('data-lang'))));
+</script>
+
+</body>
+</html>
