@@ -186,12 +186,11 @@
     }
   }
 
-  function requireLogin() {
-    if (!discordUser) {
-      window.location.href = DISCORD_AUTH_URL;
-      return false;
-    }
-    return true;
+  function encodeState(obj) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+  }
+  function decodeState(str) {
+    return JSON.parse(decodeURIComponent(escape(atob(str))));
   }
 
   // ---- ptx2's mailbox modal ----
@@ -202,12 +201,12 @@
   const directSubmitBtn = document.getElementById('direct-submit-btn');
   const directBtn = document.getElementById('mailbox-direct-btn');
 
-  function renderDirectModal() {
+  function renderDirectModal(prefillMessage) {
     directBodyEl.innerHTML = `
-      <p class="sending-as">Sending as: <strong>${discordUser.username}</strong></p>
+      ${discordUser ? `<p class="sending-as">Sending as: <strong>${discordUser.username}</strong></p>` : ''}
       <div class="form-group">
         <label>Message</label>
-        <textarea id="direct-message" placeholder="Describe your request..."></textarea>
+        <textarea id="direct-message" placeholder="Describe your request...">${prefillMessage || ''}</textarea>
       </div>
       <p class="form-note">Reminder: your Discord DMs must be open so the SnipeCorp team can reach you.</p>
       <div class="error-msg" id="direct-error-msg"></div>`;
@@ -217,27 +216,16 @@
   }
 
   directBtn.addEventListener('click', () => {
-    if (!requireLogin()) return;
     renderDirectModal();
     directOverlay.classList.add('active');
   });
   directCancelBtn.addEventListener('click', () => directOverlay.classList.remove('active'));
   directOverlay.addEventListener('click', (e) => { if (e.target === directOverlay) directOverlay.classList.remove('active'); });
 
-  directSubmitBtn.addEventListener('click', async () => {
-    const messageEl = document.getElementById('direct-message');
-    const errorMsg = document.getElementById('direct-error-msg');
-    const message = messageEl.value.trim();
-
-    if (!message) {
-      errorMsg.textContent = "Please fill in the message.";
-      errorMsg.style.display = 'block';
-      return;
-    }
-
+  async function sendDirectMessage(message) {
+    directFooterEl.style.display = 'flex';
     directSubmitBtn.disabled = true;
     directSubmitBtn.textContent = 'Sending...';
-
     try {
       const response = await fetch(WEBHOOK_URL_2, {
         method: "POST",
@@ -250,28 +238,56 @@
       directFooterEl.style.display = 'none';
       setTimeout(() => { directOverlay.classList.remove('active'); }, 1500);
     } catch (err) {
-      errorMsg.textContent = "Failed to send. Please check the webhook URL.";
-      errorMsg.style.display = 'block';
+      const errorMsg = document.getElementById('direct-error-msg');
+      if (errorMsg) { errorMsg.textContent = "Failed to send. Please check the webhook URL."; errorMsg.style.display = 'block'; }
       directSubmitBtn.disabled = false;
       directSubmitBtn.textContent = 'Send';
+    }
+  }
+
+  directSubmitBtn.addEventListener('click', () => {
+    const messageEl = document.getElementById('direct-message');
+    const errorMsg = document.getElementById('direct-error-msg');
+    const message = messageEl.value.trim();
+
+    if (!message) {
+      errorMsg.textContent = "Please fill in the message.";
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    if (discordUser) {
+      sendDirectMessage(message);
+    } else {
+      // Message is ready — now go connect to Discord, then send automatically on return.
+      const state = encodeState({ message });
+      window.location.href = DISCORD_AUTH_URL + '&state=' + encodeURIComponent(state);
     }
   });
 
   // ---- Handle returning from the Discord OAuth callback ----
   function handleDiscordRedirect() {
-    if (window.location.hash.startsWith('#discord_token=')) {
-      const token = decodeURIComponent(window.location.hash.replace('#discord_token=', ''));
-      history.replaceState(null, '', window.location.pathname);
-      fetch('https://discord.com/api/users/@me', {
-        headers: { Authorization: 'Bearer ' + token }
+    if (!window.location.hash.startsWith('#discord_token=')) return;
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const token = params.get('discord_token');
+    const pendingState = params.get('pending');
+    history.replaceState(null, '', window.location.pathname);
+
+    fetch('https://discord.com/api/users/@me', {
+      headers: { Authorization: 'Bearer ' + token }
+    })
+      .then(res => res.json())
+      .then(data => {
+        discordUser = { id: data.id, username: data.global_name || data.username };
+        renderLoginUI();
+        if (pendingState) {
+          const { message } = decodeState(pendingState);
+          renderDirectModal(message);
+          directOverlay.classList.add('active');
+          sendDirectMessage(message);
+        }
       })
-        .then(res => res.json())
-        .then(data => {
-          discordUser = { id: data.id, username: data.global_name || data.username };
-          renderLoginUI();
-        })
-        .catch(() => { /* silently ignore — user can just try connecting again */ });
-    }
+      .catch(() => { /* silently ignore — user can just try connecting again */ });
   }
 
   renderLoginUI();
