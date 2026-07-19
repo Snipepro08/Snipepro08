@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Snipepro Officiel</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
+  #wrap { display: flex; flex-direction: column; gap: 12px; width: 260px; }
+  #brand-tag { font-size: 22px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
+  #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+  .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .lang-btn.active { background: rgba(0,0,0,0.5); color: #fff; }
+  .cat-nav-btn {
+    display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.32); border: 1px solid rgba(255,255,255,0.16);
+    color: #fff; text-decoration: none; padding: 13px 14px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .cat-nav-btn:hover { transform: translateX(4px); background: rgba(0,0,0,0.5); }
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="brand-tag">SnipeCorp</div>
+  <div id="lang-switch">
+    <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
+    <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
+  </div>
+  <a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/mailbox">📬 <span data-i18n="catMailbox">Mailbox</span></a>
+  <a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/discord">💬 <span data-i18n="catDiscord">Discord</span></a>
+  <a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/social">🌐 <span data-i18n="catSocial">Social networks</span></a>
+  <a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/fortnite">🎒 <span data-i18n="catFortnite">Fortnite</span></a>
+  <a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/game">🕹 <span data-i18n="catGame">Game</span></a>
+  <a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/faq">❓ <span data-i18n="catFaq">FAQ</span></a>
+</div>
+
+<script>
+  const translations = {
+    en: { catMailbox: "Mailbox", catDiscord: "Discord", catSocial: "Social networks", catFortnite: "Fortnite", catGame: "Game", catFaq: "FAQ" },
+    fr: { catMailbox: "Messagerie", catDiscord: "Discord", catSocial: "Réseaux sociaux", catFortnite: "Fortnite", catGame: "Jeu", catFaq: "FAQ" }
+  };
+  function applyLanguage(lang) {
+    const t = translations[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k]) el.textContent = t[k]; });
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === lang));
+  }
+  document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => applyLanguage(b.getAttribute('data-lang'))));
+</script>
+
+</body>
+</html>
