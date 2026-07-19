@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Snipepro - FAQ</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
+  #wrap { display: flex; flex-direction: column; gap: 12px; width: 320px; }
+  #brand-tag { font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
+  #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+  .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .lang-btn.active { background: rgba(0,0,0,0.5); color: #fff; }
+  .social-btn {
+    display: block; text-align: left; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #dbdee1;
+    padding: 13px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; width: 100%; cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .social-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); }
+
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 1000; }
+  .modal-overlay.active { display: flex; }
+  .modal-box { background: #313338; width: 400px; max-width: 90vw; border-radius: 8px; overflow: hidden; }
+  .modal-header { background: #2b2d31; padding: 20px 24px; text-align: center; }
+  .modal-header h2 { margin: 0; color: #fff; font-size: 18px; }
+  .modal-body { padding: 20px 24px; }
+  .faq-answer { font-size: 14px; line-height: 1.7; color: #dbdee1; white-space: pre-line; }
+  .modal-footer { background: #2b2d31; padding: 16px 24px; display: flex; justify-content: flex-end; }
+  .btn-cancel { background: transparent; color: #dbdee1; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div id="wrap">
+  <div id="brand-tag">SnipeCorp</div>
+  <div id="lang-switch">
+    <button class="lang-btn active" id="lang-en" data-lang="en">EN</button>
+    <button class="lang-btn" id="lang-fr" data-lang="fr">FR</button>
+  </div>
+  <div id="faq-wrap" style="display:flex; flex-direction:column; gap:10px;"></div>
+</div>
+
+<div class="modal-overlay" id="faq-overlay">
+  <div class="modal-box">
+    <div class="modal-header"><h2 id="faq-modal-title">FAQ</h2></div>
+    <div class="modal-body"><p class="faq-answer" id="faq-modal-answer"></p></div>
+    <div class="modal-footer"><button class="btn-cancel" id="faq-close-btn" data-i18n="btnClose">Close</button></div>
+  </div>
+</div>
+
+<script>
+  const translations = {
+    en: {
+      btnClose: "Close",
+      faqWebhookQ: "How to create a webhook and copy its URL?",
+      faqWebhookA: "1. Open your Discord server settings.\n2. Go to Integrations → Webhooks.\n3. Click \"New Webhook\" and give it a name.\n4. Click \"Copy Webhook URL\".",
+      faqDmPhoneQ: "How to open your DMs on phone?",
+      faqDmPhoneA: "1. Open the Discord app.\n2. Tap your profile picture (bottom right) → Settings.\n3. Go to Privacy & Safety.\n4. Enable \"Allow direct messages from server members\".",
+      faqDmPcQ: "How to open your DMs on computer?",
+      faqDmPcA: "1. Open Discord.\n2. Click the gear icon near your username (User Settings).\n3. Go to Privacy & Safety.\n4. Enable \"Allow direct messages from server members\".",
+      faqDataQ: "Where does the info I give the mailbox go?",
+      faqDataA: "It's stored in SnipeCorp's database."
+    },
+    fr: {
+      btnClose: "Fermer",
+      faqWebhookQ: "Comment créer un webhook et copier son URL ?",
+      faqWebhookA: "1. Ouvre les paramètres de ton serveur Discord.\n2. Va dans Intégrations → Webhooks.\n3. Clique sur \"Nouveau Webhook\" et donne-lui un nom.\n4. Clique sur \"Copier l'URL du Webhook\".",
+      faqDmPhoneQ: "Comment ouvrir ses MP sur téléphone ?",
+      faqDmPhoneA: "1. Ouvre l'application Discord.\n2. Appuie sur ta photo de profil (en bas à droite) → Paramètres.\n3. Va dans Confidentialité et sécurité.\n4. Active \"Autoriser les messages privés des membres du serveur\".",
+      faqDmPcQ: "Comment ouvrir ses MP sur ordinateur ?",
+      faqDmPcA: "1. Ouvre Discord.\n2. Clique sur l'icône d'engrenage à côté de ton pseudo (Paramètres utilisateur).\n3. Va dans Confidentialité et sécurité.\n4. Active \"Autoriser les messages privés des membres du serveur\".",
+      faqDataQ: "Où vont les informations que je donne à la mailbox ?",
+      faqDataA: "Elles sont stockées dans la base de données de la SnipeCorp."
+    }
+  };
+  let currentLang = "en";
+  const FAQ_ITEMS = [
+    { id: 'webhook', qKey: 'faqWebhookQ', aKey: 'faqWebhookA' },
+    { id: 'dmPhone', qKey: 'faqDmPhoneQ', aKey: 'faqDmPhoneA' },
+    { id: 'dmPc', qKey: 'faqDmPcQ', aKey: 'faqDmPcA' },
+    { id: 'data', qKey: 'faqDataQ', aKey: 'faqDataA' }
+  ];
+
+  function renderFaqButtons() {
+    const t = translations[currentLang];
+    const wrap = document.getElementById('faq-wrap');
+    wrap.innerHTML = '';
+    FAQ_ITEMS.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'social-btn';
+      btn.textContent = '❓ ' + t[item.qKey];
+      btn.addEventListener('click', () => openFaqModal(item.id));
+      wrap.appendChild(btn);
+    });
+  }
+  function applyLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (t[k]) el.textContent = t[k]; });
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === lang));
+    renderFaqButtons();
+  }
+  document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => applyLanguage(b.getAttribute('data-lang'))));
+
+  const faqOverlay = document.getElementById('faq-overlay');
+  function openFaqModal(itemId) {
+    const t = translations[currentLang];
+    const item = FAQ_ITEMS.find(i => i.id === itemId);
+    document.getElementById('faq-modal-title').textContent = t[item.qKey];
+    document.getElementById('faq-modal-answer').textContent = t[item.aKey];
+    faqOverlay.classList.add('active');
+  }
+  document.getElementById('faq-close-btn').addEventListener('click', () => faqOverlay.classList.remove('active'));
+  faqOverlay.addEventListener('click', (e) => { if (e.target === faqOverlay) faqOverlay.classList.remove('active'); });
+
+  applyLanguage(currentLang);
+</script>
+
+</body>
+</html>
