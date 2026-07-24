@@ -52,6 +52,13 @@
     border: 1px solid rgba(255,255,255,0.12);
     box-shadow: 0 10px 26px rgba(0,0,0,0.22);
   }
+  .external-game-note .external-game-link {
+    margin-top: 6px;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
   .external-game-note .note-kicker {
     font-size: 11px;
     font-weight: 800;
@@ -128,9 +135,9 @@
     <div class="note-kicker">External game</div>
     <div class="note-title" data-i18n="externalGameTitle">3D game made by AI</div>
     <div class="note-desc" data-i18n="externalGameDesc">This game is external to the site.</div>
+    <a class="social-btn external-game-link" href="https://mobile-game-xi.vercel.app/" target="_blank" rel="noopener"><span class="brand-icon" aria-hidden="true"><img src="icone jeu par ia.png" alt="" aria-hidden="true"></span> <span data-i18n="gameLinkLabel">3D game made by AI</span></a>
   </div>
   <div id="minigame-list" style="display:flex; flex-direction:column; gap:10px;"></div>
-  <a class="social-btn" href="https://mobile-game-xi.vercel.app/" target="_blank" rel="noopener"><span class="brand-icon" aria-hidden="true"><img src="icone jeu par ia.png" alt="" aria-hidden="true"></span> <span data-i18n="gameLinkLabel">3D game made by AI</span></a>
 </div>
 
 <div class="modal-overlay" id="game-overlay">
