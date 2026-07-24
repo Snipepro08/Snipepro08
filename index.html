@@ -15,19 +15,27 @@ body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle,
 #lang-switch{display:flex;justify-content:center}
 .lang-btn{background:#112;border:1px solid #2b8cff55;color:#9fdfff;padding:8px 16px;cursor:pointer}
 .lang-btn.active{background:#0b6cff;color:#fff}
-.cat-nav-btn{text-decoration:none;color:#fff;padding:14px;border:1px solid #2b8cff66;border-radius:12px;background:#0d1628aa;transition:.25s}
+.cat-nav-btn{text-decoration:none;color:#fff;padding:14px;border:1px solid #2b8cff66;border-radius:12px;background:#0d1628aa;transition:.25s;display:flex;align-items:center;gap:10px}
 .cat-nav-btn:hover{transform:translateX(6px);box-shadow:0 0 20px #2b8cff}
+.brand-icon{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 20px}
+.brand-icon svg{width:20px;height:20px;display:block;fill:currentColor}
 </style></head><body>
 <div id="code-bg"></div>
 <div id="wrap">
 <div id="brand-tag">SnipeCorp</div>
 <div id="lang-switch"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/mailbox">📬 <span data-i18n="catMailbox">Mailbox</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/discord">💬 <span data-i18n="catDiscord">Discord</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/social">🌐 <span data-i18n="catSocial">Social networks</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/fortnite">🎒 <span data-i18n="catFortnite">Fortnite</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/game">🕹 <span data-i18n="catGame">Game</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/faq">❓ <span data-i18n="catFaq">FAQ</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/mailbox"><span class="brand-icon" aria-hidden="true">📬</span> <span data-i18n="catMailbox">Mailbox</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/discord">
+<span class="brand-icon" aria-hidden="true">
+<svg viewBox="0 0 24 24" role="img" aria-label="Discord logo"><path d="M20.317 4.369a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.446.864-.608 1.249a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.249.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C1.533 9.093.69 13.666 1.105 18.18a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.14 14.14 0 0 0 1.226-1.994.076.076 0 0 0-.041-.105 13.07 13.07 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.125-.094.25-.192.369-.294a.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.063 0a.074.074 0 0 1 .078.01c.12.102.244.2.37.294a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.105 14.07 14.07 0 0 0 1.225 1.994.077.077 0 0 0 .084.028 19.877 19.877 0 0 0 6.002-3.03.077.077 0 0 0 .031-.055c.5-5.177-.838-9.713-3.548-13.784a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.955 2.419-2.157 2.419Zm7.974 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.946 2.419-2.157 2.419Z"/></svg>
+</span> <span data-i18n="catDiscord">Discord</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/social"><span class="brand-icon" aria-hidden="true">🌐</span> <span data-i18n="catSocial">Social networks</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/fortnite">
+<span class="brand-icon" aria-hidden="true">
+<svg viewBox="0 0 24 24" role="img" aria-label="Fortnite logo"><path d="M7.5 3.5h9L18 12l-3.2 8.5h-5.6L6 12l1.5-8.5Zm2.2 2.2L8.7 11.9l1.9 5.1h2.8l1.9-5.1-1-6.2H9.7Z"/></svg>
+</span> <span data-i18n="catFortnite">Fortnite</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/game"><span class="brand-icon" aria-hidden="true">🕹</span> <span data-i18n="catGame">Game</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/faq"><span class="brand-icon" aria-hidden="true">❓</span> <span data-i18n="catFaq">FAQ</span></a>
 </div>
 <script>
 const tr={en:{catMailbox:"Mailbox",catDiscord:"Discord",catSocial:"Social networks",catFortnite:"Fortnite",catGame:"Game",catFaq:"FAQ"},fr:{catMailbox:"Messagerie",catDiscord:"Discord",catSocial:"Réseaux sociaux",catFortnite:"Fortnite",catGame:"Jeu",catFaq:"FAQ"}};
