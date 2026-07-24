@@ -10,32 +10,41 @@
 .code-line{position:absolute;left:-120%;white-space:nowrap;font:14px Consolas,monospace;color:#33b5ff;animation:scroll linear infinite;text-shadow:0 0 8px #33b5ff}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(230vw)}}
 body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle,#0b6cff33,transparent 60%);z-index:0}
-#wrap{position:relative;z-index:1;width:min(92vw,340px);margin:auto;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;padding:28px 22px;background:linear-gradient(180deg,rgba(11,18,36,.72),rgba(8,14,28,.52));backdrop-filter:blur(18px);border:1px solid #2b8cff55;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.35),0 0 30px #0b6cff44}
+#wrap{position:relative;z-index:1;width:min(92vw,380px);margin:auto;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;padding:28px 22px;background:linear-gradient(180deg,rgba(11,18,36,.72),rgba(8,14,28,.52));backdrop-filter:blur(18px);border:1px solid #2b8cff55;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.35),0 0 30px #0b6cff44}
 #brand-tag{text-align:center;font-size:30px;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#9fe7ff,#5da9ff,#9ee2ff);-webkit-background-clip:text;color:transparent}
 #lang-switch{display:flex;justify-content:center;gap:0;border-radius:999px;overflow:hidden;align-self:center;background:rgba(6,10,20,.55);border:1px solid rgba(43,140,255,.35)}
 .lang-btn{background:transparent;border:none;color:#9fdfff;padding:9px 16px;cursor:pointer;font-weight:800;letter-spacing:.04em}
 .lang-btn.active{background:linear-gradient(135deg,#0b6cff,#3d8dff);color:#fff}
-.cat-nav-btn{text-decoration:none;color:#fff;padding:14px 15px;border:1px solid rgba(43,140,255,.28);border-radius:14px;background:linear-gradient(180deg,rgba(13,22,40,.92),rgba(11,18,33,.82));transition:.25s;display:flex;align-items:center;gap:12px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
-.cat-nav-btn:hover{transform:translateX(6px) translateY(-1px);box-shadow:0 12px 30px rgba(11,108,255,.25)}
-.brand-icon{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;filter:drop-shadow(0 0 8px rgba(255,255,255,.18))}
+.cat-nav-btn{text-decoration:none;color:#fff;padding:12px 13px;border:1px solid rgba(43,140,255,.28);border-radius:18px;background:linear-gradient(180deg,rgba(13,22,40,.92),rgba(11,18,33,.82));transition:.25s;display:flex;align-items:center;gap:12px;box-shadow:0 6px 20px rgba(0,0,0,.18);position:relative;overflow:hidden;isolation:isolate}
+.cat-nav-btn:before{content:"";position:absolute;inset:0;background:var(--preview,linear-gradient(135deg,#223,#112));opacity:.9;z-index:-1}
+.cat-nav-btn:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent 45%,rgba(255,255,255,.06));mix-blend-mode:screen;z-index:-1}
+.cat-nav-btn:hover{transform:translateX(6px) translateY(-1px) scale(1.01);box-shadow:0 14px 32px rgba(11,108,255,.28)}
+.brand-icon{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px;border-radius:12px;background:rgba(6,10,20,.45);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .brand-icon svg,.brand-icon img{width:22px;height:22px;display:block;object-fit:contain}
+.nav-text{display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.nav-title{font-size:14px;font-weight:800;line-height:1.1}
+.nav-subtitle{font-size:11px;opacity:.72;line-height:1.2}
+.nav-tag{margin-left:auto;font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(6px)}
 </style></head><body>
 <div id="code-bg"></div>
 <div id="wrap">
 <div id="brand-tag">SnipeCorp</div>
 <div id="lang-switch"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/mailbox"><span class="brand-icon" aria-hidden="true">📬</span> <span data-i18n="catMailbox">Mailbox</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/discord">
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/mailbox" style="--preview: radial-gradient(circle at 20% 20%, rgba(51,208,255,.34), transparent 30%), radial-gradient(circle at 80% 80%, rgba(88,101,242,.26), transparent 28%), linear-gradient(135deg,#0c1628,#101a30);">
+<span class="brand-icon" aria-hidden="true">📬</span>
+<span class="nav-text"><span class="nav-title" data-i18n="catMailbox">Mailbox</span><span class="nav-subtitle">Messages, collabs, reports</span></span>
+<span class="nav-tag">Inbox</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/discord" style="--preview: radial-gradient(circle at 30% 25%, rgba(88,101,242,.4), transparent 28%), radial-gradient(circle at 78% 22%, rgba(51,208,255,.22), transparent 24%), linear-gradient(135deg,#11152a,#0c1220);">
 <span class="brand-icon" aria-hidden="true">
 <svg viewBox="0 0 24 24" role="img" aria-label="Discord logo"><path d="M20.317 4.369a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.446.864-.608 1.249a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.249.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C1.533 9.093.69 13.666 1.105 18.18a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.14 14.14 0 0 0 1.226-1.994.076.076 0 0 0-.041-.105 13.07 13.07 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.125-.094.25-.192.369-.294a.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.063 0a.074.074 0 0 1 .078.01c.12.102.244.2.37.294a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.105 14.07 14.07 0 0 0 1.225 1.994.077.077 0 0 0 .084.028 19.877 19.877 0 0 0 6.002-3.03.077.077 0 0 0 .031-.055c.5-5.177-.838-9.713-3.548-13.784a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.955 2.419-2.157 2.419Zm7.974 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.946 2.419-2.157 2.419Z"/></svg>
-</span> <span data-i18n="catDiscord">Discord</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/social"><span class="brand-icon" aria-hidden="true">🌐</span> <span data-i18n="catSocial">Social networks</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/fortnite">
+</span><span class="nav-text"><span class="nav-title" data-i18n="catDiscord">Discord</span><span class="nav-subtitle">Profile, bot, widgets</span></span><span class="nav-tag">Live</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/social" style="--preview: radial-gradient(circle at 22% 28%, rgba(255,94,155,.34), transparent 24%), radial-gradient(circle at 80% 30%, rgba(255,194,87,.18), transparent 22%), linear-gradient(135deg,#1a1020,#10131d);"><span class="brand-icon" aria-hidden="true">🌐</span> <span class="nav-text"><span class="nav-title" data-i18n="catSocial">Social networks</span><span class="nav-subtitle">YouTube, Instagram, Twitch</span></span><span class="nav-tag">Feed</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/fortnite" style="--preview: radial-gradient(circle at 50% 20%, rgba(255,196,61,.34), transparent 26%), radial-gradient(circle at 20% 80%, rgba(138,92,255,.2), transparent 24%), linear-gradient(135deg,#20130d,#0d1019);">
 <span class="brand-icon" aria-hidden="true">
 <img src="fortnite/ZtD1cE-edited.png" alt="" aria-hidden="true">
-</span> <span data-i18n="catFortnite">Fortnite</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/game"><span class="brand-icon" aria-hidden="true">🕹</span> <span data-i18n="catGame">Game</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/faq"><span class="brand-icon" aria-hidden="true">❓</span> <span data-i18n="catFaq">FAQ</span></a>
+</span><span class="nav-text"><span class="nav-title" data-i18n="catFortnite">Fortnite</span><span class="nav-subtitle">Locker and wishlist</span></span><span class="nav-tag">Loot</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/game" style="--preview: radial-gradient(circle at 25% 30%, rgba(51,208,255,.28), transparent 24%), radial-gradient(circle at 74% 70%, rgba(96,255,160,.14), transparent 22%), linear-gradient(135deg,#0d1224,#101018);"><span class="brand-icon" aria-hidden="true">🕹</span> <span class="nav-text"><span class="nav-title" data-i18n="catGame">Game</span><span class="nav-subtitle">Arcade mini-games</span></span><span class="nav-tag">Play</span></a>
+<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/faq" style="--preview: radial-gradient(circle at 50% 25%, rgba(102,153,255,.24), transparent 24%), radial-gradient(circle at 72% 72%, rgba(77,201,164,.18), transparent 24%), linear-gradient(135deg,#0d1020,#15121a);"><span class="brand-icon" aria-hidden="true">❓</span> <span class="nav-text"><span class="nav-title" data-i18n="catFaq">FAQ</span><span class="nav-subtitle">Help and guides</span></span><span class="nav-tag">Info</span></a>
 </div>
 <script>
 const tr={en:{catMailbox:"Mailbox",catDiscord:"Discord",catSocial:"Social networks",catFortnite:"Fortnite",catGame:"Game",catFaq:"FAQ"},fr:{catMailbox:"Messagerie",catDiscord:"Discord",catSocial:"Réseaux sociaux",catFortnite:"Fortnite",catGame:"Jeu",catFaq:"FAQ"}};

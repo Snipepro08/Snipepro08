@@ -6,6 +6,7 @@
 <style>
   * { box-sizing: border-box; }
   html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
+  @keyframes drift { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-16px,16px,0) scale(1.05); } }
   body::before {
     content: "";
     position: fixed;
@@ -14,9 +15,10 @@
       radial-gradient(circle at 50% 18%, rgba(255,196,61,0.23), transparent 18%),
       radial-gradient(circle at 18% 82%, rgba(138,92,255,0.18), transparent 24%),
       radial-gradient(circle at 82% 72%, rgba(255,111,97,0.18), transparent 21%),
-      linear-gradient(135deg, rgba(24,14,10,0.96), rgba(5,5,15,0.99));
+    linear-gradient(135deg, rgba(24,14,10,0.96), rgba(5,5,15,0.99));
     z-index: 0;
   }
+  body::before, body::after { animation: drift 16s ease-in-out infinite; }
   body::after {
     content: "FORTNITE";
     position: fixed;
@@ -30,19 +32,19 @@
     z-index: 0;
     pointer-events: none;
   }
-  #wrap { position: relative; z-index: 1; }
-  #wrap { display: flex; flex-direction: column; gap: 12px; width: 300px; }
-  #brand-tag { font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
-  #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
-  .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .lang-btn.active { background: rgba(0,0,0,0.5); color: #fff; }
+  #wrap { position: relative; z-index: 1; width: min(92vw, 360px); display: flex; flex-direction: column; gap: 14px; padding: 22px; }
+  #brand-tag { font-size: 22px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(90deg, #ffd97c, #ff9a4a, #fff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 2px; text-align: center; }
+  #lang-switch { display: flex; align-self: center; background: rgba(6,6,12,0.72); border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; margin-bottom: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+  .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 9px 15px; font-size: 13px; font-weight: 800; cursor: pointer; }
+  .lang-btn.active { background: linear-gradient(135deg, #ff9a4a, #ffd97c); color: #1c1308; }
   .social-btn {
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #dbdee1;
-    text-decoration: none; padding: 13px 14px; border-radius: 8px; font-size: 15px; font-weight: 600; width: 100%;
-    transition: transform 0.15s ease, background 0.15s ease;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05)); border: 1px solid rgba(255,255,255,0.14); color: #dbdee1;
+    text-decoration: none; padding: 13px 14px; border-radius: 14px; font-size: 15px; font-weight: 700; width: 100%;
+    transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.24);
   }
-  .social-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); }
+  .social-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); box-shadow: 0 14px 28px rgba(255,154,74,0.18); }
 </style>
 </head>
 <body>

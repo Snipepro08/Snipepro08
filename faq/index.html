@@ -5,6 +5,7 @@
 <title>Snipepro - FAQ</title>
 <style>
   * { box-sizing: border-box; }
+  @keyframes drift { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(12px,-12px,0) scale(1.03); } }
   html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
   body::before {
     content: "";
@@ -14,9 +15,10 @@
       radial-gradient(circle at 15% 20%, rgba(102,153,255,0.22), transparent 18%),
       radial-gradient(circle at 85% 20%, rgba(255,136,102,0.16), transparent 18%),
       radial-gradient(circle at 80% 80%, rgba(77,201,164,0.14), transparent 24%),
-      linear-gradient(145deg, rgba(8,11,20,0.98), rgba(5,5,15,1));
+    linear-gradient(145deg, rgba(8,11,20,0.98), rgba(5,5,15,1));
     z-index: 0;
   }
+  body::before, body::after { animation: drift 18s ease-in-out infinite; }
   body::after {
     content: "FAQ";
     position: fixed;
@@ -30,28 +32,28 @@
     z-index: 0;
     pointer-events: none;
   }
-  #wrap { position: relative; z-index: 1; }
-  #wrap { display: flex; flex-direction: column; gap: 12px; width: 320px; }
-  #brand-tag { font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
-  #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
-  .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .lang-btn.active { background: rgba(0,0,0,0.5); color: #fff; }
+  #wrap { position: relative; z-index: 1; width: min(92vw, 360px); display: flex; flex-direction: column; gap: 14px; padding: 22px; }
+  #brand-tag { font-size: 22px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(90deg, #9cc2ff, #ff9f7d, #74f3cd); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 2px; text-align: center; }
+  #lang-switch { display: flex; align-self: center; background: rgba(7,10,18,0.72); border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; margin-bottom: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+  .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 9px 15px; font-size: 13px; font-weight: 800; cursor: pointer; }
+  .lang-btn.active { background: linear-gradient(135deg, #ff9f7d, #9cc2ff); color: #1a0f0d; }
   .social-btn {
-    display: block; text-align: left; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #dbdee1;
-    padding: 13px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; width: 100%; cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease;
+    display: block; text-align: left; background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05)); border: 1px solid rgba(255,255,255,0.14); color: #dbdee1;
+    padding: 13px 14px; border-radius: 14px; font-size: 13px; font-weight: 700; width: 100%; cursor: pointer;
+    transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.24);
   }
-  .social-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); }
+  .social-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); box-shadow: 0 14px 28px rgba(255,159,125,0.18); }
 
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 1000; }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2,4,10,0.72); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 18px; }
   .modal-overlay.active { display: flex; }
-  .modal-box { background: #313338; width: 400px; max-width: 90vw; border-radius: 8px; overflow: hidden; }
-  .modal-header { background: #2b2d31; padding: 20px 24px; text-align: center; }
+  .modal-box { background: linear-gradient(180deg, rgba(25,28,40,0.96), rgba(16,18,28,0.98)); width: 400px; max-width: 90vw; border-radius: 22px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 28px 60px rgba(0,0,0,0.45); }
+  .modal-header { background: linear-gradient(90deg, rgba(40,42,63,0.96), rgba(22,24,40,0.96)); padding: 20px 24px; text-align: center; }
   .modal-header h2 { margin: 0; color: #fff; font-size: 18px; }
   .modal-body { padding: 20px 24px; }
   .faq-answer { font-size: 14px; line-height: 1.7; color: #dbdee1; white-space: pre-line; }
-  .modal-footer { background: #2b2d31; padding: 16px 24px; display: flex; justify-content: flex-end; }
-  .btn-cancel { background: transparent; color: #dbdee1; border: none; padding: 10px 16px; border-radius: 4px; cursor: pointer; font-weight: 500; }
+  .modal-footer { background: rgba(16,18,28,0.96); padding: 16px 24px; display: flex; justify-content: flex-end; }
+  .btn-cancel { background: rgba(255,255,255,0.07); color: #dbdee1; border: none; padding: 10px 16px; border-radius: 999px; cursor: pointer; font-weight: 700; }
 </style>
 </head>
 <body>

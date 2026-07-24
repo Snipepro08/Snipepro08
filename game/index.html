@@ -31,7 +31,16 @@
     z-index: 0;
     pointer-events: none;
   }
-  #wrap { position: relative; z-index: 1; width: min(94vw, 420px); display: flex; flex-direction: column; gap: 14px; padding: 22px; }
+  #wrap { position: relative; z-index: 1; width: min(94vw, 460px); display: flex; flex-direction: column; gap: 14px; padding: 22px; }
+  #wrap::before {
+    content: "ARCADE HUB";
+    display: block;
+    text-align: center;
+    letter-spacing: .35em;
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: -2px;
+  }
   #brand-tag { font-size: 22px; font-weight: 900; letter-spacing: 1px; background: linear-gradient(90deg, #9f8bff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; text-align: center; }
   #lang-switch { display: flex; align-self: center; background: rgba(7,11,21,0.72); border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; margin-bottom: 2px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
   .lang-btn { background: transparent; border: none; color: #dbdee1; padding: 9px 15px; font-size: 13px; font-weight: 800; cursor: pointer; }
@@ -44,6 +53,26 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.22);
   }
   .social-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.22); box-shadow: 0 14px 28px rgba(88,101,242,0.18); }
+  .game-card {
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+    justify-content: flex-start;
+    padding: 14px 16px;
+    min-height: 74px;
+  }
+  .game-card .game-meta { display:flex; flex-direction:column; gap:2px; }
+  .game-card .game-title { font-size: 15px; font-weight: 800; }
+  .game-card .game-desc { font-size: 11px; opacity: .8; line-height: 1.35; }
+  .game-card .game-pill {
+    margin-left:auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.09);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+  }
 
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2,4,10,0.72); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 18px; }
   .modal-overlay.active { display: flex; }
@@ -445,10 +474,23 @@
     const t = translations[currentLang];
     const wrap = document.getElementById('minigame-list');
     wrap.innerHTML = '';
+    const desc = {
+      snake: 'Classic growth challenge',
+      flappy: 'Tap timing and rhythm',
+      dino: 'Fast jumps, clean runs',
+      tetris: 'Stack, rotate, clear',
+      pong: 'Simple, sharp, reactive',
+      2048: 'Merge to the max',
+      breakout: 'Bounce and break',
+      simon: 'Memory sequence game'
+    };
     MINIGAME_DEFS.forEach(def => {
       const btn = document.createElement('button');
-      btn.className = 'social-btn';
-      btn.textContent = def.icon + ' ' + t[def.nameKey];
+      btn.className = 'social-btn game-card';
+      btn.style.setProperty('--preview', 'linear-gradient(135deg, rgba(88,101,242,.22), rgba(51,208,255,.12))');
+      btn.innerHTML = `<span class="brand-icon" aria-hidden="true" style="width:34px;height:34px;border-radius:12px">${def.icon}</span>
+        <span class="game-meta"><span class="game-title">${t[def.nameKey]}</span><span class="game-desc">${desc[def.id]}</span></span>
+        <span class="game-pill">Play</span>`;
       btn.addEventListener('click', () => openGameModal(def.id));
       wrap.appendChild(btn);
     });
