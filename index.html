@@ -10,16 +10,15 @@
 .code-line{position:absolute;left:-120%;white-space:nowrap;font:14px Consolas,monospace;color:#33b5ff;animation:scroll linear infinite;text-shadow:0 0 8px #33b5ff}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(230vw)}}
 body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle,#0b6cff33,transparent 60%);z-index:0}
-#wrap{position:relative;z-index:1;width:320px;margin:auto;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:12px;padding:24px;background:rgba(10,20,40,.45);backdrop-filter:blur(14px);border:1px solid #2b8cff55;border-radius:18px;box-shadow:0 0 30px #0b6cff55}
-#brand-tag{text-align:center;font-size:28px;font-weight:800;background:linear-gradient(90deg,#7fd7ff,#2b8cff,#6ecbff);-webkit-background-clip:text;color:transparent}
-#lang-switch{display:flex;justify-content:center}
-.lang-btn{background:#112;border:1px solid #2b8cff55;color:#9fdfff;padding:8px 16px;cursor:pointer}
-.lang-btn.active{background:#0b6cff;color:#fff}
-.cat-nav-btn{text-decoration:none;color:#fff;padding:14px;border:1px solid #2b8cff66;border-radius:12px;background:#0d1628aa;transition:.25s;display:flex;align-items:center;gap:10px}
-.cat-nav-btn:hover{transform:translateX(6px);box-shadow:0 0 20px #2b8cff}
-.brand-icon{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 20px}
-.brand-icon svg{width:20px;height:20px;display:block;fill:currentColor}
-.brand-icon img{width:20px;height:20px;display:block;object-fit:contain}
+#wrap{position:relative;z-index:1;width:min(92vw,340px);margin:auto;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;padding:28px 22px;background:linear-gradient(180deg,rgba(11,18,36,.72),rgba(8,14,28,.52));backdrop-filter:blur(18px);border:1px solid #2b8cff55;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.35),0 0 30px #0b6cff44}
+#brand-tag{text-align:center;font-size:30px;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#9fe7ff,#5da9ff,#9ee2ff);-webkit-background-clip:text;color:transparent}
+#lang-switch{display:flex;justify-content:center;gap:0;border-radius:999px;overflow:hidden;align-self:center;background:rgba(6,10,20,.55);border:1px solid rgba(43,140,255,.35)}
+.lang-btn{background:transparent;border:none;color:#9fdfff;padding:9px 16px;cursor:pointer;font-weight:800;letter-spacing:.04em}
+.lang-btn.active{background:linear-gradient(135deg,#0b6cff,#3d8dff);color:#fff}
+.cat-nav-btn{text-decoration:none;color:#fff;padding:14px 15px;border:1px solid rgba(43,140,255,.28);border-radius:14px;background:linear-gradient(180deg,rgba(13,22,40,.92),rgba(11,18,33,.82));transition:.25s;display:flex;align-items:center;gap:12px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.cat-nav-btn:hover{transform:translateX(6px) translateY(-1px);box-shadow:0 12px 30px rgba(11,108,255,.25)}
+.brand-icon{width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;filter:drop-shadow(0 0 8px rgba(255,255,255,.18))}
+.brand-icon svg,.brand-icon img{width:22px;height:22px;display:block;object-fit:contain}
 </style></head><body>
 <div id="code-bg"></div>
 <div id="wrap">
