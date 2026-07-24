@@ -6,6 +6,31 @@
 <style>
   * { box-sizing: border-box; }
   html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(255,196,61,0.23), transparent 18%),
+      radial-gradient(circle at 18% 82%, rgba(138,92,255,0.18), transparent 24%),
+      radial-gradient(circle at 82% 72%, rgba(255,111,97,0.18), transparent 21%),
+      linear-gradient(135deg, rgba(24,14,10,0.96), rgba(5,5,15,0.99));
+    z-index: 0;
+  }
+  body::after {
+    content: "FORTNITE";
+    position: fixed;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%) rotate(-14deg);
+    font-size: 12vw;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.03);
+    z-index: 0;
+    pointer-events: none;
+  }
+  #wrap { position: relative; z-index: 1; }
   #wrap { display: flex; flex-direction: column; gap: 12px; width: 300px; }
   #brand-tag { font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
   #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }

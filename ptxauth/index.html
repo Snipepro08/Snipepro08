@@ -15,6 +15,30 @@
     align-items: center;
     justify-content: center;
   }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 22% 18%, rgba(88,101,242,0.18), transparent 18%),
+      radial-gradient(circle at 82% 24%, rgba(51,208,255,0.14), transparent 20%),
+      radial-gradient(circle at 50% 80%, rgba(255,255,255,0.08), transparent 22%),
+      linear-gradient(145deg, rgba(8,10,20,0.98), rgba(5,5,15,1));
+    z-index: 0;
+  }
+  body::after {
+    content: "AUTH";
+    position: fixed;
+    right: -12px;
+    bottom: 18px;
+    font-size: 16vw;
+    font-weight: 900;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.03);
+    z-index: 0;
+    pointer-events: none;
+  }
+  #wrap { position: relative; z-index: 1; }
   #wrap {
     display: flex;
     flex-direction: column;
@@ -166,6 +190,7 @@
     + "&response_type=token&scope=identify";
 
   let discordUser = null;
+  let pendingMessage = "";
 
   function renderLoginUI() {
     const area = document.getElementById('discord-login-area');
@@ -192,6 +217,10 @@
   function decodeState(str) {
     return JSON.parse(decodeURIComponent(escape(atob(str))));
   }
+  function startDiscordLogin(stateObj) {
+    const state = encodeState(stateObj);
+    window.location.href = DISCORD_AUTH_URL + '&state=' + encodeURIComponent(state);
+  }
 
   // ---- ptx2's mailbox modal ----
   const directOverlay = document.getElementById('direct-overlay');
@@ -216,7 +245,7 @@
   }
 
   directBtn.addEventListener('click', () => {
-    renderDirectModal();
+    renderDirectModal(pendingMessage);
     directOverlay.classList.add('active');
   });
   directCancelBtn.addEventListener('click', () => directOverlay.classList.remove('active'));
@@ -256,13 +285,13 @@
       return;
     }
 
-    if (discordUser) {
-      sendDirectMessage(message);
-    } else {
-      // Message is ready — now go connect to Discord, then send automatically on return.
-      const state = encodeState({ message });
-      window.location.href = DISCORD_AUTH_URL + '&state=' + encodeURIComponent(state);
+    if (!discordUser) {
+      pendingMessage = message;
+      startDiscordLogin({ returnTo: 'ptxauth', message });
+      return;
     }
+
+    sendDirectMessage(message);
   });
 
   // ---- Handle returning from the Discord OAuth callback ----
@@ -281,7 +310,8 @@
         discordUser = { id: data.id, username: data.global_name || data.username };
         renderLoginUI();
         if (pendingState) {
-          const { message } = decodeState(pendingState);
+          const pending = decodeState(pendingState);
+          const message = pending.message || pendingMessage;
           renderDirectModal(message);
           directOverlay.classList.add('active');
           sendDirectMessage(message);

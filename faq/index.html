@@ -6,6 +6,31 @@
 <style>
   * { box-sizing: border-box; }
   html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(102,153,255,0.22), transparent 18%),
+      radial-gradient(circle at 85% 20%, rgba(255,136,102,0.16), transparent 18%),
+      radial-gradient(circle at 80% 80%, rgba(77,201,164,0.14), transparent 24%),
+      linear-gradient(145deg, rgba(8,11,20,0.98), rgba(5,5,15,1));
+    z-index: 0;
+  }
+  body::after {
+    content: "FAQ";
+    position: fixed;
+    left: 50%;
+    bottom: -12px;
+    transform: translateX(-50%);
+    font-size: 18vw;
+    font-weight: 900;
+    letter-spacing: 0.28em;
+    color: rgba(255,255,255,0.03);
+    z-index: 0;
+    pointer-events: none;
+  }
+  #wrap { position: relative; z-index: 1; }
   #wrap { display: flex; flex-direction: column; gap: 12px; width: 320px; }
   #brand-tag { font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
   #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }

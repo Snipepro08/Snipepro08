@@ -6,6 +6,30 @@
 <style>
   * { box-sizing: border-box; }
   html, body { min-height: 100%; margin: 0; font-family: 'gg sans', 'Helvetica Neue', Arial, sans-serif; background: #05050f; color: #dbdee1; display: flex; align-items: center; justify-content: center; }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 22% 20%, rgba(88,101,242,0.24), transparent 18%),
+      radial-gradient(circle at 80% 24%, rgba(51,208,255,0.18), transparent 20%),
+      radial-gradient(circle at 50% 80%, rgba(153,102,255,0.14), transparent 22%),
+      linear-gradient(150deg, rgba(10,12,24,0.98), rgba(5,5,15,1));
+    z-index: 0;
+  }
+  body::after {
+    content: "DISCORD";
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    font-size: 12vw;
+    font-weight: 900;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.03);
+    z-index: 0;
+    pointer-events: none;
+  }
+  #wrap { position: relative; z-index: 1; }
   #wrap { display: flex; flex-direction: column; gap: 12px; width: 300px; }
   #brand-tag { font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #8f6fff, #5865f2, #33d0ff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 6px; text-align: center; }
   #lang-switch { display: flex; align-self: center; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.16); border-radius: 8px; overflow: hidden; margin-bottom: 10px; }

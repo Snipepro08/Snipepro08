@@ -15,7 +15,32 @@
     align-items: center;
     justify-content: center;
   }
-  #wrap { display: flex; flex-direction: column; gap: 12px; width: 300px; }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 24% 18%, rgba(88,101,242,0.20), transparent 18%),
+      radial-gradient(circle at 78% 24%, rgba(51,208,255,0.18), transparent 20%),
+      radial-gradient(circle at 55% 82%, rgba(255,182,73,0.12), transparent 24%),
+      linear-gradient(155deg, rgba(8,10,20,0.98), rgba(5,5,15,1));
+    z-index: 0;
+  }
+  body::after {
+    content: "INBOX";
+    position: fixed;
+    left: -14px;
+    top: 30px;
+    font-size: 14vw;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.03);
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    z-index: 0;
+    pointer-events: none;
+  }
+  #wrap { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; width: 300px; }
   #lang-switch {
     display: flex;
     background: rgba(0,0,0,0.25);
@@ -137,6 +162,14 @@
     + "&response_type=token&scope=identify";
 
   let discordUser = null;
+  let pendingMailboxId = null;
+
+  function encodeState(obj) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+  }
+  function decodeState(str) {
+    return JSON.parse(decodeURIComponent(escape(atob(str))));
+  }
 
   const translations = {
     en: {
@@ -240,9 +273,15 @@
   }
   document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => applyLanguage(btn.getAttribute('data-lang'))));
 
+  function startDiscordLogin(stateObj) {
+    const state = encodeState(stateObj);
+    window.location.href = DISCORD_AUTH_URL + '&state=' + encodeURIComponent(state);
+  }
+
   function requireLogin() {
-    if (!discordUser) { window.location.href = DISCORD_AUTH_URL; return false; }
-    return true;
+    if (discordUser) return true;
+    startDiscordLogin({ returnTo: 'snipemail' });
+    return false;
   }
 
   const mailboxWrap = document.getElementById('mailbox-wrap');
@@ -285,8 +324,12 @@
   }
 
   function openMailboxModal(optionId) {
-    if (!requireLogin()) return;
     currentMailboxOption = MAILBOX_OPTIONS.find(o => o.id === optionId);
+    if (!discordUser) {
+      pendingMailboxId = optionId;
+      startDiscordLogin({ returnTo: 'snipemail', mailboxId: optionId });
+      return;
+    }
     mailboxWrap.classList.remove('open');
     renderMailboxModal();
     mailboxOverlay.classList.add('active');
@@ -332,14 +375,27 @@
 
   // ---- Handle returning from the Discord OAuth callback ----
   function handleDiscordRedirect() {
-    if (window.location.hash.startsWith('#discord_token=')) {
-      const token = decodeURIComponent(window.location.hash.replace('#discord_token=', ''));
-      history.replaceState(null, '', window.location.pathname);
-      fetch('https://discord.com/api/users/@me', { headers: { Authorization: 'Bearer ' + token } })
-        .then(res => res.json())
-        .then(data => { discordUser = { id: data.id, username: data.global_name || data.username }; renderLoginUI(); })
-        .catch(() => {});
-    }
+    if (!window.location.hash.startsWith('#discord_token=')) return;
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const token = params.get('discord_token');
+    const pendingState = params.get('pending');
+    history.replaceState(null, '', window.location.pathname);
+    fetch('https://discord.com/api/users/@me', { headers: { Authorization: 'Bearer ' + token } })
+      .then(res => res.json())
+      .then(data => {
+        discordUser = { id: data.id, username: data.global_name || data.username };
+        renderLoginUI();
+        if (pendingState) {
+          const pending = decodeState(pendingState);
+          if (pending.mailboxId) {
+            pendingMailboxId = pending.mailboxId;
+            openMailboxModal(pending.mailboxId);
+          } else {
+            mailboxWrap.classList.add('open');
+          }
+        }
+      })
+      .catch(() => {});
   }
 
   applyLanguage(currentLang);

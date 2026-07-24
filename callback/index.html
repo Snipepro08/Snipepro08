@@ -14,6 +14,17 @@
     height: 100vh;
     margin: 0;
   }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(88,101,242,0.18), transparent 18%),
+      radial-gradient(circle at 80% 80%, rgba(51,208,255,0.16), transparent 20%),
+      linear-gradient(145deg, rgba(8,10,20,0.98), rgba(5,5,15,1));
+    z-index: 0;
+  }
+  p { position: relative; z-index: 1; }
 </style>
 </head>
 <body>
@@ -25,13 +36,26 @@
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
   const token = params.get('access_token');
+  const state = params.get('state');
+
+  function decodeState(str) {
+    try {
+      return JSON.parse(decodeURIComponent(escape(atob(str))));
+    } catch {
+      return null;
+    }
+  }
+
+  const pending = state ? decodeState(state) : null;
+  const targetPage = pending && pending.returnTo === 'ptxauth' ? '../ptxauth/index.html' : '../index.html';
+  const pendingHash = pending ? '&pending=' + encodeURIComponent(state) : '';
 
   // Hand the token back to the main page via its own URL fragment,
   // then let the main page fetch the Discord profile itself.
   if (token) {
-    window.location.href = '../index.html#discord_token=' + encodeURIComponent(token);
+    window.location.href = targetPage + '#discord_token=' + encodeURIComponent(token) + pendingHash;
   } else {
-    window.location.href = '../index.html';
+    window.location.href = targetPage;
   }
 </script>
 </body>
