@@ -30,32 +30,15 @@
 <body>
 <p>Connecting to Discord...</p>
 <script>
-  // Discord redirects here with the access token in the URL fragment
-  // (e.g. #access_token=XXXX&token_type=Bearer&...) because we use the
-  // implicit grant flow — no client secret involved, nothing to leak.
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
   const token = params.get('access_token');
   const state = params.get('state');
 
-  function decodeState(str) {
-    try {
-      return JSON.parse(decodeURIComponent(escape(atob(str))));
-    } catch {
-      return null;
-    }
-  }
-
-  const pending = state ? decodeState(state) : null;
-  const targetPage = pending && pending.returnTo === 'ptxauth' ? '../ptxauth/index.html' : '../index.html';
-  const pendingHash = pending ? '&pending=' + encodeURIComponent(state) : '';
-
-  // Hand the token back to the main page via its own URL fragment,
-  // then let the main page fetch the Discord profile itself.
   if (token) {
-    window.location.href = targetPage + '#discord_token=' + encodeURIComponent(token) + pendingHash;
+    window.location.replace('../index.html#discord_token=' + encodeURIComponent(token) + (state ? '&pending=' + encodeURIComponent(state) : ''));
   } else {
-    window.location.href = targetPage;
+    window.location.replace('../index.html');
   }
 </script>
 </body>
