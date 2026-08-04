@@ -1,1 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SnipeCorp Editor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/brace-fold.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/xml-fold.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/one-dark.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldgutter.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+:root {
+  --gd-bg:#1a1c2e; --gd-sidebar:#12141f; --gd-panel:#1e2035;
+  --gd-toolbar:#161828; --gd-card:#252840; --gd-border:#2e3150;
+  --gd-border2:#3d4170; --gd-text:#e8eaf0; --gd-muted:#7880a0;
+  --gd-blue:#4f8aff; --gd-blue2:#3a72e8; --gd-purple:#8b6dff;
+  --gd-green:#3dd68c; --gd-red:#ff5e6a; --gd-orange:#ff9248;
+  --gd-yellow:#ffd24f; --gd-cyan:#3dd8e8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',sans-serif;background:var(--gd-bg);color:var(--gd-text);font-size:13px;display:flex;flex-direction:column}
 
+/* LOCK */
+#lock{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 35% 30%,#1a2060,#0d0f1e 70%);display:flex;align-items:center;justify-content:center}
+.lock-card{background:var(--gd-panel);border:1px solid var(--gd-border2);border-radius:16px;width:380px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6)}
+.lock-head{background:var(--gd-toolbar);border-bottom:1px solid var(--gd-border);padding:14px 18px;display:flex;align-items:center;gap:10px}
+.traffic{display:flex;gap:6px}
+.td{width:12px;height:12px;border-radius:50%}
+.td-r{background:#ff5f56}.td-y{background:#ffbd2e}.td-g{background:#27c93f}
+.lock-title-bar{font-size:12px;font-weight:600;color:var(--gd-muted);margin-left:4px}
+.lock-body{padding:32px 28px 28px;text-align:center}
+.lock-ico{width:64px;height:64px;background:linear-gradient(135deg,var(--gd-blue),var(--gd-purple));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 20px;box-shadow:0 8px 24px rgba(79,138,255,.35)}
+.lock-body h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.lock-body p{color:var(--gd-muted);font-size:12.5px;margin-bottom:24px;line-height:1.6}
+.pw-wrap{position:relative;margin-bottom:14px}
+.pw-wrap input{width:100%;padding:12px 42px 12px 14px;background:var(--gd-sidebar);border:1px solid var(--gd-border2);border-radius:10px;color:var(--gd-text);font-family:'Inter',sans-serif;font-size:15px;letter-spacing:3px;text-align:center;outline:none;transition:.2s}
+.pw-wrap input:focus{border-color:var(--gd-blue);box-shadow:0 0 0 3px rgba(79,138,255,.15)}
+.pw-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gd-muted);font-size:16px;user-select:none}
+.unlock-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--gd-blue),var(--gd-purple));border:none;border-radius:10px;color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:.15s;box-shadow:0 6px 20px rgba(79,138,255,.3)}
+.unlock-btn:hover{opacity:.9;transform:translateY(-1px)}
+#lock-err{color:var(--gd-red);font-size:12px;font-weight:600;margin-top:10px;min-height:16px}
+
+/* APP */
+#app{display:none;flex-direction:column;height:100vh}
+
+/* TITLEBAR */
+#titlebar{height:36px;background:var(--gd-toolbar);border-bottom:1px solid var(--gd-border);display:flex;align-items:center;padding:0 12px;gap:10px;flex-shrink:0;user-select:none}
+.tb-traffic{display:flex;gap:6px;flex-shrink:0}
+.tb-dot{width:12px;height:12px;border-radius:50%;cursor:pointer}
+.tb-dot:hover{filter:brightness(1.2)}
+.tb-r{background:#ff5f56}.tb-y{background:#ffbd2e}.tb-g{background:#27c93f}
+.tb-center{position:absolute;left:50%;transform:translateX(-50%);font-size:12px;font-weight:600;color:var(--gd-muted);pointer-events:none;white-space:nowrap}
+.tb-right{display:flex;align-items:center;gap:6px;margin-left:auto}
+.ico-btn{width:26px;height:26px;border-radius:6px;border:none;background:transparent;color:var(--gd-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:.12s}
+.ico-btn:hover{background:var(--gd-card);color:var(--gd-text)}
+
+/* TOOLBAR */
+#toolbar{height:46px;background:var(--gd-panel);border-bottom:1px solid var(--gd-border);display:flex;align-items:center;padding:0 10px;gap:4px;flex-shrink:0;overflow-x:auto}
+.tg{display:flex;align-items:center;gap:2px;padding:0 6px;border-right:1px solid var(--gd-border)}
+.tg:last-child{border-right:none}
+.tbtn{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;border:none;background:transparent;color:var(--gd-muted);font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:.12s;white-space:nowrap}
+.tbtn:hover{background:var(--gd-card);color:var(--gd-text)}
+.tbtn.blue{color:var(--gd-blue)}.tbtn.blue:hover{background:rgba(79,138,255,.12)}
+.tbtn.green{color:var(--gd-green)}.tbtn.green:hover{background:rgba(61,214,140,.12)}
+.tbtn.red{color:var(--gd-red)}.tbtn.red:hover{background:rgba(255,94,106,.12)}
+.tbtn:disabled{opacity:.4;cursor:not-allowed}
+.tbtn .ti{font-size:15px}
+.t-inp{background:var(--gd-sidebar);border:1px solid var(--gd-border2);border-radius:7px;padding:5px 10px;color:var(--gd-text);font-family:'Inter',sans-serif;font-size:12px;outline:none}
+.t-inp:focus{border-color:var(--gd-blue)}
+.t-inp::placeholder{color:var(--gd-muted)}
+.t-spacer{flex:1}
+
+/* TABS */
+#tabs{height:38px;background:var(--gd-sidebar);border-bottom:1px solid var(--gd-border);display:flex;align-items:flex-end;padding:0 0 0 4px;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+#tabs::-webkit-scrollbar{display:none}
+.tab{display:flex;align-items:center;gap:6px;padding:0 12px;height:30px;background:var(--gd-panel);border:1px solid var(--gd-border);border-bottom:none;border-radius:8px 8px 0 0;cursor:pointer;color:var(--gd-muted);font-size:12px;font-weight:500;white-space:nowrap;transition:.1s;margin-right:2px;position:relative;top:1px}
+.tab:hover{color:var(--gd-text)}
+.tab.active{background:var(--gd-bg);border-color:var(--gd-border2);color:var(--gd-text);font-weight:600}
+.tab-x{font-size:10px;color:var(--gd-muted);cursor:pointer;padding:2px 3px;border-radius:3px;line-height:1}
+.tab-x:hover{background:var(--gd-border2);color:var(--gd-text)}
+.tab-new{padding:0 10px;height:26px;border:none;background:transparent;color:var(--gd-muted);cursor:pointer;font-size:18px;border-radius:6px;transition:.12s;align-self:center}
+.tab-new:hover{background:var(--gd-card);color:var(--gd-text)}
+
+/* WORKSPACE */
+#workspace{flex:1;min-height:0;display:flex}
+
+/* LEFT SIDEBAR */
+#lsb{width:220px;background:var(--gd-sidebar);border-right:1px solid var(--gd-border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sb-title{padding:10px 12px 6px;font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--gd-muted);text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.sb-act{font-size:16px;cursor:pointer;color:var(--gd-muted);transition:color .12s}
+.sb-act:hover{color:var(--gd-blue)}
+.ftree{flex:1;overflow-y:auto;padding-bottom:8px}
+.ftree::-webkit-scrollbar{width:4px}
+.ftree::-webkit-scrollbar-thumb{background:var(--gd-border2);border-radius:2px}
+.fdir{padding:7px 14px 3px;font-size:10px;font-weight:700;color:var(--gd-border2);letter-spacing:.5px;text-transform:uppercase}
+.fitem{display:flex;align-items:center;gap:6px;padding:6px 14px;cursor:pointer;border-left:2px solid transparent;transition:.1s;font-size:12px;color:var(--gd-muted)}
+.fitem:hover{background:var(--gd-panel);color:var(--gd-text)}
+.fitem.active{background:rgba(79,138,255,.1);border-left-color:var(--gd-blue);color:var(--gd-text)}
+.fitem.indent{padding-left:26px}
+
+/* commit panel */
+.commit-panel{border-top:1px solid var(--gd-border);padding:10px 12px;background:var(--gd-sidebar)}
+.cp-label{font-size:10px;font-weight:700;color:var(--gd-muted);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px}
+.cp-ta{width:100%;background:var(--gd-bg);border:1px solid var(--gd-border2);border-radius:8px;color:var(--gd-text);font-family:'Inter',sans-serif;font-size:12px;padding:8px 10px;resize:none;outline:none;height:54px;margin-bottom:8px;transition:.15s}
+.cp-ta:focus{border-color:var(--gd-green)}
+.cp-ta::placeholder{color:var(--gd-muted)}
+.cp-btn{width:100%;padding:8px;border:none;border-radius:8px;background:var(--gd-green);color:#0a1a0f;font-family:'Inter',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;gap:6px}
+.cp-btn:hover{filter:brightness(1.08)}
+.cp-btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+
+/* EDITOR */
+#editor-area{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+#editor-wrap{flex:1;min-height:0}
+.CodeMirror{height:100%;font-family:'JetBrains Mono','Fira Code','Consolas',monospace;font-size:13.5px;line-height:1.65;background:var(--gd-bg)!important}
+.CodeMirror-scroll{padding-bottom:60px}
+.CodeMirror-gutters{background:var(--gd-sidebar)!important;border-right:1px solid var(--gd-border)!important}
+.CodeMirror-linenumber{color:var(--gd-muted)!important}
+
+/* RIGHT PANEL */
+#rpanel{width:240px;background:var(--gd-sidebar);border-left:1px solid var(--gd-border);display:flex;flex-direction:column;flex-shrink:0}
+.rp-tabs{display:flex;border-bottom:1px solid var(--gd-border);flex-shrink:0}
+.rp-tab{flex:1;padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--gd-muted);cursor:pointer;border-bottom:2px solid transparent;transition:.12s}
+.rp-tab.active{color:var(--gd-blue);border-bottom-color:var(--gd-blue)}
+.rp-pane{display:none;flex:1;flex-direction:column;overflow:auto}
+.rp-pane.active{display:flex}
+.pg{padding:12px;border-bottom:1px solid var(--gd-border)}
+.pg-title{font-size:10px;font-weight:700;color:var(--gd-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.pr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.pl{font-size:11.5px;color:var(--gd-muted)}
+.pv{font-size:11.5px;color:var(--gd-text);font-weight:600}
+.pv.g{color:var(--gd-green)}.pv.b{color:var(--gd-blue)}.pv.o{color:var(--gd-orange)}
+.preview-bar{padding:8px 10px;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--gd-border);flex-shrink:0}
+.preview-bar input{flex:1;background:var(--gd-bg);border:1px solid var(--gd-border2);border-radius:6px;color:var(--gd-text);font-size:11px;padding:4px 8px;outline:none}
+.prev-refresh{background:none;border:none;color:var(--gd-muted);cursor:pointer;font-size:14px;transition:.1s}
+.prev-refresh:hover{color:var(--gd-blue)}
+#preview-frame{flex:1;border:none;background:#fff;display:block}
+
+/* STATUSBAR */
+#sb{height:24px;background:var(--gd-blue);display:flex;align-items:center;padding:0 12px;gap:14px;flex-shrink:0}
+.sbi{font-size:11px;color:rgba(255,255,255,.8)}
+.sbi.bold{font-weight:700;color:#fff}
+.sb-sp{flex:1}
+.sbi.ok{color:#b8ffda}.sbi.err{color:#ffb8b8}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--gd-panel);border:1px solid var(--gd-border2);border-radius:14px;width:420px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.modal-head{background:var(--gd-toolbar);padding:14px 18px;border-bottom:1px solid var(--gd-border);display:flex;align-items:center;justify-content:space-between}
+.modal-ttl{font-size:14px;font-weight:700}
+.modal-cls{background:none;border:none;color:var(--gd-muted);cursor:pointer;font-size:18px;line-height:1}
+.modal-cls:hover{color:var(--gd-text)}
+.modal-body{padding:20px}
+.fg{margin-bottom:14px}
+.flabel{display:block;font-size:11px;font-weight:700;color:var(--gd-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.finput{width:100%;background:var(--gd-sidebar);border:1px solid var(--gd-border2);border-radius:8px;color:var(--gd-text);font-family:'Inter',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:.15s}
+.finput:focus{border-color:var(--gd-blue)}
+.finput::placeholder{color:var(--gd-muted)}
+.modal-acts{display:flex;gap:8px;justify-content:flex-end;padding:0 20px 20px}
+.btn-g{padding:9px 18px;border:1px solid var(--gd-border2);border-radius:8px;background:transparent;color:var(--gd-muted);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.12s}
+.btn-g:hover{color:var(--gd-text)}
+.btn-p{padding:9px 18px;border:none;border-radius:8px;background:var(--gd-blue);color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:.12s}
+.btn-p:hover{background:var(--gd-blue2)}
+
+/* NOTIFS */
+#notifs{position:fixed;bottom:34px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:800}
+.notif{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateX(120%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:320px}
+.notif.show{transform:translateX(0)}
+.notif.ok{background:var(--gd-green);color:#0a1a0f}
+.notif.err{background:var(--gd-red);color:#fff}
+.notif.info{background:var(--gd-panel);border:1px solid var(--gd-border2);color:var(--gd-text)}
+
+/* LOADING */
+#loading{position:fixed;inset:0;z-index:400;background:rgba(13,15,30,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#loading.show{display:flex}
+.ring{width:42px;height:42px;border:3px solid var(--gd-border2);border-top-color:var(--gd-blue);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ring-label{font-size:13px;font-weight:600;color:var(--gd-muted)}
+
+/* CTX MENU */
+#ctx{position:fixed;z-index:600;background:var(--gd-panel);border:1px solid var(--gd-border2);border-radius:10px;min-width:160px;box-shadow:0 12px 40px rgba(0,0,0,.5);display:none;overflow:hidden}
+#ctx.open{display:block}
+.cxi{padding:9px 14px;font-size:12.5px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--gd-text);transition:.1s}
+.cxi:hover{background:var(--gd-card)}
+.cxi.danger{color:var(--gd-red)}
+.cxs{height:1px;background:var(--gd-border);margin:4px 0}
+
+*{scrollbar-width:thin;scrollbar-color:var(--gd-border2) transparent}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:var(--gd-border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- LOCK -->
+<div id="lock">
+  <div class="lock-card">
+    <div class="lock-head">
+      <div class="traffic"><div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div></div>
+      <span class="lock-title-bar">SnipeCorp Editor — Accès restreint</span>
+    </div>
+    <div class="lock-body">
+      <div class="lock-ico">✏️</div>
+      <h2>Site Editor</h2>
+      <p>Éditeur réservé aux administrateurs.<br>Entre le mot de passe pour continuer.</p>
+      <div class="pw-wrap">
+        <input type="password" id="pw" placeholder="••••••" maxlength="20" autofocus>
+        <span class="pw-eye" onclick="tpw()">👁</span>
+      </div>
+      <button class="unlock-btn" onclick="unlock()">🔓 Déverrouiller l'éditeur</button>
+      <div id="lock-err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- TITLEBAR -->
+  <div id="titlebar">
+    <div class="tb-traffic">
+      <div class="tb-dot tb-r" onclick="logout()" title="Verrouiller"></div>
+      <div class="tb-dot tb-y" title="Réduire"></div>
+      <div class="tb-dot tb-g" onclick="toggleFS()" title="Plein écran"></div>
+    </div>
+    <div class="tb-center">SnipeCorp Editor — Snipepro08/Snipepro08</div>
+    <div class="tb-right">
+      <button class="ico-btn" onclick="openM('m-new')" title="Nouveau fichier">＋</button>
+      <button class="ico-btn" onclick="openM('m-goto')" title="Aller à la ligne">☰</button>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <div class="tg">
+      <button class="tbtn" onclick="openM('m-new')"><span class="ti">📄</span>Nouveau</button>
+      <button class="tbtn blue" onclick="loadActiveFile()"><span class="ti">📂</span>Ouvrir</button>
+    </div>
+    <div class="tg">
+      <button class="tbtn green" id="btn-save" onclick="saveActive()" disabled><span class="ti">💾</span>Sauvegarder</button>
+      <button class="tbtn" onclick="fmtCode()"><span class="ti">⚡</span>Formater</button>
+      <button class="tbtn" onclick="refreshPreview()"><span class="ti">🖥</span>Aperçu</button>
+    </div>
+    <div class="tg">
+      <input class="t-inp" id="filepath" placeholder="chemin/fichier.html" value="index.html" style="min-width:170px">
+    </div>
+    <div class="tg">
+      <input class="t-inp" id="gh-token" type="password" placeholder="🔑 Token GitHub (ghp_...)" style="min-width:210px">
+      <button class="tbtn" onclick="toggleTok()" title="Afficher/masquer">👁</button>
+    </div>
+    <div class="tg">
+      <button class="tbtn" onclick="openM('m-search')"><span class="ti">🔍</span>Chercher</button>
+      <button class="tbtn red" onclick="logout()"><span class="ti">🔒</span>Verrouiller</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div id="tabs">
+    <button class="tab-new" onclick="openM('m-new')">＋</button>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div id="workspace">
+
+    <!-- LEFT SIDEBAR -->
+    <div id="lsb">
+      <div class="sb-title">
+        Fichiers du dépôt
+        <span class="sb-act" onclick="loadTree()" title="Rafraîchir">↺</span>
+      </div>
+      <div class="ftree" id="ftree">
+        <div style="padding:12px;color:var(--gd-muted);font-size:11.5px;line-height:1.6">
+          Entre ton token GitHub dans la barre d'outils pour voir les fichiers du dépôt.
+        </div>
+      </div>
+      <div class="commit-panel">
+        <label class="cp-label">Message du commit</label>
+        <textarea class="cp-ta" id="cm-msg" placeholder="Décris tes modifications…"></textarea>
+        <button class="cp-btn" id="cp-btn" onclick="saveActive()" disabled>⬆ Publier sur GitHub</button>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <div id="editor-area">
+      <div id="editor-wrap"></div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="rpanel">
+      <div class="rp-tabs">
+        <div class="rp-tab active" data-rp="props" onclick="switchRP('props')">Infos</div>
+        <div class="rp-tab" data-rp="preview" onclick="switchRP('preview')">Aperçu</div>
+      </div>
+      <div class="rp-pane active" id="rp-props">
+        <div class="pg">
+          <div class="pg-title">Fichier actif</div>
+          <div class="pr"><span class="pl">Nom</span><span class="pv" id="p-name">—</span></div>
+          <div class="pr"><span class="pl">Branche</span><span class="pv b">main</span></div>
+          <div class="pr"><span class="pl">Statut</span><span class="pv g" id="p-status">—</span></div>
+        </div>
+        <div class="pg">
+          <div class="pg-title">Curseur</div>
+          <div class="pr"><span class="pl">Ligne</span><span class="pv" id="p-line">1</span></div>
+          <div class="pr"><span class="pl">Colonne</span><span class="pv" id="p-col">1</span></div>
+          <div class="pr"><span class="pl">Caractères</span><span class="pv" id="p-chars">0</span></div>
+          <div class="pr"><span class="pl">Lignes</span><span class="pv" id="p-lines">0</span></div>
+          <div class="pr"><span class="pl">Langage</span><span class="pv o" id="p-lang">HTML</span></div>
+        </div>
+        <div class="pg">
+          <div class="pg-title">Dépôt</div>
+          <div class="pr"><span class="pl">Owner</span><span class="pv">Snipepro08</span></div>
+          <div class="pr"><span class="pl">Repo</span><span class="pv">Snipepro08</span></div>
+          <div class="pr"><span class="pl">Branch</span><span class="pv b">main</span></div>
+        </div>
+      </div>
+      <div class="rp-pane" id="rp-preview">
+        <div class="preview-bar">
+          <input id="prev-url" readonly value="Pas d'aperçu">
+          <button class="prev-refresh" onclick="refreshPreview()" title="Actualiser">↻</button>
+        </div>
+        <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin" title="Aperçu"></iframe>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STATUSBAR -->
+  <div id="sb">
+    <span class="sbi bold">SnipeCorp Editor</span>
+    <span class="sbi" id="sb-file">Aucun fichier</span>
+    <div class="sb-sp"></div>
+    <span class="sbi" id="sb-lang">HTML</span>
+    <span class="sbi" id="sb-cur">L1:C1</span>
+    <span class="sbi ok" id="sb-sv">✓ Sauvegardé</span>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="m-new">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-ttl">📄 Nouveau fichier</span><button class="modal-cls" onclick="closeM('m-new')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="flabel">Chemin</label><input class="finput" id="nf-path" placeholder="ex: about/index.html"></div>
+      <div class="fg"><label class="flabel">Template</label>
+        <select class="finput" id="nf-tpl">
+          <option value="empty">Vide</option><option value="html">Page HTML complète</option>
+          <option value="css">Feuille CSS</option><option value="js">Script JS</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-acts"><button class="btn-g" onclick="closeM('m-new')">Annuler</button><button class="btn-p" onclick="createFile()">Créer</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="m-search">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-ttl">🔍 Chercher &amp; Remplacer</span><button class="modal-cls" onclick="closeM('m-search')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="flabel">Chercher</label><input class="finput" id="s-find" placeholder="Texte à chercher…"></div>
+      <div class="fg"><label class="flabel">Remplacer par</label><input class="finput" id="s-repl" placeholder="Texte de remplacement…"></div>
+    </div>
+    <div class="modal-acts">
+      <button class="btn-g" onclick="closeM('m-search')">Fermer</button>
+      <button class="btn-g" onclick="doFind()">Chercher</button>
+      <button class="btn-p" onclick="doReplace()">Remplacer tout</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="m-goto">
+  <div class="modal" style="width:280px">
+    <div class="modal-head"><span class="modal-ttl">☰ Aller à la ligne</span><button class="modal-cls" onclick="closeM('m-goto')">✕</button></div>
+    <div class="modal-body"><div class="fg"><label class="flabel">Numéro de ligne</label><input class="finput" id="goto-n" type="number" min="1" placeholder="ex: 42"></div></div>
+    <div class="modal-acts"><button class="btn-g" onclick="closeM('m-goto')">Annuler</button><button class="btn-p" onclick="doGoto()">Aller</button></div>
+  </div>
+</div>
+
+<div id="notifs"></div>
+<div id="loading"><div class="ring"></div><div class="ring-label" id="loading-lbl">Chargement…</div></div>
+<div id="ctx">
+  <div class="cxi" onclick="ctxOpen()">📂 Ouvrir</div>
+  <div class="cxs"></div>
+  <div class="cxi danger" onclick="ctxDel()">🗑 Supprimer</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+const C = { owner:'Snipepro08', repo:'Snipepro08', branch:'main', pw:'1238' };
+
+// ═══════════════════════════════════════════
+// LOCK
+// ═══════════════════════════════════════════
+document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') unlock(); });
+function tpw(){ const i=document.getElementById('pw'); i.type=i.type==='password'?'text':'password'; }
+function unlock(){
+  const v=document.getElementById('pw').value;
+  if(v===C.pw){
+    sessionStorage.setItem('sc_ok','1');
+    document.getElementById('lock').style.display='none';
+    document.getElementById('app').style.display='flex';
+    initApp();
+  } else {
+    const e=document.getElementById('lock-err');
+    e.textContent='❌ Mot de passe incorrect';
+    document.getElementById('pw').value='';
+    setTimeout(()=>e.textContent='',2500);
+  }
+}
+function logout(){
+  sessionStorage.removeItem('sc_ok');
+  document.getElementById('pw').value='';
+  document.getElementById('lock-err').textContent='';
+  document.getElementById('lock').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+if(sessionStorage.getItem('sc_ok')==='1'){
+  document.getElementById('lock').style.display='none';
+  document.getElementById('app').style.display='flex';
+  window.addEventListener('DOMContentLoaded',initApp);
+}
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let cm, ready=false;
+let tabs=[], activeId=null, ctxPath=null;
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+function initApp(){
+  if(ready) return; ready=true;
+  const tok=localStorage.getItem('sc_tok'); if(tok) document.getElementById('gh-token').value=tok;
+  cm=CodeMirror(document.getElementById('editor-wrap'),{
+    value:'<!-- ✏️ Bienvenue dans SnipeCorp Editor\n     Ouvre un fichier ou clique sur "Ouvrir" -->\n',
+    mode:'htmlmixed', theme:'one-dark', lineNumbers:true, lineWrapping:false,
+    tabSize:2, indentWithTabs:false, matchBrackets:true, autoCloseTags:true,
+    foldGutter:true, gutters:['CodeMirror-linenumbers','CodeMirror-foldgutter'],
+    extraKeys:{'Ctrl-S':saveActive,'Cmd-S':saveActive}
+  });
+  cm.on('change',()=>{ updateProps(); markMod(); });
+  cm.on('cursorActivity',updateProps);
+  openTab('index.html',null,'');
+  loadTree();
+  setInterval(loadTree,60000);
+  document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveActive();} if(e.key==='Escape') closeAllModals(); });
+  document.addEventListener('click',()=>document.getElementById('ctx').classList.remove('open'));
+}
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+function openTab(path,sha,content){
+  const ex=tabs.find(t=>t.path===path); if(ex){ activateTab(ex.id); return; }
+  const id=Date.now(), lang=detectLang(path);
+  tabs.push({id,path,sha,content:content||'',lang,modified:false});
+  renderTabs(); activateTab(id);
+  if(content!==null && content!==undefined){ cm.setValue(content); cm.setOption('mode',lang); }
+}
+function activateTab(id){
+  if(activeId){ const p=tabs.find(t=>t.id===activeId); if(p) p.content=cm.getValue(); }
+  activeId=id;
+  const t=tabs.find(t=>t.id===id); if(!t) return;
+  cm.setValue(t.content||''); cm.setOption('mode',t.lang); cm.clearHistory();
+  document.getElementById('filepath').value=t.path;
+  const hasTok=!!getToken();
+  document.getElementById('btn-save').disabled=!hasTok;
+  document.getElementById('cp-btn').disabled=!hasTok;
+  updateProps(); renderTabs(); updateTreeActive();
+  notif('📄 '+t.path,'info');
+}
+function closeTab(id){
+  const idx=tabs.findIndex(t=>t.id===id); if(idx===-1) return;
+  const t=tabs[idx];
+  if(t.modified&&!confirm('"'+t.path+'" a des modifications non sauvegardées. Fermer ?')) return;
+  tabs.splice(idx,1);
+  if(activeId===id){ activeId=null; const n=tabs[Math.min(idx,tabs.length-1)]; if(n) activateTab(n.id); else cm.setValue(''); }
+  renderTabs();
+}
+function renderTabs(){
+  const bar=document.getElementById('tabs'), nb=bar.querySelector('.tab-new');
+  bar.querySelectorAll('.tab').forEach(t=>t.remove());
+  tabs.forEach(t=>{
+    const d=document.createElement('div');
+    d.className='tab'+(t.id===activeId?' active':'');
+    d.innerHTML=`<span>${fileIco(t.path)}</span><span>${t.path.split('/').pop()}${t.modified?' ●':''}</span><span class="tab-x" onclick="event.stopPropagation();closeTab(${t.id})">✕</span>`;
+    d.addEventListener('click',()=>activateTab(t.id));
+    bar.insertBefore(d,nb);
+  });
+}
+function markMod(){
+  const t=tabs.find(t=>t.id===activeId); if(t) t.modified=true;
+  renderTabs(); document.getElementById('sb-sv').textContent='● Modifié';
+}
+
+// ═══════════════════════════════════════════
+// FILE TREE
+// ═══════════════════════════════════════════
+async function loadTree(){
+  const tok=getToken(); if(!tok) return;
+  try{
+    const r=await ghFetch(`/repos/${C.owner}/${C.repo}/git/trees/${C.branch}?recursive=1`);
+    if(!r.ok) return;
+    const d=await r.json();
+    renderTree(d.tree.filter(f=>f.type==='blob'));
+  }catch{}
+}
+function renderTree(files){
+  const el=document.getElementById('ftree'), dirs={};
+  files.forEach(f=>{ const p=f.path.split('/'); const dir=p.length>1?p.slice(0,-1).join('/'):''; if(!dirs[dir])dirs[dir]=[]; dirs[dir].push(f); });
+  let h='';
+  (dirs['']||[]).forEach(f=>h+=fitemHTML(f.path,false));
+  Object.entries(dirs).filter(([k])=>k!=='').sort().forEach(([dir,fs])=>{
+    h+=`<div class="fdir">📁 ${dir}</div>`;
+    fs.forEach(f=>h+=fitemHTML(f.path,true));
+  });
+  el.innerHTML=h; updateTreeActive();
+}
+function fitemHTML(path,indent){
+  const active=tabs.find(t=>t.id===activeId)?.path===path;
+  return `<div class="fitem${active?' active':''}${indent?' indent':''}" onclick="quickOpen('${path}')" oncontextmenu="showCtx(event,'${path}')"><span>${fileIco(path)}</span><span>${path.split('/').pop()}</span></div>`;
+}
+function updateTreeActive(){
+  const active=tabs.find(t=>t.id===activeId);
+  document.querySelectorAll('.fitem').forEach(el=>{ const name=el.querySelector('span:last-child')?.textContent; el.classList.toggle('active',!!(active&&active.path.split('/').pop()===name)); });
+}
+async function quickOpen(path){
+  const ex=tabs.find(t=>t.path===path); if(ex){ activateTab(ex.id); return; }
+  document.getElementById('filepath').value=path; await loadFile(path);
+}
+
+// ═══════════════════════════════════════════
+// GITHUB API
+// ═══════════════════════════════════════════
+function getToken(){ const t=document.getElementById('gh-token').value.trim(); if(t) localStorage.setItem('sc_tok',t); return t; }
+function toggleTok(){ const i=document.getElementById('gh-token'); i.type=i.type==='password'?'text':'password'; }
+function ghFetch(ep,opts={}){
+  const tok=getToken();
+  return fetch('https://api.github.com'+ep,{...opts,headers:{'Accept':'application/vnd.github+json',...(tok?{'Authorization':'Bearer '+tok}:{}),...(opts.headers||{})}});
+}
+
+async function loadFile(path){
+  if(!path) path=document.getElementById('filepath').value.trim();
+  if(!path){ notif('Indique un chemin de fichier','err'); return; }
+  showLoad('Chargement de '+path+'…');
+  try{
+    const r=await ghFetch(`/repos/${C.owner}/${C.repo}/contents/${encodeURIComponent(path)}?ref=${C.branch}`);
+    if(r.status===404){ openTab(path,null,TPL[document.getElementById('nf-tpl')?.value]||''); notif('"'+path+'" introuvable — nouveau fichier','info'); hideLoad(); return; }
+    if(!r.ok){ const d=await r.json().catch(()=>{}); throw new Error(d?.message||'Erreur '+r.status); }
+    const d=await r.json();
+    const content=decodeURIComponent(escape(atob(d.content.replace(/\n/g,''))));
+    openTab(path,d.sha,content);
+    notif('✅ '+path+' chargé','ok');
+    document.getElementById('p-status').textContent='Chargé';
+  }catch(e){ notif('Erreur : '+e.message,'err'); }
+  hideLoad();
+}
+function loadActiveFile(){ loadFile(document.getElementById('filepath').value.trim()); }
+
+async function saveActive(){
+  const t=tabs.find(t=>t.id===activeId), tok=getToken();
+  if(!tok){ notif('Token GitHub requis 🔑','err'); return; }
+  if(!t){ notif('Ouvre un fichier d\'abord','err'); return; }
+  const content=cm.getValue();
+  const msg=document.getElementById('cm-msg').value.trim()||`✏️ Mise à jour de ${t.path} via SnipeCorp Editor`;
+  showLoad('Publication de '+t.path+'…');
+  document.getElementById('btn-save').disabled=true;
+  document.getElementById('cp-btn').disabled=true;
+  try{
+    const body={message:msg,content:btoa(unescape(encodeURIComponent(content))),branch:C.branch};
+    if(t.sha) body.sha=t.sha;
+    const r=await ghFetch(`/repos/${C.owner}/${C.repo}/contents/${encodeURIComponent(t.path)}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){ const d=await r.json().catch(()=>{}); throw new Error(d?.message||'Erreur '+r.status); }
+    const d=await r.json();
+    t.sha=d.content.sha; t.content=content; t.modified=false;
+    renderTabs();
+    document.getElementById('sb-sv').textContent='✓ Sauvegardé';
+    document.getElementById('p-status').textContent='Sauvegardé';
+    document.getElementById('cm-msg').value='';
+    notif('🚀 '+t.path+' publié sur GitHub !','ok');
+    loadTree();
+  }catch(e){ notif('Échec : '+e.message,'err'); }
+  document.getElementById('btn-save').disabled=false;
+  document.getElementById('cp-btn').disabled=false;
+  hideLoad();
+}
+
+// ═══════════════════════════════════════════
+// TEMPLATES
+// ═══════════════════════════════════════════
+const TPL={
+  empty:'',
+  html:`<!DOCTYPE html>\n<html lang="fr">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>SnipeCorp</title>\n</head>\n<body>\n  <h1>Nouvelle page</h1>\n</body>\n</html>`,
+  css:`/* SnipeCorp styles */\n* { box-sizing: border-box; margin: 0; padding: 0; }\nbody { font-family: Arial, sans-serif; }\n`,
+  js:`// SnipeCorp script\n'use strict';\ndocument.addEventListener('DOMContentLoaded', () => {\n  console.log('Prêt !');\n});\n`
+};
+function createFile(){
+  const p=document.getElementById('nf-path').value.trim(), tpl=document.getElementById('nf-tpl').value;
+  if(!p){ notif('Indique un chemin','err'); return; }
+  openTab(p,null,TPL[tpl]||''); closeM('m-new');
+}
+
+// ═══════════════════════════════════════════
+// FORMAT
+// ═══════════════════════════════════════════
+function fmtCode(){
+  const val=cm.getValue();
+  try{
+    let lvl=0;
+    const lines=val.split('\n').map(l=>l.trim()).filter(Boolean);
+    const out=lines.map(l=>{
+      if(l.match(/^<\//)) lvl=Math.max(0,lvl-1);
+      const r='  '.repeat(lvl)+l;
+      if(l.match(/^<[^/!?][^>]*[^/]>$/)&&!l.match(/<(br|hr|img|input|meta|link|area|base|col|embed|param|source|track|wbr)/i)) lvl++;
+      return r;
+    }).join('\n');
+    cm.setValue(out); notif('✅ Code formaté','ok');
+  }catch{ notif('Impossible de formatter','err'); }
+}
+
+// ═══════════════════════════════════════════
+// SEARCH / REPLACE
+// ═══════════════════════════════════════════
+function doFind(){
+  const q=document.getElementById('s-find').value; if(!q) return;
+  const cur=cm.getSearchCursor(q,cm.getCursor());
+  if(cur.findNext()) cm.setSelection(cur.from(),cur.to()); else notif('Aucun résultat','info');
+}
+function doReplace(){
+  const q=document.getElementById('s-find').value, r=document.getElementById('s-repl').value; if(!q) return;
+  const count=(cm.getValue().split(q).length-1);
+  cm.setValue(cm.getValue().split(q).join(r));
+  notif(count+' remplacement(s)','ok'); closeM('m-search');
+}
+function doGoto(){ const n=parseInt(document.getElementById('goto-n').value); if(!isNaN(n)){ cm.setCursor({line:n-1,ch:0}); cm.focus(); closeM('m-goto'); } }
+
+// ═══════════════════════════════════════════
+// PREVIEW
+// ═══════════════════════════════════════════
+function switchRP(name){
+  document.querySelectorAll('.rp-tab').forEach(t=>t.classList.toggle('active',t.dataset.rp===name));
+  document.querySelectorAll('.rp-pane').forEach(p=>p.classList.toggle('active',p.id==='rp-'+name));
+}
+function refreshPreview(){
+  const t=tabs.find(t=>t.id===activeId); if(!t) return;
+  const blob=new Blob([cm.getValue()],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  document.getElementById('preview-frame').src=url;
+  document.getElementById('prev-url').value=t.path;
+  switchRP('preview');
+}
+
+// ═══════════════════════════════════════════
+// PROPS / STATUS
+// ═══════════════════════════════════════════
+function updateProps(){
+  const cur=cm.getCursor(), val=cm.getValue();
+  document.getElementById('p-line').textContent=cur.line+1;
+  document.getElementById('p-col').textContent=cur.ch+1;
+  document.getElementById('p-chars').textContent=val.length.toLocaleString('fr');
+  document.getElementById('p-lines').textContent=cm.lineCount();
+  document.getElementById('sb-cur').textContent='L'+(cur.line+1)+':C'+(cur.ch+1);
+  const t=tabs.find(t=>t.id===activeId);
+  if(t){
+    const LL={htmlmixed:'HTML',css:'CSS',javascript:'JavaScript',markdown:'Markdown'};
+    const l=LL[t.lang]||t.lang;
+    document.getElementById('p-lang').textContent=l;
+    document.getElementById('sb-lang').textContent=l;
+    document.getElementById('sb-file').textContent=t.path;
+    document.getElementById('p-name').textContent=t.path.split('/').pop();
+  }
+}
+
+// ═══════════════════════════════════════════
+// CTX MENU
+// ═══════════════════════════════════════════
+function showCtx(e,path){ e.preventDefault(); ctxPath=path; const m=document.getElementById('ctx'); m.style.left=e.clientX+'px'; m.style.top=e.clientY+'px'; m.classList.add('open'); }
+function ctxOpen(){ quickOpen(ctxPath); }
+async function ctxDel(){
+  if(!confirm('Supprimer "'+ctxPath+'" du dépôt GitHub ?')) return;
+  const tok=getToken(); if(!tok){ notif('Token requis','err'); return; }
+  showLoad('Suppression…');
+  try{
+    const r=await ghFetch(`/repos/${C.owner}/${C.repo}/contents/${encodeURIComponent(ctxPath)}?ref=${C.branch}`);
+    const d=await r.json();
+    await ghFetch(`/repos/${C.owner}/${C.repo}/contents/${encodeURIComponent(ctxPath)}`,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'🗑 Suppression de '+ctxPath,sha:d.sha,branch:C.branch})});
+    notif('🗑 '+ctxPath+' supprimé','ok'); loadTree();
+    const t=tabs.find(t=>t.path===ctxPath); if(t) closeTab(t.id);
+  }catch(e){ notif('Erreur : '+e.message,'err'); }
+  hideLoad();
+}
+
+// ═══════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════
+function openM(id){ document.getElementById(id).classList.add('open'); }
+function closeM(id){ document.getElementById(id).classList.remove('open'); }
+function closeAllModals(){ document.querySelectorAll('.modal-bg').forEach(m=>m.classList.remove('open')); }
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('open'); }));
+
+// ═══════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════
+function notif(msg,type='info'){
+  const s=document.getElementById('notifs'), icons={ok:'✅',err:'❌',info:'ℹ️'};
+  const d=document.createElement('div'); d.className='notif '+type;
+  d.innerHTML='<span>'+icons[type]+'</span><span>'+msg+'</span>';
+  s.appendChild(d); requestAnimationFrame(()=>d.classList.add('show'));
+  setTimeout(()=>{ d.classList.remove('show'); setTimeout(()=>d.remove(),400); },3000);
+}
+function showLoad(msg){ document.getElementById('loading-lbl').textContent=msg||'…'; document.getElementById('loading').classList.add('show'); }
+function hideLoad(){ document.getElementById('loading').classList.remove('show'); }
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function detectLang(p){ if(p.endsWith('.css')) return 'css'; if(p.endsWith('.js')) return 'javascript'; if(p.endsWith('.md')) return 'markdown'; return 'htmlmixed'; }
+function fileIco(p){ if(p.endsWith('.css')) return '🎨'; if(p.endsWith('.js')) return '⚡'; if(p.endsWith('.md')) return '📋'; if(p.endsWith('.json')) return '📦'; if(/\.(png|jpg|jpeg|gif|webp|svg)$/.test(p)) return '🖼'; return '📄'; }
+function toggleFS(){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+</script>
+</body>
+</html>
