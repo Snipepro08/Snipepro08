@@ -1,57 +1,446 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>SnipeCorp</title>
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, set, onValue, push, remove, serverTimestamp, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+// ────────────────────────────────────────────────────
+// FIREBASE CONFIG  ← remplace par ta propre config
+// Va sur https://console.firebase.google.com/
+// Crée un projet → Add app (Web) → copie firebaseConfig ici
+// Active Authentication (Email/Password) + Realtime Database
+// ────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "REMPLACE_PAR_TA_CLE",
+  authDomain: "REMPLACE.firebaseapp.com",
+  databaseURL: "https://REMPLACE-default-rtdb.firebaseio.com",
+  projectId: "REMPLACE",
+  storageBucket: "REMPLACE.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:000000000000000000"
+};
+
+let app, db, auth;
+try {
+  app  = initializeApp(firebaseConfig);
+  db   = getDatabase(app);
+  auth = getAuth(app);
+} catch(e) {
+  console.warn('Firebase non configuré — fonctions en ligne désactivées');
+}
+
+// ── ONLINE COUNTER ──────────────────────────────────
+let myPresenceRef = null;
+function setupPresence(uid) {
+  if (!db) return;
+  const presenceRef = ref(db, 'presence/' + (uid || ('anon_' + Math.random().toString(36).slice(2))));
+  set(presenceRef, { online: true, ts: Date.now() });
+  myPresenceRef = presenceRef;
+  window.addEventListener('beforeunload', () => remove(presenceRef));
+  const onlineRef = ref(db, 'presence');
+  onValue(onlineRef, snap => {
+    const count = snap.exists() ? Object.keys(snap.val()).length : 0;
+    document.getElementById('online-count').textContent = count;
+  });
+}
+
+// ── AUTH ─────────────────────────────────────────────
+let currentUser = null;
+
+function trySetupPresence() { setupPresence(currentUser?.uid); }
+
+if (auth) {
+  onAuthStateChanged(auth, user => {
+    currentUser = user;
+    if (user) {
+      document.getElementById('auth-area').innerHTML = `
+        <div class="auth-user">
+          <span class="auth-avatar">${user.displayName ? user.displayName[0].toUpperCase() : '👤'}</span>
+          <span class="auth-name">${user.displayName || user.email}</span>
+          <a href="snipemail/index.html" class="auth-link" data-i18n="authMsg">📬 Messagerie</a>
+          <button class="auth-btn-sm" onclick="doSignOut()" data-i18n="authLogout">Déconnexion</button>
+        </div>`;
+      if (myPresenceRef) remove(myPresenceRef);
+      setupPresence(user.uid);
+    } else {
+      document.getElementById('auth-area').innerHTML = `
+        <button class="auth-btn" onclick="showAuthModal('login')" data-i18n="authLogin">Connexion</button>
+        <button class="auth-btn accent" onclick="showAuthModal('register')" data-i18n="authRegister">Créer un compte</button>`;
+      setupPresence(null);
+    }
+    applyLang(currentLang);
+  });
+} else {
+  setupPresence(null);
+}
+
+// ── AUTH MODAL ───────────────────────────────────────
+window.showAuthModal = function(mode) {
+  const m = document.getElementById('auth-modal');
+  const title = document.getElementById('auth-modal-title');
+  const sub = document.getElementById('auth-modal-sub');
+  const nameRow = document.getElementById('auth-name-row');
+  const btn = document.getElementById('auth-modal-btn');
+  const switchEl = document.getElementById('auth-modal-switch');
+  document.getElementById('auth-modal-err').textContent = '';
+
+  if (mode === 'register') {
+    title.textContent = TR[currentLang]?.authRegister || 'Créer un compte';
+    sub.textContent = 'Rejoins SnipeCorp !';
+    nameRow.style.display = 'block';
+    btn.textContent = TR[currentLang]?.authRegister || "S'inscrire";
+    switchEl.innerHTML = 'Déjà un compte ? <a href="#" onclick="showAuthModal(\'login\')">Connexion</a>';
+    btn.onclick = doRegister;
+  } else {
+    title.textContent = TR[currentLang]?.authLogin || 'Connexion';
+    sub.textContent = 'Content de te revoir !';
+    nameRow.style.display = 'none';
+    btn.textContent = TR[currentLang]?.authLogin || 'Se connecter';
+    switchEl.innerHTML = 'Pas encore de compte ? <a href="#" onclick="showAuthModal(\'register\')">S\'inscrire</a>';
+    btn.onclick = doLogin;
+  }
+  m.classList.add('open');
+};
+
+window.closeAuthModal = function() { document.getElementById('auth-modal').classList.remove('open'); };
+
+window.doLogin = async function() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pw = document.getElementById('auth-pw').value;
+  const err = document.getElementById('auth-modal-err');
+  if (!auth) { err.textContent = 'Firebase non configuré.'; return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+    closeAuthModal();
+  } catch(e) {
+    err.textContent = e.code === 'auth/wrong-password' ? 'Mot de passe incorrect.' : e.code === 'auth/user-not-found' ? 'Compte introuvable.' : e.message;
+  }
+};
+
+window.doRegister = async function() {
+  const name = document.getElementById('auth-name').value.trim();
+  const email = document.getElementById('auth-email').value.trim();
+  const pw = document.getElementById('auth-pw').value;
+  const err = document.getElementById('auth-modal-err');
+  if (!auth) { err.textContent = 'Firebase non configuré.'; return; }
+  if (!name) { err.textContent = 'Entre un pseudo.'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pw);
+    await updateProfile(cred.user, { displayName: name });
+    if (db) await set(ref(db, 'users/' + cred.user.uid), { name, email, joined: Date.now() });
+    closeAuthModal();
+  } catch(e) {
+    err.textContent = e.code === 'auth/email-already-in-use' ? 'Email déjà utilisé.' : e.code === 'auth/weak-password' ? 'Mot de passe trop faible (min 6 chars).' : e.message;
+  }
+};
+
+window.doSignOut = async function() {
+  if (myPresenceRef) await remove(myPresenceRef);
+  if (auth) await signOut(auth);
+};
+</script>
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#030712;color:#fff;overflow:hidden}
-#code-bg{position:fixed;inset:0;z-index:0;opacity:.18;pointer-events:none}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#030712;color:#fff;overflow-x:hidden}
+#code-bg{position:fixed;inset:0;z-index:0;opacity:.16;pointer-events:none}
 .code-line{position:absolute;left:-120%;white-space:nowrap;font:14px Consolas,monospace;color:#33b5ff;animation:scroll linear infinite;text-shadow:0 0 8px #33b5ff}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(230vw)}}
-body:before{content:"";position:fixed;inset:0;background:radial-gradient(circle,#0b6cff33,transparent 60%);z-index:0}
-#wrap{position:relative;z-index:1;width:min(92vw,380px);margin:auto;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;padding:28px 22px;background:linear-gradient(180deg,rgba(11,18,36,.72),rgba(8,14,28,.52));backdrop-filter:blur(18px);border:1px solid #2b8cff55;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.35),0 0 30px #0b6cff44}
-#brand-tag{text-align:center;font-size:30px;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#9fe7ff,#5da9ff,#9ee2ff);-webkit-background-clip:text;color:transparent}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle,#0b6cff22,transparent 60%);z-index:0}
+
+/* ── ONLINE BAR ── */
+#online-bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:6px 16px;background:rgba(3,7,18,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(43,140,255,.2)}
+.online-badge{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#e0e8ff}
+.online-dot{width:8px;height:8px;border-radius:50%;background:#33d17a;animation:pulse 2s ease infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(51,209,122,.6)}50%{box-shadow:0 0 0 6px rgba(51,209,122,0)}}
+#online-count{color:#33d17a;font-size:14px}
+
+/* ── AUTH AREA ── */
+#auth-area{display:flex;align-items:center;gap:8px}
+.auth-btn{padding:5px 14px;border-radius:8px;border:1px solid rgba(79,138,255,.4);background:transparent;color:#9fdfff;font-size:12px;font-weight:700;cursor:pointer;transition:.15s}
+.auth-btn:hover{border-color:var(--blue,.5);background:rgba(79,138,255,.1)}
+.auth-btn.accent{background:rgba(79,138,255,.2);border-color:rgba(79,138,255,.6);color:#fff}
+.auth-user{display:flex;align-items:center;gap:8px}
+.auth-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#4f8aff,#8b6dff);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.auth-name{font-size:12px;font-weight:700;color:#e0e8ff;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth-link{font-size:11.5px;font-weight:700;color:#4f8aff;text-decoration:none;padding:4px 10px;border-radius:7px;border:1px solid rgba(79,138,255,.35);background:transparent;transition:.15s;white-space:nowrap}
+.auth-link:hover{background:rgba(79,138,255,.1)}
+.auth-btn-sm{padding:4px 10px;border-radius:7px;border:1px solid rgba(255,94,106,.3);background:transparent;color:#ff9090;font-size:11.5px;font-weight:700;cursor:pointer;transition:.15s}
+.auth-btn-sm:hover{background:rgba(255,94,106,.1)}
+
+/* ── LANG SWITCH ── */
 #lang-switch{display:flex;justify-content:center;gap:0;border-radius:999px;overflow:hidden;align-self:center;background:rgba(6,10,20,.55);border:1px solid rgba(43,140,255,.35)}
-.lang-btn{background:transparent;border:none;color:#9fdfff;padding:9px 16px;cursor:pointer;font-weight:800;letter-spacing:.04em}
+.lang-btn{background:transparent;border:none;color:#9fdfff;padding:7px 12px;cursor:pointer;font-weight:800;font-size:12px;letter-spacing:.04em}
 .lang-btn.active{background:linear-gradient(135deg,#0b6cff,#3d8dff);color:#fff}
-.cat-nav-btn{text-decoration:none;color:#fff;padding:12px 13px;border:1px solid rgba(43,140,255,.28);border-radius:18px;background:linear-gradient(180deg,rgba(13,22,40,.92),rgba(11,18,33,.82));transition:.25s;display:flex;align-items:center;gap:12px;box-shadow:0 6px 20px rgba(0,0,0,.18);position:relative;overflow:hidden;isolation:isolate}
-.cat-nav-btn:before{content:"";position:absolute;inset:0;background:var(--preview,linear-gradient(135deg,#223,#112));opacity:.9;z-index:-1}
-.cat-nav-btn:after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent 45%,rgba(255,255,255,.06));mix-blend-mode:screen;z-index:-1}
+
+/* ── MAIN CARD ── */
+#wrap{position:relative;z-index:1;width:min(92vw,390px);margin:auto;top:50%;transform:translateY(-50%);margin-top:20px;display:flex;flex-direction:column;gap:12px;padding:26px 20px;background:linear-gradient(180deg,rgba(11,18,36,.72),rgba(8,14,28,.52));backdrop-filter:blur(18px);border:1px solid #2b8cff55;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.35),0 0 30px #0b6cff44}
+#brand-tag{text-align:center;font-size:30px;font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#9fe7ff,#5da9ff,#9ee2ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-section-label{font-size:10px;font-weight:700;color:rgba(159,223,255,.5);letter-spacing:1.5px;text-transform:uppercase;padding:4px 2px 0}
+
+/* ── NAV BUTTONS ── */
+.cat-nav-btn{text-decoration:none;color:#fff;padding:11px 13px;border:1px solid rgba(43,140,255,.28);border-radius:18px;background:linear-gradient(180deg,rgba(13,22,40,.92),rgba(11,18,33,.82));transition:.25s;display:flex;align-items:center;gap:12px;box-shadow:0 6px 20px rgba(0,0,0,.18);position:relative;overflow:hidden;isolation:isolate}
+.cat-nav-btn::before{content:"";position:absolute;inset:0;background:var(--preview,linear-gradient(135deg,#223,#112));opacity:.9;z-index:-1}
+.cat-nav-btn::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent 45%,rgba(255,255,255,.06));mix-blend-mode:screen;z-index:-1}
 .cat-nav-btn:hover{transform:translateX(6px) translateY(-1px) scale(1.01);box-shadow:0 14px 32px rgba(11,108,255,.28)}
 .brand-icon{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 34px;border-radius:12px;background:rgba(6,10,20,.45);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .brand-icon svg,.brand-icon img{width:22px;height:22px;display:block;object-fit:contain}
 .nav-text{display:flex;flex-direction:column;gap:2px;align-items:flex-start}
 .nav-title{font-size:14px;font-weight:800;line-height:1.1}
 .nav-subtitle{font-size:11px;opacity:.72;line-height:1.2}
-.nav-tag{margin-left:auto;font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(6px)}
-</style></head><body>
+.nav-tag{margin-left:auto;font-size:11px;font-weight:800;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.08);backdrop-filter:blur(6px);white-space:nowrap}
+
+/* ── AUTH MODAL ── */
+.modal-bg{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.auth-modal{background:#12141f;border:1px solid #2e3150;border-radius:16px;width:340px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5)}
+.am-head{background:#161828;border-bottom:1px solid #2e3150;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.am-title{font-size:15px;font-weight:800}
+.am-cls{background:none;border:none;color:#7880a0;cursor:pointer;font-size:18px}
+.am-cls:hover{color:#fff}
+.am-body{padding:20px}
+.am-sub{font-size:12px;color:#7880a0;margin-bottom:20px}
+.am-field{margin-bottom:14px}
+.am-label{display:block;font-size:10.5px;font-weight:700;color:#7880a0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.am-input{width:100%;background:#1a1c2e;border:1px solid #2e3150;border-radius:9px;color:#e8eaf0;font-size:13px;padding:10px 12px;outline:none;font-family:inherit;transition:.15s}
+.am-input:focus{border-color:#4f8aff}
+.am-input::placeholder{color:#4a5070}
+.am-btn{width:100%;padding:12px;background:linear-gradient(135deg,#4f8aff,#8b6dff);border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:.15s;margin-top:4px}
+.am-btn:hover{opacity:.9}
+.am-err{color:#ff5e6a;font-size:12px;font-weight:600;min-height:16px;margin-top:8px}
+.am-switch{text-align:center;font-size:12px;color:#7880a0;margin-top:14px}
+.am-switch a{color:#4f8aff;text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+
 <div id="code-bg"></div>
-<div id="wrap">
-<div id="brand-tag">SnipeCorp</div>
-<div id="lang-switch"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/mailbox" style="--preview: radial-gradient(circle at 20% 20%, rgba(75,209,255,.45), transparent 30%), radial-gradient(circle at 80% 80%, rgba(88,101,242,.3), transparent 28%), linear-gradient(135deg,#08111f,#10263f 55%,#1d3f66);">
-<span class="brand-icon" aria-hidden="true">📬</span>
-<span class="nav-text"><span class="nav-title" data-i18n="catMailbox">Mailbox</span><span class="nav-subtitle">Messages, collabs, reports</span></span>
-<span class="nav-tag" data-i18n="tagMailbox">send message</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/discord" style="--preview: radial-gradient(circle at 30% 25%, rgba(119,123,255,.45), transparent 28%), radial-gradient(circle at 78% 22%, rgba(88,101,242,.28), transparent 24%), linear-gradient(135deg,#0d1020,#1e2450 55%,#2f3674);">
-<span class="brand-icon" aria-hidden="true">
-<svg viewBox="0 0 24 24" role="img" aria-label="Discord logo"><path d="M20.317 4.369a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.446.864-.608 1.249a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.249.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C1.533 9.093.69 13.666 1.105 18.18a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.14 14.14 0 0 0 1.226-1.994.076.076 0 0 0-.041-.105 13.07 13.07 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.125-.094.25-.192.369-.294a.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.063 0a.074.074 0 0 1 .078.01c.12.102.244.2.37.294a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.105 14.07 14.07 0 0 0 1.225 1.994.077.077 0 0 0 .084.028 19.877 19.877 0 0 0 6.002-3.03.077.077 0 0 0 .031-.055c.5-5.177-.838-9.713-3.548-13.784a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.955 2.419-2.157 2.419Zm7.974 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.946 2.419-2.157 2.419Z"/></svg>
-</span><span class="nav-text"><span class="nav-title" data-i18n="catDiscord">Discord</span><span class="nav-subtitle">Profile, bot, widgets</span></span><span class="nav-tag" data-i18n="tagDiscord">join now</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/social" style="--preview: radial-gradient(circle at 22% 28%, rgba(255,94,155,.38), transparent 24%), radial-gradient(circle at 80% 30%, rgba(255,194,87,.22), transparent 22%), linear-gradient(135deg,#1b1020,#3a1746 55%,#7a2a65);"><span class="brand-icon" aria-hidden="true">🌐</span> <span class="nav-text"><span class="nav-title" data-i18n="catSocial">Social networks</span><span class="nav-subtitle">YouTube, Instagram, Twitch</span></span><span class="nav-tag" data-i18n="tagSocial">sub</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/fortnite" style="--preview: radial-gradient(circle at 50% 20%, rgba(255,204,74,.42), transparent 26%), radial-gradient(circle at 20% 80%, rgba(138,92,255,.24), transparent 24%), linear-gradient(135deg,#1e1208,#4b2410 55%,#8c4b1f);">
-<span class="brand-icon" aria-hidden="true">
-<img src="fortnite/ZtD1cE-edited.png" alt="" aria-hidden="true">
-</span><span class="nav-text"><span class="nav-title" data-i18n="catFortnite">Fortnite</span><span class="nav-subtitle">Locker and wishlist</span></span><span class="nav-tag" data-i18n="tagFortnite">stat</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/game" style="--preview: radial-gradient(circle at 25% 30%, rgba(51,208,255,.34), transparent 24%), radial-gradient(circle at 74% 70%, rgba(96,255,160,.2), transparent 22%), linear-gradient(135deg,#0b1223,#132046 55%,#173c57);">
-<span class="brand-icon" aria-hidden="true"><img src="icon_catégorie jeu.png" alt="" aria-hidden="true"></span>
-<span class="nav-text"><span class="nav-title" data-i18n="catGame">Game</span><span class="nav-subtitle">Arcade mini-games</span></span><span class="nav-tag" data-i18n="tagGame">play</span></a>
-<a class="cat-nav-btn" href="https://snipepro08.github.io/Snipepro08/faq" style="--preview: radial-gradient(circle at 50% 25%, rgba(102,153,255,.28), transparent 24%), radial-gradient(circle at 72% 72%, rgba(77,201,164,.2), transparent 24%), linear-gradient(135deg,#0d1020,#1a2443 55%,#2a3d5d);"><span class="brand-icon" aria-hidden="true">❓</span> <span class="nav-text"><span class="nav-title" data-i18n="catFaq">FAQ</span><span class="nav-subtitle">Help and guides</span></span><span class="nav-tag" data-i18n="tagFaq">q&a</span></a>
+
+<!-- ONLINE BAR -->
+<div id="online-bar">
+  <div class="online-badge">
+    <div class="online-dot"></div>
+    🟢<span id="online-count">1</span> <span data-i18n="online">personne(s) en ligne</span>
+  </div>
+  <div id="auth-area">
+    <button class="auth-btn" onclick="showAuthModal('login')" data-i18n="authLogin">Connexion</button>
+    <button class="auth-btn accent" onclick="showAuthModal('register')" data-i18n="authRegister">Créer un compte</button>
+  </div>
 </div>
+
+<!-- MAIN CARD -->
+<div id="wrap" style="padding-top:50px">
+  <div id="brand-tag">SnipeCorp</div>
+
+  <div id="lang-switch">
+    <button class="lang-btn active" data-lang="fr">FR</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+    <button class="lang-btn" data-lang="es">ES</button>
+    <button class="lang-btn" data-lang="ja">JP</button>
+    <button class="lang-btn" data-lang="ur">اردو</button>
+  </div>
+
+  <!-- NAVIGATION -->
+  <div class="nav-section-label" data-i18n="sectionComm">Communication</div>
+
+  <a class="cat-nav-btn" href="snipemail/index.html"
+    style="--preview:radial-gradient(circle at 20% 20%,rgba(75,209,255,.45),transparent 30%),radial-gradient(circle at 80% 80%,rgba(88,101,242,.3),transparent 28%),linear-gradient(135deg,#08111f,#10263f 55%,#1d3f66);">
+    <span class="brand-icon">📬</span>
+    <span class="nav-text">
+      <span class="nav-title" data-i18n="catMailbox">Messagerie interne</span>
+      <span class="nav-subtitle" data-i18n="subMailbox">Messages entre membres SnipeCorp</span>
+    </span>
+    <span class="nav-tag" data-i18n="tagMailbox">envoyer</span>
+  </a>
+
+  <a class="cat-nav-btn" href="mailbox/index.html"
+    style="--preview:radial-gradient(circle at 20% 20%,rgba(255,200,100,.35),transparent 30%),linear-gradient(135deg,#1a120a,#3a2010 55%,#5c3318);">
+    <span class="brand-icon">📮</span>
+    <span class="nav-text">
+      <span class="nav-title" data-i18n="catContact">Contact / Collab</span>
+      <span class="nav-subtitle" data-i18n="subContact">Messages, collaborations, rapports</span>
+    </span>
+    <span class="nav-tag" data-i18n="tagContact">contact</span>
+  </a>
+
+  <a class="cat-nav-btn" href="discord/index.html"
+    style="--preview:radial-gradient(circle at 30% 25%,rgba(119,123,255,.45),transparent 28%),linear-gradient(135deg,#0d1020,#1e2450 55%,#2f3674);">
+    <span class="brand-icon"><svg viewBox="0 0 24 24" fill="white"><path d="M20.317 4.369a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.446.864-.608 1.249a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.249.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C1.533 9.093.69 13.666 1.105 18.18a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.14 14.14 0 0 0 1.226-1.994.076.076 0 0 0-.041-.105 13.07 13.07 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.125-.094.25-.192.369-.294a.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.063 0a.074.074 0 0 1 .078.01c.12.102.244.2.37.294a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.04.105 14.07 14.07 0 0 0 1.225 1.994.077.077 0 0 0 .084.028 19.877 19.877 0 0 0 6.002-3.03.077.077 0 0 0 .031-.055c.5-5.177-.838-9.713-3.548-13.784a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.955 2.419-2.157 2.419Zm7.974 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.096 2.157 2.418 0 1.334-.946 2.419-2.157 2.419Z"/></svg></span>
+    <span class="nav-text">
+      <span class="nav-title" data-i18n="catDiscord">Discord</span>
+      <span class="nav-subtitle" data-i18n="subDiscord">Profil, bot, widgets</span>
+    </span>
+    <span class="nav-tag" data-i18n="tagDiscord">rejoindre</span>
+  </a>
+
+  <div class="nav-section-label" data-i18n="sectionGames">Jeux &amp; Contenu</div>
+
+  <a class="cat-nav-btn" href="social/index.html"
+    style="--preview:radial-gradient(circle at 22% 28%,rgba(255,94,155,.38),transparent 24%),linear-gradient(135deg,#1b1020,#3a1746 55%,#7a2a65);">
+    <span class="brand-icon">🌐</span>
+    <span class="nav-text">
+      <span class="nav-title" data-i18n="catSocial">Réseaux sociaux</span>
+      <span class="nav-subtitle">YouTube, Instagram, Twitch</span>
+    </span>
+    <span class="nav-tag" data-i18n="tagSocial">s'abonner</span>
+  </a>
+
+  <a class="cat-nav-btn" href="fortnite/index.html"
+    style="--preview:radial-gradient(circle at 50% 20%,rgba(255,204,74,.42),transparent 26%),linear-gradient(135deg,#1e1208,#4b2410 55%,#8c4b1f);">
+    <span class="brand-icon"><img src="fortnite/ZtD1cE-edited.png" alt=""></span>
+    <span class="nav-text">
+      <span class="nav-title" data-i18n="catFortnite">Fortnite</span>
+      <span class="nav-subtitle" data-i18n="subFortnite">Locker et liste de souhaits</span>
+    </span>
+    <span class="nav-tag" data-i18n="tagFortnite">stats</span>
+  </a>
+
+  <a class="cat-nav-btn" href="game/index.html"
+    style="--preview:radial-gradient(circle at 25% 30%,rgba(51,208,255,.34),transparent 24%),linear-gradient(135deg,#0b1223,#132046 55%,#173c57);">
+    <span class="brand-icon"><img src="icon_catégorie jeu.png" alt=""></span>
+    <span class="nav-text">
+      <span class="nav-title" data-i18n="catGame">Jeux</span>
+      <span class="nav-subtitle" data-i18n="subGame">Mini-jeux arcade</span>
+    </span>
+    <span class="nav-tag" data-i18n="tagGame">jouer</span>
+  </a>
+
+  <a class="cat-nav-btn" href="faq/index.html"
+    style="--preview:radial-gradient(circle at 50% 25%,rgba(102,153,255,.28),transparent 24%),linear-gradient(135deg,#0d1020,#1a2443 55%,#2a3d5d);">
+    <span class="brand-icon">❓</span>
+    <span class="nav-text">
+      <span class="nav-title" data-i18n="catFaq">FAQ</span>
+      <span class="nav-subtitle" data-i18n="subFaq">Aide et guides</span>
+    </span>
+    <span class="nav-tag" data-i18n="tagFaq">q&amp;r</span>
+  </a>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-bg" id="auth-modal">
+  <div class="auth-modal">
+    <div class="am-head">
+      <span class="am-title" id="auth-modal-title">Connexion</span>
+      <button class="am-cls" onclick="closeAuthModal()">✕</button>
+    </div>
+    <div class="am-body">
+      <p class="am-sub" id="auth-modal-sub">Content de te revoir !</p>
+      <div class="am-field" id="auth-name-row" style="display:none">
+        <label class="am-label">Pseudo</label>
+        <input class="am-input" id="auth-name" placeholder="Ton pseudo SnipeCorp" maxlength="20">
+      </div>
+      <div class="am-field">
+        <label class="am-label">Email</label>
+        <input class="am-input" id="auth-email" type="email" placeholder="ton@email.com">
+      </div>
+      <div class="am-field">
+        <label class="am-label">Mot de passe</label>
+        <input class="am-input" id="auth-pw" type="password" placeholder="••••••••">
+      </div>
+      <button class="am-btn" id="auth-modal-btn" onclick="doLogin()">Se connecter</button>
+      <div class="am-err" id="auth-modal-err"></div>
+      <div class="am-switch" id="auth-modal-switch">
+        Pas encore de compte ? <a href="#" onclick="showAuthModal('register')">S'inscrire</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-const tr={en:{catMailbox:"Mailbox",catDiscord:"Discord",catSocial:"Social networks",catFortnite:"Fortnite",catGame:"Game",catFaq:"FAQ",tagMailbox:"send message",tagDiscord:"join now",tagSocial:"sub",tagFortnite:"stat",tagGame:"play",tagFaq:"q&a"},fr:{catMailbox:"Messagerie",catDiscord:"Discord",catSocial:"Réseaux sociaux",catFortnite:"Fortnite",catGame:"Jeu",catFaq:"FAQ",tagMailbox:"envoyer un message",tagDiscord:"rejoins maintenant",tagSocial:"s'abonner",tagFortnite:"stat",tagGame:"jouer",tagFaq:"q&r"}};
-document.querySelectorAll(".lang-btn").forEach(b=>b.onclick=()=>{document.querySelectorAll(".lang-btn").forEach(x=>x.classList.remove("active"));b.classList.add("active");let t=tr[b.dataset.lang];document.querySelectorAll("[data-i18n]").forEach(e=>e.textContent=t[e.dataset.i18n]);});
-const code=["function renderFrame(){ return requestAnimationFrame(renderFrame); }","const cache = new Map();","if (state.ready) mountApp();","await Promise.all(tasks);","export default async function handler(req,res){","const seed = Math.random().toString(16).slice(2);","for (let i = 0; i < items.length; i++) {","return items.filter(Boolean);","let result = data.map(x => x.id);","document.querySelectorAll('.card').forEach(init);","try { await loadTheme(); } catch (err) { console.error(err); }","const palette = ['#0b6cff','#33d0ff','#7fd7ff'];"];
-const bg=document.getElementById("code-bg");
-for(let i=0;i<80;i++){let d=document.createElement("div");d.className="code-line";d.textContent=code[Math.floor(Math.random()*code.length)];d.style.top=(i*18)+"px";d.style.animationDuration=(15+Math.random()*20)+"s";d.style.animationDelay=(-Math.random()*25)+"s";d.style.fontSize=(12+Math.random()*4)+"px";bg.appendChild(d);}
-</script></body></html>
+// ── TRANSLATIONS ─────────────────────────────────────────────
+let currentLang = localStorage.getItem('sc_lang') || 'fr';
+
+const TR = {
+  fr:{
+    online:'personne(s) en ligne', authLogin:'Connexion', authRegister:'Créer un compte',
+    authLogout:'Déconnexion', authMsg:'📬 Messagerie',
+    sectionComm:'Communication', sectionGames:'Jeux & Contenu',
+    catMailbox:'Messagerie interne', subMailbox:'Messages entre membres SnipeCorp', tagMailbox:'envoyer',
+    catContact:'Contact / Collab', subContact:'Messages, collaborations, rapports', tagContact:'contact',
+    catDiscord:'Discord', subDiscord:'Profil, bot, widgets', tagDiscord:'rejoindre',
+    catSocial:'Réseaux sociaux', tagSocial:"s'abonner",
+    catFortnite:'Fortnite', subFortnite:'Locker et liste de souhaits', tagFortnite:'stats',
+    catGame:'Jeux', subGame:'Mini-jeux arcade', tagGame:'jouer',
+    catFaq:'FAQ', subFaq:'Aide et guides', tagFaq:'q&r'
+  },
+  en:{
+    online:'person(s) online', authLogin:'Log in', authRegister:'Create account',
+    authLogout:'Sign out', authMsg:'📬 Messages',
+    sectionComm:'Communication', sectionGames:'Games & Content',
+    catMailbox:'Internal messaging', subMailbox:'Messages between SnipeCorp members', tagMailbox:'send',
+    catContact:'Contact / Collab', subContact:'Messages, collabs, reports', tagContact:'contact',
+    catDiscord:'Discord', subDiscord:'Profile, bot, widgets', tagDiscord:'join now',
+    catSocial:'Social networks', tagSocial:'subscribe',
+    catFortnite:'Fortnite', subFortnite:'Locker and wishlist', tagFortnite:'stats',
+    catGame:'Games', subGame:'Arcade mini-games', tagGame:'play',
+    catFaq:'FAQ', subFaq:'Help and guides', tagFaq:'q&a'
+  },
+  es:{
+    online:'persona(s) en línea', authLogin:'Iniciar sesión', authRegister:'Crear cuenta',
+    authLogout:'Cerrar sesión', authMsg:'📬 Mensajes',
+    sectionComm:'Comunicación', sectionGames:'Juegos y Contenido',
+    catMailbox:'Mensajería interna', subMailbox:'Mensajes entre miembros SnipeCorp', tagMailbox:'enviar',
+    catContact:'Contacto / Collab', subContact:'Mensajes, colaboraciones, informes', tagContact:'contacto',
+    catDiscord:'Discord', subDiscord:'Perfil, bot, widgets', tagDiscord:'unirse',
+    catSocial:'Redes sociales', tagSocial:'suscribirse',
+    catFortnite:'Fortnite', subFortnite:'Armario y lista de deseos', tagFortnite:'estadísticas',
+    catGame:'Juegos', subGame:'Minijuegos arcade', tagGame:'jugar',
+    catFaq:'FAQ', subFaq:'Ayuda y guías', tagFaq:'p&r'
+  },
+  ja:{
+    online:'人がオンライン', authLogin:'ログイン', authRegister:'アカウント作成',
+    authLogout:'ログアウト', authMsg:'📬 メッセージ',
+    sectionComm:'コミュニケーション', sectionGames:'ゲーム＆コンテンツ',
+    catMailbox:'内部メッセージ', subMailbox:'SnipeCorpメンバー間のメッセージ', tagMailbox:'送信',
+    catContact:'コンタクト', subContact:'メッセージ、コラボ、報告', tagContact:'連絡',
+    catDiscord:'Discord', subDiscord:'プロフィール、ボット、ウィジェット', tagDiscord:'参加',
+    catSocial:'SNS', tagSocial:'登録',
+    catFortnite:'フォートナイト', subFortnite:'ロッカーとウィッシュリスト', tagFortnite:'統計',
+    catGame:'ゲーム', subGame:'アーケードミニゲーム', tagGame:'プレイ',
+    catFaq:'よくある質問', subFaq:'ヘルプとガイド', tagFaq:'Q&A'
+  },
+  ur:{
+    online:'آن لائن', authLogin:'لاگ ان', authRegister:'اکاؤنٹ بنائیں',
+    authLogout:'لاگ آؤٹ', authMsg:'📬 پیغامات',
+    sectionComm:'مواصلات', sectionGames:'گیمز اور مواد',
+    catMailbox:'اندرونی پیغام رسانی', subMailbox:'SnipeCorp اراکین کے درمیان پیغامات', tagMailbox:'بھیجیں',
+    catContact:'رابطہ', subContact:'پیغامات، تعاون، رپورٹ', tagContact:'رابطہ',
+    catDiscord:'Discord', subDiscord:'پروفائل، بوٹ، ویجٹ', tagDiscord:'شامل ہوں',
+    catSocial:'سوشل نیٹ ورک', tagSocial:'سبسکرائب',
+    catFortnite:'فورٹنائٹ', subFortnite:'لاکر اور خواہش فہرست', tagFortnite:'اعداد و شمار',
+    catGame:'گیمز', subGame:'آرکیڈ مینی گیمز', tagGame:'کھیلیں',
+    catFaq:'عمومی سوالات', subFaq:'مدد اور گائیڈ', tagFaq:'سوال و جواب'
+  }
+};
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('sc_lang', lang);
+  const t = TR[lang] || TR.fr;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (t[key] !== undefined) el.textContent = t[key];
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ur' ? 'rtl' : 'ltr';
+}
+
+document.querySelectorAll('.lang-btn').forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
+applyLang(currentLang);
+
+// ── CODE BG ANIMATION ────────────────────────────────
+const CODE=['function renderFrame(){ return requestAnimationFrame(renderFrame); }','const cache = new Map();','if (state.ready) mountApp();','await Promise.all(tasks);','export default async function handler(req,res){','for (let i = 0; i < items.length; i++) {','return items.filter(Boolean);','let result = data.map(x => x.id);','document.querySelectorAll(".card").forEach(init);','try { await loadTheme(); } catch (err) { console.error(err); }'];
+const bg=document.getElementById('code-bg');
+for(let i=0;i<80;i++){const d=document.createElement('div');d.className='code-line';d.textContent=CODE[Math.floor(Math.random()*CODE.length)];d.style.top=(i*18)+'px';d.style.animationDuration=(15+Math.random()*20)+'s';d.style.animationDelay=(-Math.random()*25)+'s';d.style.fontSize=(11+Math.random()*4)+'px';bg.appendChild(d);}
+
+// Close modal on bg click
+document.getElementById('auth-modal').addEventListener('click',e=>{ if(e.target===document.getElementById('auth-modal')) closeAuthModal(); });
+</script>
+</body>
+</html>
