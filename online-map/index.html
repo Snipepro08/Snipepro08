@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carte du Monde - Multijoueur</title>
+<style>
+  :root{
+    --ink:#1b1b22;
+    --panel:#20232b;
+    --panel-2:#2a2e38;
+    --accent:#e8b64b;
+    --accent-2:#5fb246;
+    --text:#f2ede1;
+    --text-dim:#a9a6b0;
+    --danger:#d94f4f;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:#0f1014;
+    color:var(--text);
+    font-family:'Courier New', 'Consolas', monospace;
+    overflow:hidden;
+  }
+  .pixel-border{
+    border:4px solid var(--ink);
+    box-shadow:0 0 0 2px var(--accent), inset 0 0 0 2px #000;
+    image-rendering:pixelated;
+  }
+  /* ---------- Ecran de connexion ---------- */
+  #loginScreen{
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(circle at 30% 20%, #2a3a2a 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, #2a2a3a 0%, transparent 45%),
+      #14151c;
+    z-index:50;
+    padding:16px;
+  }
+  #loginBox{
+    background:var(--panel);
+    padding:28px 26px;
+    width:min(420px,92vw);
+    text-align:center;
+    border-radius:2px;
+  }
+  #loginBox h1{
+    font-size:22px;letter-spacing:1px;margin:0 0 6px;color:var(--accent);
+    text-shadow:2px 2px 0 #000;
+  }
+  #loginBox p{color:var(--text-dim);font-size:13px;margin:0 0 18px;}
+  #langRow{
+    display:flex;gap:6px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;
+  }
+  .langBtn{
+    background:var(--panel-2);color:var(--text);border:2px solid #000;
+    padding:6px 10px;font-family:inherit;font-size:12px;cursor:pointer;
+    border-radius:2px;
+  }
+  .langBtn.active{background:var(--accent);color:#1b1b22;border-color:var(--accent);}
+  #pseudoInput{
+    width:100%;padding:10px;font-family:inherit;font-size:14px;
+    background:#0f1014;color:var(--text);border:2px solid #000;
+    outline:none;margin-bottom:10px;border-radius:2px;
+    text-align:center;
+  }
+  #pseudoInput:focus{border-color:var(--accent);}
+  #playBtn{
+    width:100%;padding:12px;font-family:inherit;font-size:14px;font-weight:bold;
+    background:var(--accent-2);color:#0f1014;border:2px solid #000;cursor:pointer;
+    letter-spacing:1px;border-radius:2px;
+  }
+  #playBtn:hover{filter:brightness(1.1);}
+  #loginError{color:var(--danger);font-size:12px;height:16px;margin-top:8px;}
+  #moveHint{color:var(--text-dim);font-size:11px;margin-top:14px;}
+
+  /* ---------- Jeu ---------- */
+  #gameScreen{
+    position:fixed;inset:0;display:none;
+    flex-direction:column;align-items:center;justify-content:center;
+    background:#0f1014;
+  }
+  #hud{
+    width:100%;max-width:900px;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 4px;font-size:12px;color:var(--text-dim);
+    flex-wrap:wrap;gap:6px;
+  }
+  #hud b{color:var(--accent);}
+  #canvasWrap{
+    position:relative;
+    width:min(900px,96vw);
+    aspect-ratio: 900 / 600;
+  }
+  canvas{
+    width:100%;height:100%;
+    image-rendering:pixelated;
+    display:block;
+    background:#3a6b3a;
+  }
+  #announceBar{
+    position:absolute;top:6px;left:50%;transform:translateX(-50%);
+    background:rgba(0,0,0,.75);color:var(--accent);
+    padding:6px 14px;border-radius:2px;font-size:12px;
+    display:none;max-width:90%;text-align:center;
+    border:1px solid var(--accent);
+  }
+  #adminOpenBtn{
+    position:absolute;bottom:8px;right:8px;
+    background:var(--panel-2);color:var(--text-dim);
+    border:1px solid #000;padding:5px 9px;font-size:10px;cursor:pointer;
+    border-radius:2px;opacity:.6;
+  }
+  #adminOpenBtn:hover{opacity:1;}
+
+  /* ---------- Modales ---------- */
+  .modalOverlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.7);
+    display:none;align-items:center;justify-content:center;z-index:80;
+    padding:16px;
+  }
+  .modalBox{
+    background:var(--panel);padding:22px;width:min(380px,92vw);
+    border-radius:2px;border:2px solid #000;
+  }
+  .modalBox h2{margin:0 0 14px;font-size:16px;color:var(--accent);}
+  .modalBox input, .modalBox select{
+    width:100%;padding:8px;margin-bottom:10px;font-family:inherit;
+    background:#0f1014;color:var(--text);border:2px solid #000;border-radius:2px;
+  }
+  .modalBox label{font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px;}
+  .modalBox .row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+  .modalBox button{
+    font-family:inherit;padding:8px 12px;font-size:12px;cursor:pointer;
+    background:var(--panel-2);color:var(--text);border:2px solid #000;border-radius:2px;
+  }
+  .modalBox button.primary{background:var(--accent-2);color:#0f1014;font-weight:bold;}
+  .modalBox button.danger{background:var(--danger);color:#fff;}
+  .modalBox .closeRow{display:flex;justify-content:flex-end;margin-top:14px;}
+  .zoneBtns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .zoneBtns button{flex:1;min-width:70px;}
+  #kickMsgBox{
+    position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:100;
+    display:none;align-items:center;justify-content:center;color:var(--danger);
+    font-size:16px;text-align:center;padding:20px;
+  }
+  [dir="rtl"] .row, [dir="rtl"] #langRow, [dir="rtl"] .zoneBtns{direction:rtl;}
+</style>
+</head>
+<body>
+
+<!-- ================= ECRAN DE CONNEXION ================= -->
+<div id="loginScreen">
+  <div id="loginBox" class="pixel-border">
+    <h1 id="t_title">🗺️ Carte du Monde</h1>
+    <p id="t_subtitle">Choisissez votre pseudo pour rejoindre le monde</p>
+    <div id="langRow"></div>
+    <input id="pseudoInput" maxlength="12" placeholder="Votre pseudo...">
+    <button id="playBtn">Jouer</button>
+    <div id="loginError"></div>
+    <div id="moveHint">Déplacez-vous avec les flèches ⬆️⬇️⬅️➡️</div>
+  </div>
+</div>
+
+<!-- ================= ECRAN DE JEU ================= -->
+<div id="gameScreen">
+  <div id="hud">
+    <div>👤 <b id="hudPseudo"></b></div>
+    <div><span id="t_zone">Zone</span>: <b id="hudZone"></b></div>
+    <div><span id="t_season">Saison</span>: <b id="hudSeason"></b></div>
+    <div><span id="t_online">En ligne</span>: <b id="hudOnline">1</b></div>
+  </div>
+  <div id="canvasWrap" class="pixel-border">
+    <canvas id="game" width="900" height="600"></canvas>
+    <div id="announceBar"></div>
+    <button id="adminOpenBtn">Admin</button>
+  </div>
+</div>
+
+<!-- ================= MODALE CODE ADMIN ================= -->
+<div class="modalOverlay" id="adminCodeOverlay">
+  <div class="modalBox">
+    <h2 id="t_adminCodePrompt">Code administrateur :</h2>
+    <input type="password" id="adminCodeInput" maxlength="8">
+    <div id="adminCodeError" style="color:var(--danger);font-size:12px;min-height:14px;"></div>
+    <div class="closeRow">
+      <button id="adminCodeCancel">Annuler</button>
+      <button class="primary" id="adminCodeSubmit">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PANNEAU ADMIN ================= -->
+<div class="modalOverlay" id="adminPanel">
+  <div class="modalBox" style="width:min(440px,94vw);">
+    <h2 id="t_adminTitle">Panneau administrateur</h2>
+
+    <label id="t_adminSeason">Changer la saison pour tous</label>
+    <select id="adminSeasonSelect">
+      <option value="auto" id="opt_auto">Automatique</option>
+      <option value="spring" id="opt_spring">Printemps</option>
+      <option value="summer" id="opt_summer">Été</option>
+      <option value="autumn" id="opt_autumn">Automne</option>
+      <option value="winter" id="opt_winter">Hiver</option>
+    </select>
+
+    <label id="t_adminTeleport">Se téléporter vers</label>
+    <div class="zoneBtns">
+      <button data-zone="village">Village</button>
+      <button data-zone="city">Ville</button>
+      <button data-zone="forest">Forêt</button>
+      <button data-zone="beach">Plage</button>
+    </div>
+
+    <label id="t_adminMsg">Message à tous les joueurs</label>
+    <div class="row">
+      <input id="adminMsgInput" style="flex:1;margin-bottom:0;" maxlength="120">
+      <button class="primary" id="adminMsgSend">Envoyer</button>
+    </div>
+
+    <label id="t_adminKick">Expulser un joueur</label>
+    <div class="row">
+      <input id="adminKickInput" style="flex:1;margin-bottom:0;" maxlength="12">
+      <button class="danger" id="adminKickBtn">Expulser</button>
+    </div>
+
+    <div class="closeRow">
+      <button id="adminPanelClose">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div id="kickMsgBox">
+  <div>
+    <div style="font-size:30px;margin-bottom:10px;">⛔</div>
+    <div id="kickMsgText">Vous avez été expulsé par un administrateur.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. TRADUCTIONS
+============================================================ */
+const I18N = {
+  fr:{ code:"fr", dir:"ltr", label:"Français",
+    title:"🗺️ Carte du Monde", subtitle:"Choisissez votre pseudo pour rejoindre le monde",
+    pseudoPlaceholder:"Votre pseudo...", play:"Jouer",
+    errPseudo:"Merci d'entrer un pseudo (2 à 12 caractères).",
+    zone:"Zone", season:"Saison", online:"En ligne", admin:"Admin",
+    adminCodePrompt:"Code administrateur :", adminWrong:"Code incorrect.",
+    adminTitle:"Panneau administrateur", adminSeason:"Changer la saison pour tous",
+    auto:"Automatique", spring:"Printemps", summer:"Été", autumn:"Automne", winter:"Hiver",
+    adminMsg:"Message à tous les joueurs", send:"Envoyer", adminTeleport:"Se téléporter vers",
+    adminKick:"Expulser un joueur", kickPlaceholder:"Pseudo à expulser", kickBtn:"Expulser",
+    close:"Fermer", kicked:"Vous avez été expulsé par un administrateur.",
+    village:"Village", city:"Ville", forest:"Forêt", beach:"Plage", prairie:"Prairie",
+    move:"Déplacez-vous avec les flèches ⬆️⬇️⬅️➡️", cancel:"Annuler"
+  },
+  en:{ code:"en", dir:"ltr", label:"English",
+    title:"🗺️ World Map", subtitle:"Choose your nickname to join the world",
+    pseudoPlaceholder:"Your nickname...", play:"Play",
+    errPseudo:"Please enter a nickname (2 to 12 characters).",
+    zone:"Zone", season:"Season", online:"Online", admin:"Admin",
+    adminCodePrompt:"Admin code:", adminWrong:"Incorrect code.",
+    adminTitle:"Admin Panel", adminSeason:"Change season for everyone",
+    auto:"Automatic", spring:"Spring", summer:"Summer", autumn:"Autumn", winter:"Winter",
+    adminMsg:"Message to all players", send:"Send", adminTeleport:"Teleport to",
+    adminKick:"Kick a player", kickPlaceholder:"Nickname to kick", kickBtn:"Kick",
+    close:"Close", kicked:"You have been kicked by an administrator.",
+    village:"Village", city:"City", forest:"Forest", beach:"Beach", prairie:"Plains",
+    move:"Move with the arrow keys ⬆️⬇️⬅️➡️", cancel:"Cancel"
+  },
+  ur:{ code:"ur", dir:"rtl", label:"اردو",
+    title:"🗺️ دنیا کا نقشہ", subtitle:"دنیا میں شامل ہونے کے لیے اپنا نک نیم منتخب کریں",
+    pseudoPlaceholder:"آپ کا نک نیم...", play:"کھیلیں",
+    errPseudo:"براہ کرم ایک نک نیم درج کریں (2 سے 12 حروف)۔",
+    zone:"علاقہ", season:"موسم", online:"آن لائن", admin:"ایڈمن",
+    adminCodePrompt:"ایڈمن کوڈ:", adminWrong:"غلط کوڈ۔",
+    adminTitle:"ایڈمن پینل", adminSeason:"سب کے لیے موسم تبدیل کریں",
+    auto:"خودکار", spring:"بہار", summer:"گرمی", autumn:"خزاں", winter:"سردی",
+    adminMsg:"تمام کھلاڑیوں کو پیغام", send:"بھیجیں", adminTeleport:"منتقل کریں",
+    adminKick:"کھلاڑی کو نکالیں", kickPlaceholder:"نکالنے کے لیے نک نیم", kickBtn:"نکالیں",
+    close:"بند کریں", kicked:"آپ کو ایک ایڈمن نے نکال دیا ہے۔",
+    village:"گاؤں", city:"شہر", forest:"جنگل", beach:"ساحل", prairie:"میدان",
+    move:"تیر والے بٹنوں سے حرکت کریں ⬆️⬇️⬅️➡️", cancel:"منسوخ کریں"
+  },
+  arz:{ code:"arz", dir:"rtl", label:"مصري",
+    title:"🗺️ خريطة العالم", subtitle:"اختار اسمك عشان تنضم للعالم",
+    pseudoPlaceholder:"اسمك...", play:"العب",
+    errPseudo:"من فضلك اكتب اسم (من 2 لـ 12 حرف).",
+    zone:"المنطقة", season:"الفصل", online:"أونلاين", admin:"أدمن",
+    adminCodePrompt:"كود الأدمن:", adminWrong:"الكود غلط.",
+    adminTitle:"لوحة الأدمن", adminSeason:"غيّر الفصل لكل اللاعبين",
+    auto:"أوتوماتيك", spring:"الربيع", summer:"الصيف", autumn:"الخريف", winter:"الشتاء",
+    adminMsg:"رسالة لكل اللاعبين", send:"ابعت", adminTeleport:"روح لـ",
+    adminKick:"اطرد لاعب", kickPlaceholder:"اسم اللاعب اللي هتطرده", kickBtn:"اطرد",
+    close:"قفل", kicked:"الأدمن طردك من اللعبة.",
+    village:"القرية", city:"المدينة", forest:"الغابة", beach:"الشط", prairie:"الأرض الخضرا",
+    move:"اتحرك بأسهم الكيبورد ⬆️⬇️⬅️➡️", cancel:"إلغاء"
+  }
+};
+let lang = "fr";
+function t(key){ return (I18N[lang] && I18N[lang][key]) || I18N.fr[key] || key; }
+
+function applyI18n(){
+  const d = I18N[lang];
+  document.documentElement.dir = d.dir;
+  document.getElementById("t_title").textContent = t("title");
+  document.getElementById("t_subtitle").textContent = t("subtitle");
+  document.getElementById("pseudoInput").placeholder = t("pseudoPlaceholder");
+  document.getElementById("playBtn").textContent = t("play");
+  document.getElementById("moveHint").textContent = t("move");
+  document.getElementById("t_zone").textContent = t("zone");
+  document.getElementById("t_season").textContent = t("season");
+  document.getElementById("t_online").textContent = t("online");
+  document.getElementById("adminOpenBtn").textContent = t("admin");
+  document.getElementById("t_adminCodePrompt").textContent = t("adminCodePrompt");
+  document.getElementById("adminCodeCancel").textContent = t("cancel");
+  document.getElementById("t_adminTitle").textContent = t("adminTitle");
+  document.getElementById("t_adminSeason").textContent = t("adminSeason");
+  document.getElementById("opt_auto").textContent = t("auto");
+  document.getElementById("opt_spring").textContent = t("spring");
+  document.getElementById("opt_summer").textContent = t("summer");
+  document.getElementById("opt_autumn").textContent = t("autumn");
+  document.getElementById("opt_winter").textContent = t("winter");
+  document.getElementById("t_adminTeleport").textContent = t("adminTeleport");
+  document.querySelectorAll("#adminPanel .zoneBtns button").forEach(b=>{
+    b.textContent = t(b.dataset.zone === "city" ? "city" : b.dataset.zone);
+  });
+  document.getElementById("t_adminMsg").textContent = t("adminMsg");
+  document.getElementById("adminMsgSend").textContent = t("send");
+  document.getElementById("t_adminKick").textContent = t("adminKick");
+  document.getElementById("adminKickInput").placeholder = t("kickPlaceholder");
+  document.getElementById("adminKickBtn").textContent = t("kickBtn");
+  document.getElementById("adminPanelClose").textContent = t("close");
+  document.getElementById("kickMsgText").textContent = t("kicked");
+  renderLangButtons();
+}
+function renderLangButtons(){
+  const row = document.getElementById("langRow");
+  row.innerHTML = "";
+  Object.values(I18N).forEach(d=>{
+    const b = document.createElement("button");
+    b.className = "langBtn" + (d.code===lang ? " active" : "");
+    b.textContent = d.label;
+    b.onclick = ()=>{ lang = d.code; applyI18n(); };
+    row.appendChild(b);
+  });
+}
+
+/* ============================================================
+   2. GENERATION DE LA CARTE
+============================================================ */
+const TILE = 24;
+const COLS = 50, ROWS = 38;
+const WORLD_W = COLS*TILE, WORLD_H = ROWS*TILE;
+
+function rnd(seed){ const x = Math.sin(seed*127.1+311.7)*43758.5453; return x - Math.floor(x); }
+
+// Zones rectangulaires (col1,row1,col2,row2)
+const ZONES = {
+  village:{c1:2, r1:2,  c2:18, r2:11, name:"village"},
+  city:   {c1:24,r1:2,  c2:48, r2:15, name:"city"},
+  forest: {c1:2, r1:16, r1b:0,c2:22, r2:35, name:"forest"},
+  beach:  {c1:26,r1:20, c2:48, r2:36, name:"beach"}
+};
+function inZone(col,row,z){ return col>=z.c1 && col<=z.c2 && row>=z.r1 && row<=z.r2; }
+
+// grille de tuiles, générée une fois (déterministe)
+const grid = [];
+for(let r=0;r<ROWS;r++){
+  const rowArr = [];
+  for(let c=0;c<COLS;c++){
+    let type = "prairie", zone = "prairie";
+    if(inZone(c,r,ZONES.village)){
+      zone="village";
+      type = (rnd(c*3+r*7)>0.87) ? "hut" : "grass";
+    } else if(inZone(c,r,ZONES.city)){
+      zone="city";
+      type = (c%4===0 || r%4===0) ? "road" : "building";
+    } else if(inZone(c,r,ZONES.forest)){
+      zone="forest";
+      type = (rnd(c*5+r*11)>0.62) ? "tree" : "grass";
+    } else if(inZone(c,r,ZONES.beach)){
+      zone="beach";
+      type = (c>=44) ? "water" : ((rnd(c*13+r*17)>0.93) ? "palm" : "sand");
+    }
+    rowArr.push({type, zone});
+  }
+  grid.push(rowArr);
+}
+const BLOCKING = new Set(["building","tree","water","hut"]);
+
+function zoneNameKey(zone){
+  return {village:"village",city:"city",forest:"forest",beach:"beach",prairie:"prairie"}[zone] || "prairie";
+}
+
+/* ============================================================
+   3. SAISON
+============================================================ */
+function autoSeasonFromDate(){
+  const m = new Date().getMonth()+1; // 1-12
+  if(m===12||m===1||m===2) return "winter";
+  if(m>=3&&m<=5) return "spring";
+  if(m>=6&&m<=8) return "summer";
+  return "autumn";
+}
+let seasonOverride = "auto"; // valeur partagée (admin)
+function currentSeason(){
+  return seasonOverride==="auto" ? autoSeasonFromDate() : seasonOverride;
+}
+
+const PALETTES = {
+  spring:{grass:"#7ec850", grass2:"#8fd863", tree:"#4a934a", trunk:"#5c4326", water:"#4aa3d6", sand:"#e6cf8f", roof:"#c0503f"},
+  summer:{grass:"#5fb236", grass2:"#6fc244", tree:"#2e7d32", trunk:"#4a3420", water:"#2f8fc9", sand:"#e8d189", roof:"#c0503f"},
+  autumn:{grass:"#c9a227", grass2:"#b98a1f", tree:"#c66a1f", trunk:"#4a3420", water:"#3a7fa8", sand:"#d8bd7d", roof:"#8a3e2b"},
+  winter:{grass:"#eef2f5", grass2:"#e2e9ee", tree:"#e8f0ee", trunk:"#3a2c1a", water:"#a9c9dd", sand:"#e4e9ec", roof:"#6f7a85"}
+};
+
+/* ============================================================
+   4. ETAT DU JOUEUR / RESEAU
+============================================================ */
+let me = { pseudo:"", x: ZONES.village.c1*TILE+60, y: ZONES.village.r1*TILE+60, color:"#e8b64b" };
+let others = {}; // pseudo -> {x,y,color,zone,ts}
+let keys = {};
+let isAdmin = false;
+let kicked = false;
+
+function colorFromName(name){
+  let h=0; for(let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i))>>>0;
+  const palette = ["#e8b64b","#5fb246","#4aa3d6","#d94f4f","#b06fd9","#e08a2b","#3fc7c0","#e05fa0"];
+  return palette[h % palette.length];
+}
+
+function tileAt(px,py){
+  const c = Math.floor(px/TILE), r = Math.floor(py/TILE);
+  if(c<0||r<0||c>=COLS||r>=ROWS) return {type:"water",zone:"prairie"};
+  return grid[r][c];
+}
+function isBlocked(px,py){
+  return BLOCKING.has(tileAt(px,py).type);
+}
+function canStand(px,py){
+  const size = 8; // demi-largeur boite de collision
+  const pts = [[px-size,py-size],[px+size,py-size],[px-size,py+size],[px+size,py+size]];
+  return !pts.some(p=>isBlocked(p[0],p[1]));
+}
+
+/* ============================================================
+   5. STOCKAGE PARTAGE (multijoueur léger par sondage)
+============================================================ */
+async function pushAndFetch(){
+  try{
+    let res = await window.storage.get("world:players", true).catch(()=>null);
+    let obj = {};
+    if(res && res.value){ try{ obj = JSON.parse(res.value); }catch(e){ obj={}; } }
+
+    // vérifier expulsion
+    if(obj[me.pseudo] && obj[me.pseudo].kicked){
+      handleKicked();
+      return;
+    }
+
+    // purge des joueurs inactifs (>8s)
+    const now = Date.now();
+    Object.keys(obj).forEach(p=>{
+      if(now - (obj[p].ts||0) > 8000) delete obj[p];
+    });
+
+    obj[me.pseudo] = { x:me.x, y:me.y, color:me.color, zone: tileAt(me.x,me.y).zone, ts: now };
+    await window.storage.set("world:players", JSON.stringify(obj), true).catch(()=>{});
+
+    others = {};
+    Object.keys(obj).forEach(p=>{ if(p!==me.pseudo) others[p]=obj[p]; });
+    document.getElementById("hudOnline").textContent = Object.keys(obj).length;
+  }catch(e){ /* silencieux : le jeu continue en solo si le réseau échoue */ }
+}
+
+async function pollWorldState(){
+  try{
+    const s = await window.storage.get("world:season", true).catch(()=>null);
+    if(s && s.value) seasonOverride = s.value;
+  }catch(e){}
+  try{
+    const a = await window.storage.get("world:announcement", true).catch(()=>null);
+    if(a && a.value){
+      const data = JSON.parse(a.value);
+      if(data.ts && data.ts !== lastAnnounceTs){
+        lastAnnounceTs = data.ts;
+        showAnnouncement(data.text);
+      }
+    }
+  }catch(e){}
+}
+let lastAnnounceTs = 0;
+function showAnnouncement(text){
+  const bar = document.getElementById("announceBar");
+  bar.textContent = "📢 " + text;
+  bar.style.display = "block";
+  clearTimeout(showAnnouncement._t);
+  showAnnouncement._t = setTimeout(()=>{ bar.style.display="none"; }, 6000);
+}
+
+async function handleKicked(){
+  if(kicked) return;
+  kicked = true;
+  try{
+    let res = await window.storage.get("world:players", true).catch(()=>null);
+    if(res && res.value){
+      let obj = JSON.parse(res.value);
+      delete obj[me.pseudo];
+      await window.storage.set("world:players", JSON.stringify(obj), true).catch(()=>{});
+    }
+  }catch(e){}
+  document.getElementById("kickMsgText").textContent = t("kicked");
+  document.getElementById("kickMsgBox").style.display = "flex";
+}
+
+/* ============================================================
+   6. RENDU
+============================================================ */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+
+function drawTile(x,y,tile,pal){
+  const s = currentSeason();
+  switch(tile.type){
+    case "grass": case "prairie":
+      ctx.fillStyle = ((Math.floor(x/TILE)+Math.floor(y/TILE))%2===0) ? pal.grass : pal.grass2;
+      ctx.fillRect(x,y,TILE,TILE);
+      break;
+    case "road":
+      ctx.fillStyle = "#6b6b6b"; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = "#7c7c7c"; ctx.fillRect(x+2,y+2,TILE-4,TILE-4);
+      break;
+    case "building":
+      ctx.fillStyle = "#3c3c46"; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = s==="winter" ? "#dfe6ea" : "#55556a";
+      ctx.fillRect(x+2,y+2,TILE-4,TILE-4);
+      ctx.fillStyle="#20202a";
+      ctx.fillRect(x+5,y+8,4,4); ctx.fillRect(x+TILE-9,y+8,4,4);
+      break;
+    case "hut":
+      ctx.fillStyle = pal.grass; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = "#8a6a45"; ctx.fillRect(x+3,y+10,TILE-6,TILE-12);
+      ctx.fillStyle = pal.roof; ctx.beginPath();
+      ctx.moveTo(x+1,y+10); ctx.lineTo(x+TILE/2,y+1); ctx.lineTo(x+TILE-1,y+10); ctx.closePath(); ctx.fill();
+      break;
+    case "tree":
+      ctx.fillStyle = pal.grass; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = pal.trunk; ctx.fillRect(x+TILE/2-2,y+TILE-10,4,8);
+      ctx.fillStyle = pal.tree; ctx.beginPath();
+      ctx.arc(x+TILE/2,y+TILE/2-2,10,0,Math.PI*2); ctx.fill();
+      break;
+    case "palm":
+      ctx.fillStyle = pal.sand; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = "#8a6a35"; ctx.fillRect(x+TILE/2-2,y+8,4,14);
+      ctx.fillStyle = pal.tree; ctx.beginPath();
+      ctx.arc(x+TILE/2,y+8,7,0,Math.PI*2); ctx.fill();
+      break;
+    case "sand":
+      ctx.fillStyle = pal.sand; ctx.fillRect(x,y,TILE,TILE);
+      break;
+    case "water":
+      ctx.fillStyle = pal.water; ctx.fillRect(x,y,TILE,TILE);
+      ctx.fillStyle = "rgba(255,255,255,.15)";
+      ctx.fillRect(x+2, y + ((Date.now()/300 + x)%TILE|0), TILE-4, 2);
+      break;
+  }
+}
+
+function drawPlayer(px,py,color,pseudo){
+  const sx = px - camX, sy = py - camY;
+  ctx.fillStyle = "rgba(0,0,0,.35)";
+  ctx.beginPath(); ctx.ellipse(sx,sy+9,9,4,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = color;
+  ctx.fillRect(sx-7,sy-10,14,18);
+  ctx.fillStyle = "#f2d9b8";
+  ctx.fillRect(sx-5,sy-18,10,9);
+  ctx.strokeStyle="#000"; ctx.lineWidth=1;
+  ctx.strokeRect(sx-7,sy-10,14,18);
+  ctx.font = "10px monospace";
+  ctx.textAlign = "center";
+  ctx.lineWidth = 3; ctx.strokeStyle="#000";
+  ctx.strokeText(pseudo, sx, sy-22);
+  ctx.fillStyle="#fff";
+  ctx.fillText(pseudo, sx, sy-22);
+}
+
+let camX=0, camY=0;
+function render(){
+  const pal = PALETTES[currentSeason()];
+  camX = Math.max(0, Math.min(WORLD_W-canvas.width, me.x - canvas.width/2));
+  camY = Math.max(0, Math.min(WORLD_H-canvas.height, me.y - canvas.height/2));
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const c0 = Math.max(0, Math.floor(camX/TILE)-1);
+  const c1 = Math.min(COLS, Math.ceil((camX+canvas.width)/TILE)+1);
+  const r0 = Math.max(0, Math.floor(camY/TILE)-1);
+  const r1 = Math.min(ROWS, Math.ceil((camY+canvas.height)/TILE)+1);
+
+  for(let r=r0;r<r1;r++){
+    for(let c=c0;c<c1;c++){
+      drawTile(c*TILE-camX, r*TILE-camY, grid[r][c], pal);
+    }
+  }
+
+  Object.keys(others).forEach(p=>{
+    drawPlayer(others[p].x, others[p].y, others[p].color, p);
+  });
+  drawPlayer(me.x, me.y, me.color, me.pseudo);
+
+  document.getElementById("hudZone").textContent = t(zoneNameKey(tileAt(me.x,me.y).zone));
+  document.getElementById("hudSeason").textContent = t(currentSeason());
+}
+
+/* ============================================================
+   7. BOUCLE DE JEU
+============================================================ */
+const SPEED = 2.6;
+function update(){
+  let dx=0, dy=0;
+  if(keys["ArrowUp"]) dy -= SPEED;
+  if(keys["ArrowDown"]) dy += SPEED;
+  if(keys["ArrowLeft"]) dx -= SPEED;
+  if(keys["ArrowRight"]) dx += SPEED;
+  if(dx!==0 && dy!==0){ dx*=0.7071; dy*=0.7071; }
+
+  if(dx!==0 && canStand(me.x+dx, me.y)) me.x += dx;
+  if(dy!==0 && canStand(me.x, me.y+dy)) me.y += dy;
+
+  me.x = Math.max(4, Math.min(WORLD_W-4, me.x));
+  me.y = Math.max(4, Math.min(WORLD_H-4, me.y));
+}
+function loop(){
+  if(!kicked){
+    update();
+    render();
+  }
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener("keydown", e=>{
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
+  keys[e.key] = true;
+});
+window.addEventListener("keyup", e=>{ keys[e.key] = false; });
+
+/* ============================================================
+   8. ECRAN DE CONNEXION
+============================================================ */
+applyI18n();
+document.getElementById("playBtn").addEventListener("click", startGame);
+document.getElementById("pseudoInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter") startGame();
+});
+
+function startGame(){
+  const val = document.getElementById("pseudoInput").value.trim();
+  if(val.length<2 || val.length>12){
+    document.getElementById("loginError").textContent = t("errPseudo");
+    return;
+  }
+  me.pseudo = val;
+  me.color = colorFromName(val);
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("gameScreen").style.display = "flex";
+  document.getElementById("hudPseudo").textContent = me.pseudo;
+
+  loop();
+  pushAndFetch();
+  pollWorldState();
+  setInterval(pushAndFetch, 700);
+  setInterval(pollWorldState, 2000);
+}
+
+/* ============================================================
+   9. PANNEAU ADMIN
+============================================================ */
+const ADMIN_CODE = "1238";
+const adminCodeOverlay = document.getElementById("adminCodeOverlay");
+const adminPanel = document.getElementById("adminPanel");
+
+document.getElementById("adminOpenBtn").addEventListener("click", ()=>{
+  document.getElementById("adminCodeInput").value = "";
+  document.getElementById("adminCodeError").textContent = "";
+  adminCodeOverlay.style.display = "flex";
+  setTimeout(()=>document.getElementById("adminCodeInput").focus(),50);
+});
+document.getElementById("adminCodeCancel").addEventListener("click", ()=>{
+  adminCodeOverlay.style.display = "none";
+});
+document.getElementById("adminCodeInput").addEventListener("keydown", e=>{
+  if(e.key==="Enter") document.getElementById("adminCodeSubmit").click();
+});
+document.getElementById("adminCodeSubmit").addEventListener("click", ()=>{
+  const val = document.getElementById("adminCodeInput").value.trim();
+  if(val === ADMIN_CODE){
+    isAdmin = true;
+    adminCodeOverlay.style.display = "none";
+    document.getElementById("adminSeasonSelect").value = seasonOverride;
+    adminPanel.style.display = "flex";
+  } else {
+    document.getElementById("adminCodeError").textContent = t("adminWrong");
+  }
+});
+document.getElementById("adminPanelClose").addEventListener("click", ()=>{
+  adminPanel.style.display = "none";
+});
+
+document.getElementById("adminSeasonSelect").addEventListener("change", async e=>{
+  seasonOverride = e.target.value;
+  try{ await window.storage.set("world:season", seasonOverride, true); }catch(err){}
+});
+
+document.querySelectorAll("#adminPanel .zoneBtns button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    const z = ZONES[b.dataset.zone];
+    me.x = ((z.c1+z.c2)/2|0)*TILE;
+    me.y = ((z.r1+z.r2)/2|0)*TILE;
+  });
+});
+
+document.getElementById("adminMsgSend").addEventListener("click", async ()=>{
+  const input = document.getElementById("adminMsgInput");
+  const text = input.value.trim();
+  if(!text) return;
+  try{
+    await window.storage.set("world:announcement", JSON.stringify({text, ts:Date.now()}), true);
+  }catch(e){}
+  input.value = "";
+});
+
+document.getElementById("adminKickBtn").addEventListener("click", async ()=>{
+  const target = document.getElementById("adminKickInput").value.trim();
+  if(!target) return;
+  try{
+    let res = await window.storage.get("world:players", true).catch(()=>null);
+    let obj = {};
+    if(res && res.value){ obj = JSON.parse(res.value); }
+    if(obj[target]){
+      obj[target].kicked = true;
+      await window.storage.set("world:players", JSON.stringify(obj), true);
+    }
+  }catch(e){}
+  document.getElementById("adminKickInput").value = "";
+});
+
+})();
+</script>
+</body>
+</html>
