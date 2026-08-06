@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  pixel-world:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - ADMIN_CODE=1238
+    restart: unless-stopped
