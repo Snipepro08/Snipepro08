@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel World — Carte du Monde</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================= ECRAN DE CONNEXION ================= -->
+<div id="loginScreen">
+  <div id="loginBox" class="pixel-border">
+    <h1 data-i18n="title">🗺️ Carte du Monde</h1>
+    <p data-i18n="subtitle">Choisissez votre pseudo pour rejoindre le monde</p>
+    <div id="langRow"></div>
+    <input id="pseudoInput" maxlength="12" data-i18n-placeholder="pseudoPlaceholder" placeholder="Votre pseudo...">
+    <button id="playBtn" data-i18n="play">Jouer</button>
+    <div id="loginError"></div>
+    <div id="moveHint" data-i18n="move">Déplacez-vous avec les flèches ⬆️⬇️⬅️➡️</div>
+  </div>
+</div>
+
+<!-- ================= ECRAN DE JEU ================= -->
+<div id="gameScreen">
+  <div id="hud">
+    <div>🌐 <b data-i18n="lobby">Lobby principal</b></div>
+    <div>👤 <b id="hudPseudo"></b></div>
+    <div><span data-i18n="zone">Zone</span>: <b id="hudZone"></b></div>
+    <div><span data-i18n="season">Saison</span>: <b id="hudSeason"></b></div>
+    <div><span data-i18n="online">En ligne</span>: <b id="hudOnline">1</b></div>
+  </div>
+  <div id="canvasWrap" class="pixel-border">
+    <canvas id="game" width="900" height="600"></canvas>
+    <div id="announceBar"></div>
+    <div id="onlineListPanel">
+      <div id="onlineListTitle" data-i18n="onlinePlayers">Joueurs en ligne</div>
+      <ul id="onlineListItems"></ul>
+    </div>
+    <div id="pressGHint" data-i18n="pressG">Appuyez sur G pour voir les joueurs en ligne</div>
+    <button id="adminOpenBtn" data-i18n="admin">Admin</button>
+  </div>
+</div>
+
+<!-- ================= MODALE CODE ADMIN ================= -->
+<div class="modalOverlay" id="adminCodeOverlay">
+  <div class="modalBox">
+    <h2 data-i18n="adminCodePrompt">Code administrateur :</h2>
+    <input type="password" id="adminCodeInput" maxlength="8">
+    <div id="adminCodeError" style="color:var(--danger);font-size:12px;min-height:14px;"></div>
+    <div class="closeRow">
+      <button id="adminCodeCancel" data-i18n="cancel">Annuler</button>
+      <button class="primary" id="adminCodeSubmit">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PANNEAU ADMIN ================= -->
+<div class="modalOverlay" id="adminPanel">
+  <div class="modalBox" style="width:min(440px,94vw);">
+    <h2 data-i18n="adminTitle">Panneau administrateur</h2>
+
+    <label data-i18n="adminSeason">Changer la saison pour tous</label>
+    <select id="adminSeasonSelect">
+      <option value="auto" data-i18n="auto">Automatique</option>
+      <option value="spring" data-i18n="spring">Printemps</option>
+      <option value="summer" data-i18n="summer">Été</option>
+      <option value="autumn" data-i18n="autumn">Automne</option>
+      <option value="winter" data-i18n="winter">Hiver</option>
+    </select>
+
+    <label data-i18n="adminTeleport">Se téléporter vers</label>
+    <div class="zoneBtns">
+      <button data-zone="village" data-i18n-zone-btn>Village</button>
+      <button data-zone="city" data-i18n-zone-btn>Ville</button>
+      <button data-zone="forest" data-i18n-zone-btn>Forêt</button>
+      <button data-zone="beach" data-i18n-zone-btn>Plage</button>
+    </div>
+
+    <label data-i18n="adminMsg">Message à tous les joueurs</label>
+    <div class="row">
+      <input id="adminMsgInput" style="flex:1;margin-bottom:0;" maxlength="140">
+      <button class="primary" id="adminMsgSend" data-i18n="send">Envoyer</button>
+    </div>
+
+    <label data-i18n="adminKick">Expulser un joueur</label>
+    <div class="row">
+      <input id="adminKickInput" style="flex:1;margin-bottom:0;" maxlength="12" data-i18n-placeholder="kickPlaceholder">
+      <button class="danger" id="adminKickBtn" data-i18n="kickBtn">Expulser</button>
+    </div>
+
+    <label data-i18n="teleportToPlayer">Se téléporter vers un joueur</label>
+    <div class="row">
+      <input id="adminGoToInput" style="flex:1;margin-bottom:0;" maxlength="12" data-i18n-placeholder="playerPlaceholder">
+      <button class="primary" id="adminGoToBtn" data-i18n="go">Aller</button>
+    </div>
+    <div id="adminGoToError" style="color:var(--danger);font-size:12px;min-height:14px;"></div>
+
+    <label data-i18n="pullPlayer">Téléporter un joueur vers moi</label>
+    <div class="row">
+      <input id="adminPullInput" style="flex:1;margin-bottom:0;" maxlength="12" data-i18n-placeholder="playerPlaceholder">
+      <button class="primary" id="adminPullBtn" data-i18n="bring">Amener</button>
+    </div>
+    <div id="adminPullError" style="color:var(--danger);font-size:12px;min-height:14px;"></div>
+
+    <div class="closeRow">
+      <button id="adminPanelClose" data-i18n="close">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div id="kickMsgBox">
+  <div>
+    <div style="font-size:30px;margin-bottom:10px;">⛔</div>
+    <div id="kickMsgText">Vous avez été expulsé par un administrateur.</div>
+  </div>
+</div>
+
+<!-- Le paquet npm "socket.io" sert automatiquement ce script depuis le serveur -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/network.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
