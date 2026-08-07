@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemple de formulaire</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <form id="monForm">
+        <label for="lien">Lien :</label>
+        <input type="url" id="lien" name="lien" required><br><br>
+        <label for="message">Message :</label>
+        <textarea id="message" name="message" required></textarea><br><br>
+        <button type="submit">Envoyer</button>
+    </form>
+    <div id="resultat"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
