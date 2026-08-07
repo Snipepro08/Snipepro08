@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; connect-src 'self' https://pai-ai.gaminglifexq.workers.dev https://fonts.googleapis.com https://fonts.gstatic.com;">
-<title>Pai</title>
+<title>Dark Pai</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -561,7 +561,7 @@
   <div class="sidebar" id="sidebarEl">
     <div class="brand">
       <img class="brand-logo" id="logoImg" src="" alt="Pai">
-      <div class="brand-name">Pai<button class="plan-tag" id="planTagBtn">FREE</button></div>
+      <div class="brand-name">Dark Pai<button class="plan-tag" id="planTagBtn">FREE Plan (for Looser)</button></div>
     </div>
     <div class="sidebar-accent-bar" id="sidebarAccentBar"></div>
     <button class="new-chat" id="newChatBtn">
@@ -612,7 +612,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
       <img class="brand-logo" id="mobileLogoImg" src="" alt="Pai" style="width:20px;height:20px;">
-      <div class="brand-name" style="font-size:14px;">Pai</div>
+      <div class="brand-name" style="font-size:14px;">Dark Pai !!!</div>
     </div>
     <div class="chat-scroll" id="chatScroll">
       <div class="chat-inner" id="chatInner">
@@ -647,7 +647,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
           </button>
         </div>
-        <div class="input-note">Pai can make mistakes. Check important info.</div>
+        <div class="input-note">Pai can't make mistakes. Dont check important info.</div>
         </div>
       </div>
     </div>
@@ -657,7 +657,7 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">Settings</div>
+      <div class="modal-title">Settings of Dark Pai</div>
       <button class="modal-close" id="modalClose" aria-label="Close settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
@@ -918,7 +918,7 @@ clearChatsBtn.addEventListener('click', () => {
   conversations = [ { id: nextId++, title: 'New chat', messages: [] } ];
   activeId = conversations[0].id;
   clearArmed = false;
-  clearChatsBtn.textContent = 'Clear all chats';
+  clearChatsBtn.textContent = 'Clear all chats (only if you are angry)';
   clearChatsBtn.classList.remove('confirm');
   renderAll();
   closeModal();
@@ -1108,7 +1108,7 @@ function tryPlanCode(){
     return;
   }
   const val = planCodeInput.value.trim();
-  if (val.toLowerCase() === 'ptx2'){
+  if (val.toLowerCase() === 'pro'){
     activatePro();
     planCodeInput.value = '';
   } else if (val){
