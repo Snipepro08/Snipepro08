@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mystic Gacha</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(160deg, #1a1230, #0d0a1a);
+    color: #f0eefc;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center; margin: 10px 0 4px; font-size: 2em;
+    background: linear-gradient(90deg, #ffd76a, #ff9ad1, #7fb8ff);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .sub { text-align:center; color:#b9b3d6; margin-bottom: 20px; }
+  .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab-btn {
+    background: #241a3d; border: 1px solid #453569; color: #e8e4fa;
+    padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 0.95em; transition: 0.2s;
+  }
+  .tab-btn.active, .tab-btn:hover { background: #5b3fa8; border-color:#7f5fd6; }
+
+  .panel { display: none; max-width: 1050px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  .gacha-box {
+    text-align: center; background: #1e1636; border: 1px solid #3d2f63;
+    border-radius: 16px; padding: 30px; margin-bottom: 20px; position: relative; overflow: hidden;
+  }
+  .draw-row { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin-top: 14px; }
+  .draw-btn {
+    background: linear-gradient(90deg,#7f5fd6,#c15fd6); border: none; color: white;
+    font-size: 1em; padding: 12px 20px; border-radius: 26px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(127,95,214,0.5);
+  }
+  .draw-btn:hover { filter: brightness(1.1); }
+  .draw-btn.locked { background: linear-gradient(90deg,#4a3d2f,#6b5535); }
+  .draw-btn.locked::after { content: " 🔒"; font-size: 0.8em; }
+  .free-tag { color:#7fe9a8; font-weight:bold; }
+
+  #results { text-align:center; min-height: 60px; }
+  .result-card {
+    display: inline-block; width: 150px; margin: 8px; padding: 12px 8px;
+    border-radius: 14px; vertical-align: top; animation: pop 0.35s ease;
+  }
+  @keyframes pop { from{ transform: scale(0.5); opacity:0;} to{ transform: scale(1); opacity:1;} }
+  .icon-wrap { width: 58px; height: 58px; margin: 0 auto; }
+  .icon-wrap svg { width: 100%; height: 100%; overflow: visible; }
+  .result-card .name { font-weight: bold; margin: 6px 0 2px; font-size: 0.88em; }
+  .result-card .type { font-size: 0.7em; color: #cfc9ea; }
+  .result-card .rarity { font-size: 0.7em; margin-top: 4px; font-weight: bold; }
+
+  .r-Common { background:#2b2740; border:1px solid #4a4570; }
+  .r-Rare { background:#1c3550; border:1px solid #2f6fa8; }
+  .r-Epic { background:#3a1f52; border:1px solid #8a4fd6; }
+  .r-Legendary { background:#5a3512; border:1px solid #e0a020; }
+  .r-Mythic { background:#5a1030; border:1px solid #ff4fa0; box-shadow:0 0 18px rgba(255,79,160,0.5); }
+
+  .c-Common { color:#b7b2d9; }
+  .c-Rare { color:#6fb8ff; }
+  .c-Epic { color:#c98cff; }
+  .c-Legendary { color:#ffcf5c; }
+  .c-Mythic { color:#ff6fc0; }
+
+  .stats { display:flex; justify-content:center; gap: 20px; flex-wrap:wrap; margin-top: 14px; color:#cfc9ea; font-size:0.9em;}
+
+  /* Summon overlay animation */
+  #summonOverlay {
+    display: none; position: absolute; inset: 0; background: rgba(13,10,26,0.92);
+    align-items: center; justify-content: center; flex-direction: column; z-index: 10; border-radius: 16px;
+  }
+  #summonOverlay.active { display: flex; }
+  .summon-orb {
+    width: 70px; height: 70px; border-radius: 50%;
+    background: conic-gradient(from 0deg, #7f5fd6, #ff9ad1, #ffd76a, #7f5fd6);
+    animation: orbSpin 0.7s linear infinite, orbPulse 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes orbSpin { to { transform: rotate(360deg); } }
+  @keyframes orbPulse { from { box-shadow: 0 0 10px rgba(255,255,255,0.3);} to { box-shadow: 0 0 40px rgba(255,255,255,0.7);} }
+  .summon-text { margin-top: 14px; color: #e8e4fa; font-size: 0.95em; letter-spacing: 1px; }
+
+  /* Index books */
+  .book-shelf { display:flex; justify-content:center; gap:10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .book {
+    width: 110px; padding: 14px 8px; border-radius: 10px; cursor: pointer; text-align:center;
+    background: #241a3d; border: 1px solid #453569; transition: 0.2s;
+  }
+  .book:hover { transform: translateY(-3px); border-color:#7f5fd6; }
+  .book.active { background: #5b3fa8; border-color:#c15fd6; }
+  .book .book-icon { width: 34px; height: 34px; margin: 0 auto 6px; }
+  .book .book-icon svg { width:100%; height:100%; }
+  .book .book-label { font-size: 0.78em; }
+  .book .book-count { font-size: 0.68em; color:#b9b3d6; }
+
+  table { width: 100%; border-collapse: collapse; background: #1e1636; border-radius: 12px; overflow: hidden; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #322752; font-size: 0.88em; vertical-align: middle; }
+  th { background: #241a3d; color:#d8d2f7; }
+  tr:hover { background: #241a3d; }
+  .row-icon { width: 30px; height: 30px; display:inline-block; vertical-align:middle; margin-right: 8px; }
+  .row-icon svg { width:100%; height:100%; }
+
+  .summary { text-align:center; margin-bottom: 14px; color:#b9b3d6; font-size:0.9em; }
+
+  .anim-float { animation: floaty 2.4s ease-in-out infinite; }
+  .anim-spin { animation: spinny 3.5s linear infinite; transform-origin: 50% 50%; }
+  .anim-pulse { animation: pulsey 1.6s ease-in-out infinite; transform-origin: 50% 50%; }
+  .anim-glow { animation: pulsey 1s ease-in-out infinite, spinny 4s linear infinite; transform-origin: 50% 50%; }
+  @keyframes floaty { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-4px);} }
+  @keyframes spinny { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+  @keyframes pulsey { 0%,100% { transform: scale(1);} 50% { transform: scale(1.12);} }
+</style>
+</head>
+<body>
+
+<h1>Mystic Gacha</h1>
+<p class="sub">100 collectible items &mdash; pulls are 100% free</p>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="gacha">Summon</button>
+  <button class="tab-btn" data-tab="index">Item index</button>
+  <button class="tab-btn" data-tab="collection">My collection</button>
+</div>
+
+<div class="panel active" id="panel-gacha">
+  <div class="gacha-box">
+    <div id="summonOverlay">
+      <div class="summon-orb"></div>
+      <div class="summon-text">Summoning...</div>
+    </div>
+    <p><span class="free-tag">Unlimited free pulls</span> — summon as many times as you like!</p>
+    <div class="draw-row">
+      <button class="draw-btn" onclick="requestDraw(1)">x1</button>
+      <button class="draw-btn" onclick="requestDraw(2)">x2</button>
+      <button class="draw-btn" onclick="requestDraw(3)">x3</button>
+      <button class="draw-btn" onclick="requestDraw(5)">x5</button>
+      <button class="draw-btn" onclick="requestDraw(10)">x10</button>
+      <button class="draw-btn locked" onclick="requestDraw(100)">x100</button>
+      <button class="draw-btn locked" onclick="requestDraw(1000)">x1000</button>
+    </div>
+    <div class="stats">
+      <span>Total pulls: <b id="stat-total">0</b></span>
+      <span>Unique items owned: <b id="stat-unique">0</b> / 100</span>
+    </div>
+  </div>
+  <div id="results"></div>
+</div>
+
+<div class="panel" id="panel-index">
+  <p class="summary">Each shelf below is a book of items for one category — open a book to see its drop rates.</p>
+  <div class="book-shelf" id="bookShelf"></div>
+  <table>
+    <thead><tr><th></th><th>Item</th><th>Rarity</th><th>Chance</th></tr></thead>
+    <tbody id="indexBody"></tbody>
+  </table>
+</div>
+
+<div class="panel" id="panel-collection">
+  <p class="summary" id="collectionSummary"></p>
+  <table>
+    <thead><tr><th></th><th>Item</th><th>Category</th><th>Rarity</th><th>Owned</th></tr></thead>
+    <tbody id="collectionBody"></tbody>
+  </table>
+</div>
+
+<script>
+const rarityConfig = [
+  { name: "Common",    count: 40, totalChance: 60, animClass: "" },
+  { name: "Rare",      count: 30, totalChance: 25, animClass: "anim-float" },
+  { name: "Epic",      count: 20, totalChance: 10, animClass: "anim-spin" },
+  { name: "Legendary", count: 8,  totalChance: 4,  animClass: "anim-pulse" },
+  { name: "Mythic",    count: 2,  totalChance: 1,  animClass: "anim-glow" },
+];
+
+const namesByCategory = {
+  "Minecraft": ["Diamond Sword","Enchanted Pickaxe","Golden Apple","Ender Pearl","Creeper Charm","Netherite Ingot","Redstone Core","Emerald Block","Obsidian Shard","Nether Star","Wither Skull","Totem of Undying","Elytra Wing","Trident","Beacon Crystal","Amethyst Cluster","Ghast Tear","Blaze Rod","Bee Nest","Iron Golem Core","Enchanting Table Page","Ancient Debris","Firework Star","Copper Ingot","Shulker Shell"],
+  "Fortnite": ["Victory Crown","Battle Bus Token","Loot Llama","Storm Shield","Rift Stone","Supply Drop","Golden Scar","Chug Splash","Slurp Barrel","Port-a-Fort","Boogie Bomb","Baller Wheel","Zero Point Shard","Coral Cutlass","Shockwave Charm","Mythic Coin","Battle Pass Star","Nog Ops Sticker","Bandage Bazooka","V-Bucks Token","Reboot Card","Slap Juice"],
+  "Roblox": ["Noob Badge","Bloxy Coin","Avatar Hat","Obby Trophy","Robux Gem","Classic Sword","Admin Key","Pixel Crown","Dominus Crown","Korblox Leg","Bighead Charm","Speed Coil Boots","Egg Hunt Trophy","Ugc Backpack","Trade Ticket","Fedora of Legends","Catalog Ticket","Studio Wrench","VIP Badge","Golden Domino"],
+  "Nature": ["Ancient Oak Leaf","Crystal Dewdrop","Wildflower Bouquet","Moonlit Fern","River Stone","Mossy Branch","Sunpetal","Wind Seed","Butterfly Wing","Acorn Charm","Beehive Fragment","Waterfall Mist Vial","Pinecone Talisman","Autumn Maple Leaf","Firefly Jar","Driftwood Totem","Coral Twig","Thornvine Ring","Meadow Pollen","Owl Feather"],
+  "Medieval": ["Knight's Shield","Royal Banner","Iron Gauntlet","Castle Key","Squire's Blade","Bishop's Ring","Tournament Lance","Crown Jewel","Executioner's Axe","Royal Seal","Chainmail Fragment","Court Jester Bell","Siege Bolt","Falconer's Glove","Monastery Chalice","Herald's Trumpet","Drawbridge Chain","Alchemist Vial","Templar Cross","War Horn"],
+  "Weapons": ["War Axe","Twin Daggers","Longbow","Battle Hammer","Runic Spear","Steel Katana","Flail of Ruin","Throwing Stars","Crossbow Bolt","Halberd Blade","War Scythe","Duelist Rapier","Blunderbuss","Reaper's Cleaver","Chakram Ring","Spiked Mace","Bone Bow","Assassin's Kris","Trench Knife","Storm Trident"],
+  "Elemental": ["Flame Core","Frost Shard","Thunder Orb","Earth Totem","Wind Wisp","Lava Stone","Ice Crystal","Storm Fragment","Magma Heart","Blizzard Rune","Sandstorm Vial","Lightning Bottle","Tidal Pearl","Ember Dust","Glacier Splinter","Cyclone Feather","Molten Core","Rootbound Idol","Static Cloud","Quake Stone"],
+  "Cosmic": ["Star Fragment","Nebula Dust","Meteor Shard","Lunar Relic","Solar Flare Orb","Void Crystal","Comet Tail","Galaxy Marble","Blackhole Sliver","Supernova Ash","Stardust Vial","Asteroid Chip","Aurora Ribbon","Eclipse Coin","Cosmic Ray Shard","Orbit Ring","Pulsar Core","Wormhole Key","Celestial Map","Zero Gravity Orb"],
+  "Candy": ["Rainbow Lollipop","Sugar Crystal","Gummy Charm","Choco Rune","Candy Cane Blade","Bubblegum Orb","Jellybean Gem","Sweet Tooth Amulet","Caramel Drop","Marshmallow Cloud","Cotton Candy Wisp","Peppermint Swirl","Licorice Whip","Sour Fizz Vial","Toffee Nugget","Cupcake Charm","Honeycomb Shard","Sherbet Star","Fudge Brick","Popsicle Shard"]
+};
+const categories = Object.keys(namesByCategory);
+
+const rarityAdjectives = {
+  "Common": ["worn","plain","basic","dusty","common"],
+  "Rare": ["refined","fine","enchanted","sturdy","polished"],
+  "Epic": ["heroic","rune-carved","valiant","blazing"],
+  "Legendary": ["legendary","fated","ancestral","glorious"],
+  "Mythic": ["mythic","divine","primordial"]
+};
+
+const categoryPalette = {
+  "Minecraft": ["#7cc94a","#5a8f34","#6b4423","#8a5a2b"],
+  "Fortnite": ["#3ad6c8","#7a5cff","#ffd93a","#2a2a4a"],
+  "Roblox": ["#e8443a","#f5f5f5","#4a4a4a","#c93a30"],
+  "Nature": ["#5cb85c","#8fd15c","#3f8f3f","#7a4a2b"],
+  "Medieval": ["#c7ccd1","#8b1a1a","#c9a227","#5a5f66"],
+  "Weapons": ["#d8dee3","#7a1f1f","#3a3a3a","#9aa4ad"],
+  "Elemental": ["#ff6a3a","#3ab0ff","#8a5a2b","#c9ff3a"],
+  "Cosmic": ["#7f5fd6","#ff9ad1","#2b1e4a","#ffd76a"],
+  "Candy": ["#ff6fa5","#ffd76a","#7fe9e0","#c9457a"]
+};
+
+function svgWrap(inner, animClass, defs) {
+  return `<svg viewBox="0 0 60 60" class="${animClass}">${defs||''}${inner}</svg>`;
+}
+
+/* ---- Reworked, more detailed icons ---- */
+
+function iconMinecraft(colors, v) {
+  // isometric grass block
+  const top = colors[0], side1 = colors[1], side2 = colors[3], dirt = colors[2];
+  let speck = '';
+  for (let i=0;i<4;i++){
+    const sx = 10 + ((v+i*7)%34);
+    const sy = 34 + ((v+i*5)%16);
+    speck += `<rect x="${sx}" y="${sy}" width="2.5" height="2.5" fill="${dirt}" opacity="0.6"/>`;
+  }
+  return `
+    <polygon points="30,6 50,17 30,28 10,17" fill="${top}"/>
+    <polygon points="10,17 30,28 30,50 10,39" fill="${side1}"/>
+    <polygon points="50,17 30,28 30,50 50,39" fill="${dirt}"/>
+    ${speck}
+  `;
+}
+
+function iconFortnite(colors, v) {
+  // llama pinata
+  const body = colors[1], spot = colors[2], ear = colors[0], outline = colors[3];
+  return `
+    <ellipse cx="30" cy="34" rx="18" ry="14" fill="${body}" stroke="${outline}" stroke-width="1.5"/>
+    <ellipse cx="30" cy="20" rx="9" ry="9" fill="${body}" stroke="${outline}" stroke-width="1.5"/>
+    <polygon points="24,13 21,4 27,12" fill="${ear}"/>
+    <polygon points="36,13 39,4 33,12" fill="${ear}"/>
+    <circle cx="26" cy="20" r="1.6" fill="${outline}"/>
+    <circle cx="34" cy="20" r="1.6" fill="${outline}"/>
+    <circle cx="20" cy="32" r="2.6" fill="${spot}"/>
+    <circle cx="38" cy="38" r="2.6" fill="${spot}"/>
+    <circle cx="28" cy="42" r="2.6" fill="${spot}"/>
+    <rect x="16" y="46" width="4" height="8" fill="${ear}"/>
+    <rect x="40" y="46" width="4" height="8" fill="${ear}"/>
+  `;
+}
+
+function iconRoblox(colors, v) {
+  const body = colors[0], head = colors[1], dark = colors[2];
+  return `
+    <rect x="16" y="24" width="28" height="20" rx="3" fill="${body}"/>
+    <rect x="8" y="26" width="9" height="16" rx="2" fill="${body}"/>
+    <rect x="43" y="26" width="9" height="16" rx="2" fill="${body}"/>
+    <rect x="18" y="44" width="10" height="10" fill="${dark}"/>
+    <rect x="32" y="44" width="10" height="10" fill="${dark}"/>
+    <rect x="17" y="6" width="26" height="18" rx="3" fill="${head}"/>
+    <rect x="22" y="13" width="4" height="4" fill="${dark}"/>
+    <rect x="34" y="13" width="4" height="4" fill="${dark}"/>
+    <rect x="24" y="19" width="12" height="2" fill="${dark}"/>
+  `;
+}
+
+function iconNature(colors, v) {
+  const c1 = colors[0], c2 = colors[1], c3 = colors[2], trunk = colors[3];
+  return `
+    <rect x="27" y="36" width="6" height="16" rx="1" fill="${trunk}"/>
+    <line x1="30" y1="38" x2="30" y2="50" stroke="${c3}" stroke-width="0.8" opacity="0.5"/>
+    <circle cx="30" cy="24" r="13" fill="${c1}"/>
+    <circle cx="18" cy="30" r="9" fill="${c2}"/>
+    <circle cx="42" cy="30" r="9" fill="${c3}"/>
+    <circle cx="30" cy="14" r="8" fill="${c2}"/>
+  `;
+}
+
+function iconMedieval(colors, v) {
+  const metal = colors[0], red = colors[1], gold = colors[2], dark = colors[3];
+  return `
+    <path d="M30 5 L48 12 L48 28 Q48 46 30 55 Q12 46 12 28 L12 12 Z" fill="${metal}" stroke="${dark}" stroke-width="1.5"/>
+    <path d="M30 10 L44 15 L44 28 Q44 42 30 49 Q16 42 16 28 L16 15 Z" fill="${red}"/>
+    <rect x="27" y="17" width="6" height="26" fill="${gold}"/>
+    <rect x="18" y="27" width="24" height="6" fill="${gold}"/>
+    <circle cx="16" cy="13" r="2" fill="${gold}"/>
+    <circle cx="44" cy="13" r="2" fill="${gold}"/>
+  `;
+}
+
+function iconWeapons(colors, v) {
+  const blade = colors[0], edge = colors[3], hilt = colors[1], grip = colors[2];
+  return `
+    <g transform="rotate(-35 30 30)">
+      <polygon points="30,4 33,8 33,34 27,34 27,8" fill="${blade}" stroke="${edge}" stroke-width="0.8"/>
+      <rect x="21" y="34" width="18" height="5" rx="1.5" fill="${hilt}"/>
+      <rect x="27" y="39" width="6" height="13" rx="1.5" fill="${grip}"/>
+    </g>
+    <g transform="rotate(35 30 30)">
+      <path d="M30 6 Q40 8 38 18 Q34 22 28 18 Z" fill="${edge}"/>
+      <rect x="28" y="18" width="4" height="26" fill="${grip}"/>
+    </g>
+  `;
+}
+
+const elementalVariants = [
+  // fire
+  (c) => `<path d="M30 10 Q40 22 34 30 Q40 32 36 42 Q30 50 22 42 Q16 34 22 28 Q20 34 24 34 Q22 20 30 10 Z" fill="${c[0]}"/>
+          <path d="M30 26 Q34 32 30 38 Q26 34 30 26 Z" fill="${c[2]}"/>`,
+  // water
+  (c) => `<path d="M30 8 Q42 26 42 36 A12 12 0 0 1 18 36 Q18 26 30 8 Z" fill="${c[1]}"/>
+          <ellipse cx="30" cy="38" rx="8" ry="5" fill="${c[3]}" opacity="0.7"/>`,
+  // earth
+  (c) => `<circle cx="24" cy="34" r="10" fill="${c[2]}"/>
+          <circle cx="36" cy="30" r="8" fill="${c[3]}"/>
+          <circle cx="30" cy="40" r="7" fill="${c[2]}"/>`,
+  // air
+  (c) => `<path d="M14 24 Q30 14 46 22" fill="none" stroke="${c[3]}" stroke-width="3" stroke-linecap="round"/>
+          <path d="M16 32 Q32 24 48 30" fill="none" stroke="${c[1]}" stroke-width="3" stroke-linecap="round"/>
+          <path d="M18 40 Q32 34 44 38" fill="none" stroke="${c[3]}" stroke-width="3" stroke-linecap="round"/>`
+];
+function iconElemental(colors, v) {
+  return elementalVariants[v % 4](colors);
+}
+
+function iconCosmic(colors, v) {
+  const planet = colors[2], ring = colors[0], moon = colors[1], star = colors[3];
+  return `
+    <circle cx="30" cy="30" r="12" fill="${planet}"/>
+    <path d="M22 26 Q30 22 38 26" stroke="${moon}" stroke-width="1.2" fill="none" opacity="0.6"/>
+    <ellipse cx="30" cy="30" rx="24" ry="7" fill="none" stroke="${ring}" stroke-width="2.5" transform="rotate(${18 + (v*11)%40} 30 30)"/>
+    <circle cx="10" cy="12" r="1.6" fill="${star}"/>
+    <circle cx="50" cy="16" r="1.2" fill="${star}"/>
+    <circle cx="48" cy="46" r="1.8" fill="${star}"/>
+    <circle cx="8" cy="44" r="1.2" fill="${star}"/>
+  `;
+}
+
+function iconCandy(colors, v) {
+  const a = colors[0], b = colors[1], c = colors[2], stick = colors[3];
+  return `
+    <rect x="28" y="32" width="4" height="20" rx="2" fill="${stick}"/>
+    <circle cx="30" cy="20" r="15" fill="${a}"/>
+    <path d="M30 20 m0,-11 a11,11 0 0 1 11,11 a11,11 0 0 1 -11,11 a11,11 0 0 1 -11,-11 a11,11 0 0 1 5,-9.5"
+      fill="none" stroke="${b}" stroke-width="3.5"/>
+    <circle cx="30" cy="20" r="4" fill="${c}"/>
+  `;
+}
+
+const iconBuilders = {
+  "Minecraft": iconMinecraft, "Fortnite": iconFortnite, "Roblox": iconRoblox,
+  "Nature": iconNature, "Medieval": iconMedieval, "Weapons": iconWeapons,
+  "Elemental": iconElemental, "Cosmic": iconCosmic, "Candy": iconCandy
+};
+
+function buildIconSVG(item) {
+  const colors = categoryPalette[item.category];
+  const inner = iconBuilders[item.category](colors, item.id);
+  const animClass = rarityConfig.find(r => r.name === item.rarity).animClass;
+  return svgWrap(inner, animClass);
+}
+
+function buildItems() {
+  const items = [];
+  let id = 1;
+  rarityConfig.forEach(rc => {
+    const chancePerItem = rc.totalChance / rc.count;
+    for (let i = 0; i < rc.count; i++) {
+      const category = categories[(id + i) % categories.length];
+      const baseNames = namesByCategory[category];
+      const baseName = baseNames[i % baseNames.length];
+      const adj = rarityAdjectives[rc.name][i % rarityAdjectives[rc.name].length];
+      const name = `${baseName} (${adj})`;
+      items.push({ id: id++, name, category, rarity: rc.name, chance: chancePerItem });
+    }
+  });
+  return items;
+}
+
+const ITEMS = buildItems();
+ITEMS.forEach(item => item.svg = buildIconSVG(item));
+
+function rollItem() {
+  const r = Math.random() * 100;
+  let acc = 0;
+  for (const item of ITEMS) {
+    acc += item.chance;
+    if (r <= acc) return item;
+  }
+  return ITEMS[ITEMS.length - 1];
+}
+
+let totalDraws = 0;
+let collection = {};
+let unlockedBig = false;
+const BIG_PULL_CODE = "1238";
+
+function requestDraw(n) {
+  if ((n === 100 || n === 1000) && !unlockedBig) {
+    const code = prompt("This pull tier is locked. Enter the code:");
+    if (code === null) return;
+    if (code.trim() !== BIG_PULL_CODE) {
+      alert("Wrong code.");
+      return;
+    }
+    unlockedBig = true;
+    document.querySelectorAll('.draw-btn.locked').forEach(b => b.classList.remove('locked'));
+  }
+  playSummonAnimation(() => drawMultiple(n));
+}
+
+function playSummonAnimation(callback) {
+  const overlay = document.getElementById('summonOverlay');
+  overlay.classList.add('active');
+  const duration = 550;
+  setTimeout(() => {
+    overlay.classList.remove('active');
+    callback();
+  }, duration);
+}
+
+function drawMultiple(n) {
+  const resultsEl = document.getElementById('results');
+  resultsEl.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) {
+    const item = rollItem();
+    totalDraws++;
+    collection[item.id] = (collection[item.id] || 0) + 1;
+    const card = document.createElement('div');
+    card.className = `result-card r-${item.rarity}`;
+    card.style.animationDelay = (Math.min(i, 40) * 15) + 'ms';
+    card.innerHTML = `
+      <div class="icon-wrap">${item.svg}</div>
+      <div class="name">${item.name}</div>
+      <div class="type">${item.category}</div>
+      <div class="rarity c-${item.rarity}">${item.rarity} · ${item.chance.toFixed(3)}%</div>
+    `;
+    frag.appendChild(card);
+  }
+  resultsEl.appendChild(frag);
+  updateStats();
+  renderCollection();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = totalDraws;
+  document.getElementById('stat-unique').textContent = Object.keys(collection).length;
+}
+
+/* ---- Index as books per category ---- */
+let currentBook = categories[0];
+
+function renderBookShelf() {
+  const shelf = document.getElementById('bookShelf');
+  shelf.innerHTML = categories.map(cat => {
+    const sample = ITEMS.find(i => i.category === cat);
+    const count = ITEMS.filter(i => i.category === cat).length;
+    return `
+      <div class="book ${cat===currentBook?'active':''}" data-cat="${cat}">
+        <div class="book-icon">${sample.svg}</div>
+        <div class="book-label">${cat}</div>
+        <div class="book-count">${count} items</div>
+      </div>
+    `;
+  }).join('');
+  shelf.querySelectorAll('.book').forEach(b => {
+    b.onclick = () => { currentBook = b.dataset.cat; renderBookShelf(); renderIndex(); };
+  });
+}
+
+function renderIndex() {
+  const body = document.getElementById('indexBody');
+  const filtered = ITEMS.filter(i => i.category === currentBook);
+  body.innerHTML = filtered.map(item => `
+    <tr>
+      <td><span class="row-icon">${item.svg}</span></td>
+      <td>${item.name}</td>
+      <td class="c-${item.rarity}">${item.rarity}</td>
+      <td>${item.chance.toFixed(3)}%</td>
+    </tr>
+  `).join('');
+}
+
+function renderCollection() {
+  const body = document.getElementById('collectionBody');
+  const summary = document.getElementById('collectionSummary');
+  const owned = ITEMS.filter(i => collection[i.id]);
+  summary.textContent = `${owned.length} / 100 unique items owned after ${totalDraws} pulls.`;
+  body.innerHTML = owned.sort((a,b) => a.id - b.id).map(item => `
+      <tr>
+        <td><span class="row-icon">${item.svg}</span></td>
+        <td>${item.name}</td>
+        <td>${item.category}</td>
+        <td class="c-${item.rarity}">${item.rarity}</td>
+        <td>${collection[item.id]}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5">No items owned yet.</td></tr>';
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  };
+});
+
+renderBookShelf();
+renderIndex();
+renderCollection();
+updateStats();
+</script>
+</body>
+</html>
